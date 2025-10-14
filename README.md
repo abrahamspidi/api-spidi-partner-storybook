@@ -1,6 +1,7 @@
 # SPIDI API Documentation - Storybook
 
 
+
 A comprehensive Storybook documentation site for the SPIDI platform's public API, designed to help developers integrate with SPIDI's payment and commerce services.
 
 ## 🚀 Overview
