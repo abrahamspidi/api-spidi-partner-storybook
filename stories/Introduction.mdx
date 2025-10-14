@@ -1,0 +1,143 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Introduction" />
+
+# **API de SPIDI: Guía de Integración** 
+
+Gracias por interesarte en integrar SPIDI a tu aplicación o plataforma. Aquí encontrarás todo lo que necesitas para empezar a recibir pagos de forma rápida, segura y simple, usando nuestra API.
+
+Sabemos que cada producto es distinto, por eso diseñamos SPIDI para adaptarse a distintos tipos de integración. En esta guía te explicamos las tres formas principales de iniciar y procesar pagos con SPIDI, sus flujos técnicos y cómo monitorear cada transacción de manera eficiente. 
+
+Tanto si estás desarrollando una app, un sitio web o simplemente necesitas compartir un enlace de pago, esta documentación está pensada para acompañarte paso a paso en ese proceso.
+
+## **Importante: tres formas distintas de integrar pagos con SPIDI**
+
+Aunque todas usan la misma API, SPIDI ofrece **tres formas diferentes** de iniciar y procesar pagos. Cada una tiene particularidades en el flujo, el retorno del usuario y la forma de monitorear el estado del pago.
+
+### **Las tres formas de integración:**
+
+1. 🖥️ **Botón de pago para aplicaciones web**  
+    Cuando el usuario realiza el pago desde tu sitio web [(ver documentación).](?tab=t.y9z1hr4a76w8)
+
+2. 📱 **Botón de pago para aplicaciones móviles**  
+    Cuando el pago ocurre dentro de tu app móvil [(ver documentación)](?tab=t.y9z1hr4a76w8).
+
+3. 🔗 **Enlace de pago**  
+    Cuando quieres generar un link para compartir por email, WhatsApp, SMS u otros canales. Ideal para pagos asincrónicos, fuera de tu aplicación (Ver documentación).
+
+***NOTA: Para Agosto 2025 sólo está disponible la integración mediante el Botón de pago.***  
+---
+
+### 
+
+### **Todos los flujos tienen una base común:**
+
+### **🧾 ¿Qué tienen en común?**
+
+* Todas se basan en la **creación de una sesión de pago** mediante la API.  
+* El **pago siempre ocurre en la página de SPIDI**, donde el cliente verá una interfaz segura, clara y vinculada visualmente con tu aplicación.  
+* Puedes usar **webhooks**, **redirecciones** y **consultas de estado** para monitorear cada sesión.  
+* **El comercio o usuario de SPIDI siempre recibe automáticamente el pago en Bolívares**, sin importar si el cliente paga con su cuenta bancaria en Bs o con criptomonedas.  
+* Cada flujo tiene sus propias particularidades técnicas, que explicamos por separado.
+
+### **¿Por qué diferenciamos entre Botones de pago en apps web y móviles?**
+
+Hacemos una distinción entre aplicaciones web y móviles porque, aunque ambas utilizan botones de pago, tienen diferencias técnicas importantes:
+
+| Aspecto | App Web | App Móvil |
+|:---|:---|:---|
+| **Redirección** | window.location.href abre SPIDI en la misma pestaña | Se abre un WebView moderno |
+| **Retorno del usuario** | Automático con success_url y failure_url | Requiere **deeplink** o detección manual de cambios de URL |
+| **Entorno del usuario** | Pestaña del navegador | WebView controlado dentro de la app |
+| **Experiencia de integración** | Flujo más directo, con menos código adicional | Requiere lógica adicional para retornar el control |
+
+Por eso, hay una guía específica para cada uno, con recomendaciones técnicas adaptadas.
+
+## 
+
+## 
+
+## ***Nota: para agosto 2025 los enlaces de pago aún no están disponibles***
+
+## **Enlace de pago en SPIDI: cómo, cuándo y por qué usarlo**
+
+### **Características clave de los Enlaces de Pago**
+
+* **No requiere que el cliente esté dentro de tu app**  
+   El enlace puede compartirse por cualquier canal (WhatsApp, email, redes sociales) y abrirse desde cualquier navegador.
+
+* **No caduca automáticamente**  
+   El enlace permanece activo hasta que lo canceles por API. Incluso si el cliente intenta pagar y falla, puede **reintentarlo más tarde** con el mismo enlace.
+
+* **Puede pagarse en cualquier momento**  
+   El destinatario del enlace puede abrir y pagar el enlace días después de recibirlo.
+
+* **Monto indexado a USD, EUR, COL (opcional)**  
+   Puedes definir el monto en dólares, euros, pesos colombianos y SPIDI calculará automáticamente su equivalente en bolívares al momento del pago. Así, no importa si el pago ocurre más tarde: **el valor en USD se mantiene**.
+
+### **🔁 Casos de uso comunes:**
+
+* Suscripciones y pagos recurrentes  
+* Recordatorios de pago o deudas pendientes  
+* Facturas personalizadas o pedidos especiales
+
+### **Comparación: Botón de Pago vs Enlace de Pago**
+
+<table>
+<thead>
+<tr>
+<th>Característica</th>
+<th>Botón de Pago</th>
+<th>Enlace de Pago (vía API)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Uso típico</strong></td>
+<td>Se integra dentro de una app o sitio web</td>
+<td>Se comparte por correo, WhatsApp, SMS, etc.</td>
+</tr>
+<tr>
+<td><strong>Generación del enlace</strong></td>
+<td>Se crea por API <strong>en el momento del clic del usuario</strong></td>
+<td>Se crea por API <strong>cuando deseen</strong></td>
+</tr>
+<tr>
+<td><strong>Tiempo de vida</strong></td>
+<td>Corto: expira a los <strong>10 minutos</strong> desde su creación</td>
+<td>No expira, solo se expira por API</td>
+</tr>
+<tr>
+<td><strong>Interactividad</strong></td>
+<td>El usuario <strong>es redirigido automáticamente</strong> desde la app</td>
+<td>El usuario <strong>hace clic en un link recibido</strong>, no hay app</td>
+</tr>
+<tr>
+<td><strong>Ideal para</strong></td>
+<td>Checkouts en apps, compras en línea</td>
+<td>Cobros asincrónicos, recordatorios, links en facturas</td>
+</tr>
+<tr>
+<td><strong>Contexto técnico</strong></td>
+<td>Requiere frontend (Web o App) que maneje sesión y redirecciones</td>
+<td>Requiere solo backend para generar y entregar el link</td>
+</tr>
+<tr>
+<td><strong>Gestión del estado del pago</strong></td>
+<td>Requiere redireccionamiento + validación por API o webhook</td>
+<td>Se valida igual: vía webhook o consultas al endpoint</td>
+</tr>
+<tr>
+<td><strong>Implementación técnica</strong></td>
+<td>Necesita lógica de integración en frontend + backend</td>
+<td>Solo requiere integración backend (creación, validación, webhook)</td>
+</tr>
+<tr>
+<td><strong>Dónde se ejecuta el pago</strong></td>
+<td>Dentro de la app o web, usando WebView o navegador controlado</td>
+<td>En el navegador del cliente, externo a tu sistema</td>
+</tr>
+</tbody>
+</table>
+
+api-spidi-page-end-000
