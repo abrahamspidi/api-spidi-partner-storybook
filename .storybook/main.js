@@ -1,4 +1,4 @@
-/** @type { import('@storybook/nextjs').StorybookConfig } */
+/** @type { import('@storybook/react-vite').StorybookConfig } */
 const config = {
   stories: ['../stories/**/*.stories.@(js|jsx|ts|tsx|mdx)', '../stories/**/*.mdx'],
   addons: [
@@ -7,7 +7,7 @@ const config = {
     '@storybook/addon-interactions',
   ],
   framework: {
-    name: '@storybook/nextjs',
+    name: '@storybook/react-vite',
     options: {},
   },
   docs: {
