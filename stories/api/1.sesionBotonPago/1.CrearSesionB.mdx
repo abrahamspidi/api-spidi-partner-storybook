@@ -1,17 +1,26 @@
 import { Meta } from '@storybook/blocks';
 
 <Meta title="API/Sesion Boton de Pago/1. Crear Sesion B" />
-## Es clave haber leído la documentación de botones de pago antes de usar este endpoint.
 
-**1\. Crear sesión de pago (botón de pago)**
+## Crear Sesion de Boton de Pago
+# 1. Descripción
 
-Este endpoint permite crear una sesión de pago que puede ser utilizada desde un botón de pago en tu sitio web o aplicación móvil. Funciona independientemente de la estrategia de integración que elijas: redirección, deeplink o detección manual desde el cliente.
+Permite crear una sesión de pago para ser utilizada desde un botón de pago en tu sitio web o aplicación móvil. Funciona con cualquier estrategia de integración: redirección, deeplink o detección manual desde el cliente.
 
-## **2\. Endpoint**
+Es clave haber leído la documentación de botones de pago antes de usar este endpoint.
 
-POST `{{base_url}}/api/v1/payment-session/button`
+# 2. Endpoint
+Method: **POST**
+```
+{{baseUrl}}/api/v1/payment-session/button
+```
 
-### **Ejemplo del Request (JSON)**
+**Headers requeridos:**
+- `Authorization: Bearer {token}`
+- `Content-Type: application/json`
+- `Idempotency-Key: {unique_key}`
+
+# 3. Ejemplo del Request
 
 ```json
 {
@@ -26,76 +35,22 @@ POST `{{base_url}}/api/v1/payment-session/button`
 }
 ```
 
-## **3\. Tabla explicación de cada campo del Request**
+# 4. Tabla de Parámetros del Request
 
 <table>
-<thead>
-<tr>
-<th>Campo</th>
-<th>Tipo dato</th>
-<th>Requerido</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>spidi_id</strong></td>
-<td><strong>string</strong></td>
-<td>✅ Sí</td>
-<td>Identificador único de tu cuenta en SPIDI.</td>
-</tr>
-<tr>
-<td><strong>currency_reference</strong></td>
-<td><strong>string</strong></td>
-<td>✅ Sí</td>
-<td>Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: <code>"USD"</code>, <code>"EUR"</code>, <code>"COP"</code>. Si el monto en bolívares es fijo y no se desea indexar, se debe poner <code>"VES"</code>. El pago <strong>siempre</strong> se realiza en VES, independientemente del valor de <code>currency_reference</code>.</td>
-</tr>
-<tr>
-<td><strong>amount</strong></td>
-<td><strong>number</strong></td>
-<td>✅ Sí</td>
-<td>Monto total en la moneda indicada por currency_reference (2 decimales).</td>
-</tr>
-<tr>
-<td><strong>identifier_label</strong></td>
-<td><strong>string</strong></td>
-<td>❌ Opcional</td>
-<td>Título del identificador (ej.: "Nombre y apellido", "Número de orden", "Código de cliente", <strong>Nota:</strong> Si no se especifica, se usará el identificador que usa el producto miSPIDI del usuario.</td>
-</tr>
-<tr>
-<td><strong>identifier</strong></td>
-<td><strong>string</strong></td>
-<td>✅ Sí</td>
-<td>Valor del identificador (ej. "Juan Pérez", "FCT-2025-0342"). A pesar de estar visible para el pagador, este identificador puede usarse para trazabilidad interna. Código de tu sistema propio.</td>
-</tr>
-<tr>
-<td><strong>description</strong></td>
-<td><strong>string</strong></td>
-<td>❌ Opcional</td>
-<td>Concepto, nota o descripción del pago.</td>
-</tr>
-<tr>
-<td><strong>success_url</strong></td>
-<td><strong>string (URL)</strong></td>
-<td>❌ Opcional</td>
-<td>URL o deeplink a la que SPIDI redirige si el pago es exitoso.</td>
-</tr>
-<tr>
-<td><strong>failure_url</strong></td>
-<td><strong>string (URL)</strong></td>
-<td>❌ Opcional</td>
-<td>URL o deeplink a la que SPIDI redirige si el pago falla o es cancelado.</td>
-</tr>
-<tr>
-<td><strong>webhook_url</strong></td>
-<td><strong>string (URL)</strong></td>
-<td>❌ Opcional</td>
-<td>URL donde SPIDI notificará cambios de estado vía webhook (HTTPS recomendado).</td>
-</tr>
-</tbody>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>spidi_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador único de tu cuenta en SPIDI.</td></tr>
+<tr><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda referencia base para calcular a bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Para monto fijo en VES, usar `"VES"`. El pago siempre se liquida en VES.</td></tr>
+<tr><td><b><i>amount</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Monto total en la moneda indicada por `currency_reference` (2 decimales).</td></tr>
+<tr><td><b><i>identifier_label</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Título del identificador (ej.: "Nombre y apellido", "Número de orden"). Si no se especifica, se usará el identificador configurado en miSPIDI.</td></tr>
+<tr><td><b><i>identifier</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Valor del identificador (ej.: "Juan Pérez", "FCT-2025-0342"). Útil para trazabilidad interna.</td></tr>
+<tr><td><b><i>description</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Concepto o nota del pago.</td></tr>
+<tr><td><b><i>success_url</i></b></td><td><b><i>string (URL)</i></b></td><td>❌ No</td><td>URL/deeplink al que se redirige si el pago es exitoso.</td></tr>
+<tr><td><b><i>failure_url</i></b></td><td><b><i>string (URL)</i></b></td><td>❌ No</td><td>URL/deeplink al que se redirige si el pago falla o es cancelado.</td></tr>
+<tr><td><b><i>webhook_url</i></b></td><td><b><i>string (URL)</i></b></td><td>❌ No</td><td>URL donde SPIDI notificará cambios de estado vía webhook (HTTPS recomendado).</td></tr>
 </table>
 
-## **4\. Ejemplo de Response 200**
+# 5. Ejemplo de Response 200
 
 ```json
 {
@@ -121,130 +76,41 @@ POST `{{base_url}}/api/v1/payment-session/button`
 }
 ```
 
-### **5\. Tablas explicación de cada campo del Response 200**
+# 6. Tabla de Response 200
 
-### **5.1 Campos de nivel raíz (Response 200\)**
-
-<table>
-<thead>
-<tr>
-<th>Campo</th>
-<th>Tipo dato</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>success</strong></td>
-<td><strong>Boolean</strong></td>
-<td><strong>Generado.</strong> True si el endpoint se proceso de forma exitosa. False de lo contrario.</td>
-</tr>
-<tr>
-<td><strong>message</strong></td>
-<td><strong>String</strong></td>
-<td><strong>Generado.</strong> Mensaje de confirmación legible para humanos.</td>
-</tr>
-<tr>
-<td><strong>data</strong></td>
-<td><strong>Objeto</strong></td>
-<td><strong>Generado.</strong> Objeto con la información de la sesión creada.</td>
-</tr>
-</tbody>
-</table>
-
-### **5.2 Subtabla: Response 200 → data** 
+### Campos del Nivel Principal
 
 <table>
-<thead>
-<tr>
-<th>data.x</th>
-<th>Tipo dato</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>session_id</strong></td>
-<td><strong>string</strong></td>
-<td><strong>Generado.</strong> Identificador único de la sesión de pago creada.</td>
-</tr>
-<tr>
-<td><strong>payment_url</strong></td>
-<td><strong>string</strong></td>
-<td><strong>Generado.</strong> Link "URL" donde el usuario debe ser redirigido para realizar el pago.</td>
-</tr>
-<tr>
-<td><strong>currency_reference</strong></td>
-<td><strong>string</strong></td>
-<td><strong>Eco request.</strong></td>
-</tr>
-<tr>
-<td><strong>amount</strong></td>
-<td><strong>number</strong></td>
-<td><strong>Eco request.</strong></td>
-</tr>
-<tr>
-<td><strong>amount_ves</strong></td>
-<td><strong>number</strong></td>
-<td><strong>Generado.</strong> Monto calculado en bolívares al momento de la creación de la sesión de pago.</td>
-</tr>
-<tr>
-<td><strong>amount_usd</strong></td>
-<td><strong>number</strong></td>
-<td>En desuso. Monto calculado en dólares, de manera referencial. Si la divisa original es en USD, este campo será idéntico al campo de amount</td>
-</tr>
-<tr>
-<td><strong>bcv_exchange_rate</strong></td>
-<td><strong>number</strong></td>
-<td><strong>Generado.</strong> Tasa oficial usada para la conversión a bolívares. Si <strong>currency_reference</strong> es "VES", devolverá "USD".</td>
-</tr>
-<tr>
-<td><strong>exchange_rate_from</strong></td>
-<td><strong>string</strong></td>
-<td><strong>Generado.</strong> Moneda base de la tasa de cambio utilizada. Si <strong>currency_reference</strong> es "VES", devolverá "USD"</td>
-</tr>
-<tr>
-<td><strong>exchange_rate_to</strong></td>
-<td><strong>string</strong></td>
-<td><strong>Generado.</strong> Moneda destino de la tasa de cambio utilizada (siempre "VES")</td>
-</tr>
-<tr>
-<td><strong>identifier_label</strong></td>
-<td><strong>string</strong></td>
-<td><strong>Eco request.</strong></td>
-</tr>
-<tr>
-<td><strong>identifier</strong></td>
-<td><strong>string</strong></td>
-<td><strong>Eco request.</strong></td>
-</tr>
-<tr>
-<td><strong>description</strong></td>
-<td><strong>string/ null</strong></td>
-<td><strong>Eco request.</strong></td>
-</tr>
-<tr>
-<td><strong>success_url</strong></td>
-<td><strong>string/ null</strong></td>
-<td><strong>Eco request.</strong></td>
-</tr>
-<tr>
-<td><strong>failure_url</strong></td>
-<td><strong>string/ null</strong></td>
-<td><strong>Eco request.</strong></td>
-</tr>
-<tr>
-<td><strong>webhook_url</strong></td>
-<td><strong>string/ null</strong></td>
-<td><strong>Eco request.</strong></td>
-</tr>
-</tbody>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>success</i></b></td><td><b><i>boolean</i></b></td><td>✔ Sí</td><td>Indica si la operación fue exitosa</td></tr>
+<tr><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Mensaje de confirmación</td></tr>
+<tr><td><b><i>data</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Datos de la sesión creada</td></tr>
 </table>
 
-## **6\. Ejemplos de Responses diferentes de 200**
+### 6.1 Subtabla: data
 
-### **6.1 400 Bad Request (campo faltante)**
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>session_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador único de la sesión</td></tr>
+<tr><td><b><i>payment_url</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>URL donde el usuario realiza el pago</td></tr>
+<tr><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco del request</td></tr>
+<tr><td><b><i>amount</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Eco del request</td></tr>
+<tr><td><b><i>amount_ves</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Monto calculado en VES al crear la sesión</td></tr>
+<tr><td><b><i>amount_usd</i></b></td><td><b><i>number</i></b></td><td>❌ No</td><td>En desuso. Referencial</td></tr>
+<tr><td><b><i>bcv_exchange_rate</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Tasa oficial usada para la conversión. Si `currency_reference` es `VES`, devolverá `USD`.</td></tr>
+<tr><td><b><i>exchange_rate_from</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda base de la tasa. Si `currency_reference` es `VES`, devolverá `USD`.</td></tr>
+<tr><td><b><i>exchange_rate_to</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda destino (siempre `VES`).</td></tr>
+<tr><td><b><i>identifier_label</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
+<tr><td><b><i>identifier</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco del request</td></tr>
+<tr><td><b><i>description</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
+<tr><td><b><i>success_url</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
+<tr><td><b><i>failure_url</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
+<tr><td><b><i>webhook_url</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
+</table>
 
+# 7. Ejemplos de Response ≠ 200
+
+### Error 400 - Bad Request
 ```json
 {
   "success": false,
@@ -255,8 +121,7 @@ POST `{{base_url}}/api/v1/payment-session/button`
 }
 ```
 
-### **6.2 401/403 Unauthorized (credenciales/propiedad)**
-
+### Error 401/403 - Unauthorized/Forbidden
 ```json
 {
   "success": false,
@@ -267,8 +132,7 @@ POST `{{base_url}}/api/v1/payment-session/button`
 }
 ```
 
-### **6.3 409 Conflict (idempotencia)**
-
+### Error 409 - Conflict (Idempotency)
 ```json
 {
   "success": false,
@@ -279,8 +143,7 @@ POST `{{base_url}}/api/v1/payment-session/button`
 }
 ```
 
-### **6.4 422 Unprocessable Entity (tipos/valores inválidos)**
-
+### Error 422 - Unprocessable Entity
 ```json
 {
   "success": false,
@@ -292,8 +155,7 @@ POST `{{base_url}}/api/v1/payment-session/button`
 }
 ```
 
-### **6.5 500 Internal Server Error**
-
+### Error 500 - Internal Server Error
 ```json
 {
   "success": false,
@@ -301,108 +163,30 @@ POST `{{base_url}}/api/v1/payment-session/button`
 }
 ```
 
-## **7\. Tabla de explicación de cada campo de los distintos Response (errores)**
+# 8. Tabla de explicación de cada campo de los distintos Response (errores)
 
-### **7.1 Campos de nivel raíz (errores 4xx/5xx)**
+## 8.1 Campos de nivel raíz (errores 4xx/5xx)
 
 <table>
-<thead>
-<tr>
-<th>Campo</th>
-<th>Tipo dato</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>success</strong></td>
-<td><strong>boolean</strong></td>
-<td>Siempre false en caso de error.</td>
-</tr>
-<tr>
-<td><strong>message</strong></td>
-<td><strong>string</strong></td>
-<td>Resumen legible del error principal.</td>
-</tr>
-<tr>
-<td><strong>errors</strong></td>
-<td><strong>objeto | null</strong></td>
-<td>Detalle por campo (opcional).</td>
-</tr>
-</tbody>
+<tr><th>Campo</th><th>Tipo dato</th><th>Descripción</th></tr>
+<tr><td><b><i>success</i></b></td><td><b><i>boolean</i></b></td><td>Siempre false en caso de error.</td></tr>
+<tr><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>Resumen legible del error principal.</td></tr>
+<tr><td><b><i>errors</i></b></td><td><b><i>objeto | null</i></b></td><td>Detalle por campo (opcional).</td></tr>
 </table>
 
-### **7.2 Subtabla: errors (cuando exista)**
+## 8.2 Subtabla: errors (cuando exista)
 
 <table>
-<thead>
-<tr>
-<th>Código de error (HTTP)</th>
-<th>Clave (campo)</th>
-<th>Tipo dato</th>
-<th>Descripción</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>400 Bad Request</strong></td>
-<td><strong>amount</strong></td>
-<td><strong>string</strong></td>
-<td>Error de validación en el monto (faltante, no numérico, ≤ 0).</td>
-</tr>
-<tr>
-<td><strong>400 Bad Request</strong></td>
-<td><strong>currency_reference</strong></td>
-<td><strong>string</strong></td>
-<td>Valor inválido (solo "VES" | "USD" según política actual).</td>
-</tr>
-<tr>
-<td><strong>400 Bad Request</strong></td>
-<td><strong>spidi_id</strong></td>
-<td><strong>string</strong></td>
-<td>Faltante, UUID inválido o no coincide con las credenciales del comercio.</td>
-</tr>
-<tr>
-<td><strong>400 Bad Request</strong></td>
-<td><strong>success_url</strong></td>
-<td><strong>string</strong></td>
-<td>URL malformada (si se envió).</td>
-</tr>
-<tr>
-<td><strong>400 Bad Request</strong></td>
-<td><strong>failure_url</strong></td>
-<td><strong>string</strong></td>
-<td>URL malformada (si se envió).</td>
-</tr>
-<tr>
-<td><strong>400 Bad Request</strong></td>
-<td><strong>webhook_url</strong></td>
-<td><strong>string</strong></td>
-<td>URL malformada (si se envió).</td>
-</tr>
-<tr>
-<td><strong>401/403</strong></td>
-<td><strong>spidi_id</strong></td>
-<td><strong>string</strong></td>
-<td>No pertenece</td>
-</tr>
-<tr>
-<td><strong>409</strong></td>
-<td><strong>Idempotency-Key</strong></td>
-<td><strong>string</strong></td>
-<td>Conflicto: ya existe una sesión para esa clave (409).</td>
-</tr>
-<tr>
-<td><strong>422 Unprocessable Entity</strong></td>
-<td><strong>-</strong></td>
-<td></td>
-<td>Estructura del JSON incorrecta (por ejemplo, comas faltantes, tipos de datos mal usados).</td>
-</tr>
-<tr>
-<td><strong>500 Internal Server Error</strong></td>
-<td><strong>-</strong></td>
-<td></td>
-<td>Fallo interno inesperado. Intenta más tarde</td>
-</tr>
-</tbody>
+<tr><th>Código de error (HTTP)</th><th>Clave (campo)</th><th>Tipo dato</th><th>Descripción</th></tr>
+<tr><td>400 Bad Request</td><td><b><i>amount</i></b></td><td><b><i>string</i></b></td><td>Error de validación en el monto (faltante, no numérico, ≤ 0).</td></tr>
+<tr><td>400 Bad Request</td><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>Valor inválido (solo "VES" | "USD" según política actual).</td></tr>
+<tr><td>400 Bad Request</td><td><b><i>spidi_id</i></b></td><td><b><i>string</i></b></td><td>Faltante, UUID inválido o no coincide con las credenciales del comercio.</td></tr>
+<tr><td>400 Bad Request</td><td><b><i>success_url</i></b></td><td><b><i>string</i></b></td><td>URL malformada (si se envió).</td></tr>
+<tr><td>400 Bad Request</td><td><b><i>failure_url</i></b></td><td><b><i>string</i></b></td><td>URL malformada (si se envió).</td></tr>
+<tr><td>401 Unauthorized</td><td><b><i>spidi_id</i></b></td><td><b><i>string</i></b></td><td>El comercio no coincide con las credenciales proporcionadas.</td></tr>
+<tr><td>403 Forbidden</td><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>No tienes permisos para esta operación.</td></tr>
+<tr><td>409 Conflict</td><td><b><i>Idempotency-Key</i></b></td><td><b><i>string</i></b></td><td>Ya existe una sesión para esta clave.</td></tr>
+<tr><td>422 Unprocessable Entity</td><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>Valores permitidos son: 'VES', 'USD'.</td></tr>
+<tr><td>422 Unprocessable Entity</td><td><b><i>amount</i></b></td><td><b><i>string</i></b></td><td>Debe ser un número > 0 con dos decimales.</td></tr>
+<tr><td>500 Internal Server Error</td><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>Error interno del servidor.</td></tr>
 </table>

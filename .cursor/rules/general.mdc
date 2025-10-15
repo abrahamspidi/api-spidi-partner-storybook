@@ -7,7 +7,7 @@ alwaysApply: true
 - Tables must be written in basic HTML without styles
 - URLs wrapped with `
 - Code snippets wrapped with ```
-- All urls should start with /{{baseUrl}}
+- All urls should start with {{baseUrl}} without initial 
 
 
 # Standard doc page layers (1-8)
@@ -22,8 +22,7 @@ All official documentation must follow this fixed pattern for each endpoint:
 5. **Response 200 Example**
 6. **Response 200 Table** – field / type / required / description. Each object generates a subtable
 7. **Examples of Response ≠ 200** (errors, warnings)
-8. **Error Table** – structure, HTTP codes, error fields
-
+8. **Error Table** – structure, HTTP codes, error fields. Each object generates a subtable
 ---
 
 # Example Structure
