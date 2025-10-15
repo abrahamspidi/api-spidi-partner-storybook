@@ -1,0 +1,462 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API/Sesion Solicitud de Pago/2. Status Sesion S" />
+
+## Status de Sesion de Pago
+# 1. Descripción
+
+Este endpoint permite consultar el estado actual de una sesión de pago y sus datos esenciales, generada mediante el botón de pago, ya sea desde una aplicación web o móvil.
+
+Este endpoint es la fuente oficial y confiable para verificar si la sesión de pago creada por la vía de botón de pago, fue completado con éxito (paid) rechazado o fallido (failed) o si expiró (expired).
+
+Una sesión de pago puede crearse mediante un **Botón de pago** o una **Solicitud de pago**, cada una con su propio endpoint de creación. Sin embargo, para **consultar** una sesión de pago —sin importar cómo haya sido creada— se utiliza **el mismo endpoint** de consulta. En la respuesta (`response`), existe un campo "session_origin" que revelerá si fue creada por botón de pago o por solicitud. Por otro lado, el campo **`status`** puede tener un valor adicional: **`failed`**, en los casos donde la sesión fue creada a través de un **Botón de pago**. 
+
+**Nota importante (botón vs solicitud):**
+
+Tras paid, la liquidación al receptor puede tardar unos segundos; en ese caso receiver_details puede venir null temporalmente. Independientemente de si la liquidación al receptor aún no ha ocurrido, es indispensable notificar al pagador que su pago fue realizado exitosamente y continuar con la entrega del servicio o producto sin ningún problema. La liquidación al receptor es un proceso interno y, aunque puede demorar pocos segundos, o hasta 2 minutos, no existe riesgo de fallo. En esta etapa: el pago ya está confirmado, y se genera una cuenta por cobrar al usuario que constituye un derecho causado e irrevocable según los términos acordados.
+
+Por lo tanto, en caso de que tengas control, no retengas ni retrases la prestación del servicio al pagador mientras esperas la liquidación.
+
+Si necesitas mostrar o procesar datos de la liquidación, consulta el endpoint de status periódicamente hasta que los campos de receiver_details estén presentes. Opcionalmente, si implementaste un webhook, recibirás una notificación automática en tu API cuando la liquidación se haya completado y los datos estén disponibles. 
+
+**NOTA 2:** Recuerda que se incluye el URL del comprobante exitoso, que debe ser mostrado al usuario de una forma u otra.
+
+**Notas importantes:**
+
+* **Backend obligatorio para confirmar pagos:** No asumas `paid` solo por redirección; **consulta este endpoint** desde tu servidor antes de liberar servicios.
+
+* **Liquidación diferida:** Tras `paid`, `receiver_details` puede estar vacío temporalmente. **No bloquees** la entrega al pagador; actualiza luego vía **webhook** (`payment.paid`/`payment.settled`) o reconsulta hasta completar datos de liquidación.
+
+* **Estados vigentes:** `pending`, `paid`, `expired` y para botones de pago: `failed`.
+
+# 2. Endpoint
+
+Method: **GET**
+```
+{{baseUrl}}/api/v1/payment-session/{session_id}/status
+```
+
+**Headers requeridos:**
+- `Authorization: Bearer {token}`
+- `Accept: application/json`
+
+**Compatibilidad temporal versión vieja:**
+```
+{{baseUrl}}/api/v1/payment-session/status/{session_id}
+```
+
+# 3. Ejemplo del Request
+Method: **GET**
+```
+{{baseUrl}}/api/v1/payment-session/3ddc4cfb-c09a-43de-92c1-e4a069732e90/status
+```
+
+# 4. Tabla de Parámetros del Request
+
+### Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>session_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>ID de la sesión de pago generada y recibida en el response del endpoint …/payment-session/button. **Formato**: ^[a-zA-Z0-9_-]+$</td></tr>
+</table>
+
+*(No hay body ni query params en este endpoint.)*
+
+# 5. Ejemplo de Response 200
+
+Cases: status = `pending | paid | failed | expired`
+
+### **5.1 Caso status = `pending`**
+
+```json
+{
+  "success": true,
+  "message": "Successful query.",
+  "data": {
+    "session_id": "3ddc4cfb-c09a-43de-92c1-e4a069732e90",
+    "session_origin": "button",
+    "source_channel": "API",
+    "status": "pending",
+    "user_message": "Esperando que completes el pago",
+    "due_date_link": "2025-10-31T23:59:59Z",
+    "expire_behavior_link": "expire",
+    "late_notice_message": null,
+    "session_details": {
+      "spidi_transaction_id": null,
+      "spidi_transaction_url": null,
+      "currency_reference": "USD",
+      "amount": 50.00,
+      "amount_ves": 6100.00,
+      "bcv_exchange_rate": 122.0,
+      "exchange_rate_from": "USD",
+      "exchange_rate_to": "VES",
+      "payer_details": {
+        "identifier_label": "Nombre y Apellido",
+        "identifier": "Federico Coppola",
+        "action_date": null,
+        "bank_name": null,
+        "bank_reference_id": null,
+        "description": "",
+        "crypto_details": null
+      },
+      "receiver_details": null
+    }
+  }
+}
+```
+
+### **5.2 Caso status = `paid` (liquidación en tránsito: `receiver_details` vacío)**
+
+```json
+{
+  "success": true,
+  "message": "Successful query.",
+  "data": {
+    "session_id": "3ddc4cfb-c09a-43de-92c1-e4a069732e90",
+    "session_origin": "button",
+    "status": "paid",
+    "user_message": "Operación realizada exitosamente",
+    "session_details": {
+      "spidi_transaction_id": 643,
+      "spidi_transaction_url": "https://pay.spidi.com/receipt/643",
+      "currency_reference": "USD",
+      "amount": 50.00,
+      "amount_ves": 6100.00,
+      "bcv_exchange_rate": 122.0,
+      "exchange_rate_from": "USD",
+      "exchange_rate_to": "VES",
+      "payer_details": {
+        "identifier_label": "2025-07-25T12:11:13Z",
+        "identifier": "2025-07-25T12:11:13Z",
+        "action_date": "2025-07-25T12:11:13Z",
+        "bank_name": "BANCO MERCANTIL",
+        "bank_reference_id": "00001440",
+        "description": "Pago de membresía",
+        "crypto_details": null
+      },
+      "receiver_details": null
+    }
+  }
+}
+```
+
+### **5.3 Caso status = `paid` (liquidación completada)**
+
+```json
+{
+  "success": true,
+  "message": "Successful query.",
+  "data": {
+    "session_id": "3ddc4cfb-c09a-43de-92c1-e4a069732e90",
+    "session_origin": "button",
+    "status": "paid",
+    "user_message": "Operación realizada exitosamente",
+    "session_details": {
+      "spidi_transaction_id": 643,
+      "spidi_transaction_url": "https://pay.spidi.com/receipt/643",
+      "amount": 50.00,
+      "currency_reference": "USD",
+      "amount_ves": 6100.00,
+      "bcv_exchange_rate": 122.0,
+      "exchange_rate_from": "USD",
+      "exchange_rate_to": "VES",
+      "payer_details": {
+        "identifier_label": "2025-07-25T12:11:13Z",
+        "identifier": "2025-07-25T12:11:13Z",
+        "action_date": "2025-07-25T12:11:13Z",
+        "bank_name": "BANCO MERCANTIL",
+        "bank_reference_id": "00001440",
+        "description": "Pago de membresía",
+        "crypto_details": null
+      },
+      "receiver_details": {
+        "spidi_credit_id": 168,
+        "received_date": "2025-07-25T12:12:07Z",
+        "bank_name": "BANESCO",
+        "bank_reference_id": "00107273",
+        "amount_ves_received": 6050.00,
+        "bank_commission_ves": 50.00
+      }
+    }
+  }
+}
+```
+
+### **5.4 Caso status = `expired`**
+
+```json
+{
+  "success": true,
+  "message": "Successful query.",
+  "data": {
+    "session_id": "3ddc4cfb-c09a-43de-92c1-e4a069732e90",
+    "session_origin": "button",
+    "status": "expired",
+    "user_message": "La sesión expiró por inactividad. Intenta nuevamente.",
+    "session_details": {
+      "spidi_transaction_id": null,
+      "spidi_transaction_url": null,
+      "payer_details": {
+        "action_date": "2025-07-25T14:55:02Z"
+      },
+      "receiver_details": null
+    }
+  }
+}
+```
+
+### **5.5 Caso status = `failed`**
+
+```json
+{
+  "success": true,
+  "message": "Successful query.",
+  "data": {
+    "session_id": "3ddc4cfb-c09a-43de-92c1-e4a069732e90",
+    "session_origin": "button",
+    "status": "failed",
+    "user_message": "No se pudo completar el pago",
+    "session_details": {
+      "spidi_transaction_id": 644,
+      "spidi_transaction_url": "https://pay.spidi.com/receipt/644",
+      "amount": 50.00,
+      "currency_reference": "USD",
+      "amount_ves": 6100.00,
+      "bcv_exchange_rate": 122.0,
+      "exchange_rate_from": "USD",
+      "exchange_rate_to": "VES",
+      "payer_details": {
+        "identifier_label": "2025-07-25T12:11:13Z",
+        "identifier": "2025-07-25T12:11:13Z",
+        "action_date": "2025-07-25T12:11:13Z",
+        "bank_name": "BANCO MERCANTIL",
+        "bank_reference_id": "",
+        "description": "Pago de membresía",
+        "crypto_details": {}
+      },
+      "receiver_details": {}
+    }
+  }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 6. Tabla de Response 200
+
+Cases: status = `pending | paid | failed | expired`
+
+### Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>success</i></b></td><td><b><i>boolean</i></b></td><td>✔ Sí</td><td>True si el endpoint se procesó de forma exitosa. False de lo contrario.</td></tr>
+<tr><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Mensaje de confirmación legible para humanos.</td></tr>
+<tr><td><b><i>data</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Objeto con la información de la sesión consultada.</td></tr>
+</table>
+
+### 6.1 Subtabla: data
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>session_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>ID único de la sesión de pago.</td></tr>
+<tr><td><b><i>session_origin</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Origen de la sesión: "button" o "request".</td></tr>
+<tr><td><b><i>source_channel</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Canal de origen: "API", "WEB", "MOBILE".</td></tr>
+<tr><td><b><i>status</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Estado actual: "pending", "paid", "failed", "expired".</td></tr>
+<tr><td><b><i>user_message</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Mensaje para mostrar al usuario según el estado.</td></tr>
+<tr><td><b><i>due_date_link</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Fecha límite para completar el pago (ISO 8601).</td></tr>
+<tr><td><b><i>expire_behavior_link</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Comportamiento al expirar: "expire" o "extend".</td></tr>
+<tr><td><b><i>late_notice_message</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Mensaje para mostrar cuando el pago está atrasado.</td></tr>
+<tr><td><b><i>session_details</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Detalles completos de la sesión de pago.</td></tr>
+</table>
+
+### 6.2 Subtabla: session_details
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>spidi_transaction_id</i></b></td><td><b><i>integer</i></b></td><td>❌ No</td><td>ID de la transacción en Spidi (null si no se ha completado).</td></tr>
+<tr><td><b><i>spidi_transaction_url</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>URL del comprobante de pago (null si no se ha completado).</td></tr>
+<tr><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda de referencia: "USD", "VES".</td></tr>
+<tr><td><b><i>amount</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Monto en la moneda de referencia.</td></tr>
+<tr><td><b><i>amount_ves</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Monto equivalente en VES.</td></tr>
+<tr><td><b><i>bcv_exchange_rate</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Tasa de cambio BCV utilizada.</td></tr>
+<tr><td><b><i>exchange_rate_from</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda origen del cambio: "USD".</td></tr>
+<tr><td><b><i>exchange_rate_to</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda destino del cambio: "VES".</td></tr>
+<tr><td><b><i>payer_details</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Detalles del pagador.</td></tr>
+<tr><td><b><i>receiver_details</i></b></td><td><b><i>object</i></b></td><td>❌ No</td><td>Detalles del receptor (null hasta completar liquidación).</td></tr>
+<tr><td><b><i>receiver_credits</i></b></td><td><b><i>array&lt;object&gt;</i></b></td><td>❌ No</td><td>Listado de créditos/liquidaciones al receptor (cuando aplique).</td></tr>
+<tr><td><b><i>receiver_credits_summary</i></b></td><td><b><i>object</i></b></td><td>❌ No</td><td>Resumen agregado de las liquidaciones al receptor.</td></tr>
+</table>
+
+### 6.3 Subtabla: payer_details
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>identifier_label</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Etiqueta del identificador del pagador.</td></tr>
+<tr><td><b><i>identifier</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador del pagador (nombre, email, etc.).</td></tr>
+<tr><td><b><i>action_date</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Fecha y hora de la acción del pagador (ISO 8601).</td></tr>
+<tr><td><b><i>bank_name</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Nombre del banco del pagador.</td></tr>
+<tr><td><b><i>bank_reference_id</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>ID de referencia bancaria del pago.</td></tr>
+<tr><td><b><i>description</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Descripción del pago.</td></tr>
+<tr><td><b><i>crypto_details</i></b></td><td><b><i>object</i></b></td><td>❌ No</td><td>Detalles de pago con criptomonedas (null si no aplica).</td></tr>
+</table>
+
+### 6.4 Subtabla: receiver_details
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>spidi_credit_id</i></b></td><td><b><i>integer</i></b></td><td>✔ Sí</td><td>ID del crédito generado para el receptor.</td></tr>
+<tr><td><b><i>received_date</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Fecha y hora de recepción del pago (ISO 8601).</td></tr>
+<tr><td><b><i>bank_name</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Nombre del banco del receptor.</td></tr>
+<tr><td><b><i>bank_reference_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>ID de referencia bancaria de la liquidación.</td></tr>
+<tr><td><b><i>amount_ves_received</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Monto recibido en VES (después de comisiones).</td></tr>
+<tr><td><b><i>bank_commission_ves</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Comisión bancaria en VES.</td></tr>
+</table>
+
+### 6.5 Subtabla: payer_details.crypto_details
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>crypto_id</i></b></td><td><b><i>integer</i></b></td><td>❌ No</td><td>ID interno del medio cripto utilizado (p. ej., 2658).</td></tr>
+<tr><td><b><i>crypto_wallet_name</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Nombre del wallet o procesador (p. ej., "BinancePay").</td></tr>
+<tr><td><b><i>crypto_txnid</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Identificador de la transacción cripto.</td></tr>
+<tr><td><b><i>crypto_currency</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Moneda cripto utilizada.</td></tr>
+<tr><td><b><i>crypto_amount</i></b></td><td><b><i>number</i></b></td><td>❌ No</td><td>Monto pagado en cripto.</td></tr>
+<tr><td><b><i>crypto_paid_at</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Fecha y hora de pago en cripto (ISO 8601).</td></tr>
+</table>
+
+### 6.6 Subtabla: session_details.receiver_credits
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>credit_id</i></b></td><td><b><i>integer</i></b></td><td>❌ No</td><td>ID de SPIDI de la liquidación al receptor del pago.</td></tr>
+<tr><td><b><i>receive_date</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Fecha y hora en que se acreditó el pago (ISO 8601).</td></tr>
+<tr><td><b><i>bank_name</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Banco al que se acreditó el pago.</td></tr>
+<tr><td><b><i>bank_reference_id</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Referencia bancaria del receptor del pago.</td></tr>
+<tr><td><b><i>amount_ves_received</i></b></td><td><b><i>number</i></b></td><td>❌ No</td><td>Monto neto recibido en VES (descontada la comisión).</td></tr>
+<tr><td><b><i>receiver_id</i></b></td><td><b><i>integer</i></b></td><td>❌ No</td><td>Identificador del receptor.</td></tr>
+<tr><td><b><i>memo</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Nota o memo asociado a la liquidación.</td></tr>
+<tr><td><b><i>bank_commission_ves</i></b></td><td><b><i>number</i></b></td><td>❌ No</td><td>Comisión cobrada por el banco que procesa el pago.</td></tr>
+</table>
+
+# 7. Ejemplos de Response ≠ 200
+
+### Error 400 - Bad Request
+
+```json
+{
+  "success": false,
+  "message": "Missing required field: session_id",
+  "errors": {
+    "session_id": "This field is required."
+  }
+}
+```
+
+### Error 401 - Unauthorized
+
+```json
+{
+  "success": false,
+  "message": "Unauthorized.",
+  "errors": {
+    "spidi_id": "The credentials are incorrect"
+  }
+}
+```
+
+### Error 403 - Forbidden
+
+```json
+{
+  "success": false,
+  "message": "Forbidden.",
+  "errors": {
+    "message": "No tienes permisos para esta operación"
+  }
+}
+```
+
+### Error 404 - Not Found
+
+```json
+{
+  "success": false,
+  "message": "Session not found.",
+  "errors": {
+    "session_id": "The session does not exist or has been deleted"
+  }
+}
+```
+
+### Error 422 - Unprocessable Entity
+
+```json
+{
+  "success": false,
+  "message": "Unprocessable entity.",
+  "errors": {
+    "session_id": "Invalid session ID format"
+  }
+}
+```
+
+### Error 500 - Internal Server Error
+
+```json
+{
+  "success": false,
+  "message": "Internal server error."
+}
+```
+
+# 8. Tabla de explicación de cada campo de los distintos Response (errores)
+
+## 8.1 Campos de nivel raíz (errores 4xx/5xx)
+
+<table>
+<tr><th>Campo</th><th>Tipo dato</th><th>Descripción</th></tr>
+<tr><td><b><i>success</i></b></td><td><b><i>boolean</i></b></td><td>Siempre false en caso de error.</td></tr>
+<tr><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>Resumen legible del error principal.</td></tr>
+<tr><td><b><i>errors</i></b></td><td><b><i>objeto | null</i></b></td><td>Detalle por campo (opcional).</td></tr>
+</table>
+
+## 8.2 Subtabla: errors (cuando exista)
+
+<table>
+<tr><th>Código de error (HTTP)</th><th>Clave (campo)</th><th>Tipo dato</th><th>Descripción</th></tr>
+<tr><td>400 Bad Request</td><td><b><i>session_id</i></b></td><td><b><i>string</i></b></td><td>Campo faltante o formato inválido.</td></tr>
+<tr><td>401 Unauthorized</td><td><b><i>spidi_id</i></b></td><td><b><i>string</i></b></td><td>El comercio no coincide con las credenciales proporcionadas.</td></tr>
+<tr><td>403 Forbidden</td><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>No tienes permisos para esta operación.</td></tr>
+<tr><td>404 Not Found</td><td><b><i>session_id</i></b></td><td><b><i>string</i></b></td><td>La sesión no existe o ha sido eliminada.</td></tr>
+<tr><td>422 Unprocessable Entity</td><td><b><i>session_id</i></b></td><td><b><i>string</i></b></td><td>Formato de session_id inválido.</td></tr>
+<tr><td>500 Internal Server Error</td><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>Error interno del servidor.</td></tr>
+</table>
+
