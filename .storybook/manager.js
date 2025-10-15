@@ -5,8 +5,8 @@ addons.setConfig({
   theme: {
     ...themes.light,
     brandTitle: 'SPIDI API Documentation',
-    brandUrl: 'https://spidi.com',
-    brandImage: undefined,
+    brandUrl: 'https://spidipagos.com',
+    brandImage: 'https://cdn.prod.website-files.com/646d587c5dac12709add55e4/647a051a2fedb5b622a63dec_Vectors-Wrapper.svg',
     brandTarget: '_self',
   },
   sidebar: {

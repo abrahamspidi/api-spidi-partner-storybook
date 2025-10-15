@@ -132,9 +132,9 @@ api-spidi-storybook/
 
 ## 🌐 API Base URLs
 
-- **Production**: `https://api.spidi.com/v1`
-- **Sandbox**: `https://sandbox-api.spidi.com/v1`
-- **Development**: `https://dev-api.spidi.com/v1`
+- **Production**: `https://api.spidipagos.com/v1`
+- **Sandbox**: `https://sandbox-api.spidipagos.com/v1`
+- **Development**: `https://dev-api.spidipagos.com/v1`
 
 ## 📞 Support
 
