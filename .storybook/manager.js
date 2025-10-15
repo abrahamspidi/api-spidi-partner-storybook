@@ -6,7 +6,7 @@ addons.setConfig({
     ...themes.light,
     brandTitle: 'SPIDI API Documentation',
     brandUrl: 'https://spidipagos.com',
-    brandImage: 'https://cdn.prod.website-files.com/646d587c5dac12709add55e4/647a051a2fedb5b622a63dec_Vectors-Wrapper.svg',
+    brandImage: 'https://dev.api.spuntodeventa.com/api/spidipagos/resource-proxy?url=https%3A%2F%2Fcdn.prod.website-files.com%2F6896a0bf93dea7e2613697a8%2F689f3552756c7526ac3e5e8b_2640dc400d7916c681fa83288e142628_isotipo.svg',
     brandTarget: '_self',
   },
   sidebar: {
