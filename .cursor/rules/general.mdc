@@ -34,6 +34,7 @@ Method: **POST**
 {{baseUrl}}/...
 ```
 # 3. Ejemplo del Request
+Method: **POST**
 ```json
 {...}
 ```
@@ -49,7 +50,10 @@ Method: **POST**
 }
 ```
 # 6. Tabla de Response 200
+Cases: ...
 ### Campos del Nivel Principal
+<table>...</table>
+### 6.x Subtabla: ...
 <table>...</table>
 # 7. Ejemplos de Response ≠ 200
 ### Error 400 - Bad Request
@@ -60,4 +64,6 @@ Method: **POST**
 }
 ```
 # 8. Tabla de Errores
+<table>...</table>
+### 8.x Subtabla: ...
 <table>...</table>
