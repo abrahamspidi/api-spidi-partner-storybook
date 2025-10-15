@@ -100,7 +100,8 @@ Method: **POST**
     "description": "Pago de membresía",
     "success_url": "https://miapp.com/pago-exitoso",
     "failure_url": "https://miapp.com/pago-fallido",
-    "webhook_url": "https://miapi.com/spidi/webhook"
+    "webhook_url": "https://miapi.com/spidi/webhook",
+    "created_at": "2025-09-18T20:45:00Z"
   }
 }
 ```
@@ -135,6 +136,7 @@ Method: **POST**
 <tr><td><b><i>success_url</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
 <tr><td><b><i>failure_url</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
 <tr><td><b><i>webhook_url</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
+<tr><td><b><i>created_at</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Fecha y hora de creación de la sesión de pago (ISO 8601).</td></tr>
 </table>
 
 # 7. Ejemplos de Response ≠ 200
