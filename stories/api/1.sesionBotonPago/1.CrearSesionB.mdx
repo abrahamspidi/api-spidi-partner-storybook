@@ -22,16 +22,49 @@ Method: **POST**
 
 # 3. Ejemplo del Request
 
+## 3.1 Crear payment-session con agreement SESSION (porcentajes, 2 receptores)
+
 ```json
 {
   "currency_reference": "USD",
-  "amount": 50.00,
+  "amount_reference": 50.00,
+  "agreement_id": "stl_session_01",
   "identifier_label": "Nombre del cliente",
   "identifier": "Juan Pérez",
   "description": "Pago de servicio de internet",
   "success_url": "miapp://pago/exitoso",
   "failure_url": "miapp://pago/fallido",
-  "webhook_url": "https://miapi.com/spidi/webhook"
+  "webhook_url": "https://miapi.com/spidi/webhook",
+  "split": { 
+    "type": "percent",
+    "rules": [
+      { "recipient_id": "owner", "percent": 60.0, "label": "Comercio" },
+      { "recipient_id": "uuid_partner1", "percent": 40.0, "label": "Partner" }
+    ]
+  }
+}
+```
+
+## 3.2 Crear payment-session con agreement SESSION (absolutos, 2 receptores)
+
+```json
+{
+  "currency_reference": "USD",
+  "amount_reference": 250.00,
+  "agreement_id": "stl_session_01",
+  "identifier_label": "Nombre del cliente",
+  "identifier": "Juan Pérez",
+  "description": "Pago de servicio de internet",
+  "success_url": "miapp://pago/exitoso",
+  "failure_url": "miapp://pago/fallido",
+  "webhook_url": "https://miapi.com/spidi/webhook",
+  "split": { 
+    "type": "absolute",
+    "rules": [
+      { "recipient_id": "owner", "amount_reference": 200.00, "label": "Comercio" },
+      { "recipient_id": "uuid_partner2", "amount_reference": 50.00, "label": "Fijo partner" }
+    ]
+  }
 }
 ```
 
@@ -39,9 +72,9 @@ Method: **POST**
 
 <table>
 <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
-<tr><td><b><i>spidi_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador único de tu cuenta en SPIDI.</td></tr>
+<tr><td><b><i>agreement_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador único de tu cuenta en SPIDI.</td></tr>
 <tr><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda referencia base para calcular a bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Para monto fijo en VES, usar `"VES"`. El pago siempre se liquida en VES.</td></tr>
-<tr><td><b><i>amount</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Monto total en la moneda indicada por `currency_reference` (2 decimales).</td></tr>
+<tr><td><b><i>amount_reference</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Monto total en la moneda indicada por `currency_reference` (2 decimales).</td></tr>
 <tr><td><b><i>identifier_label</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Título del identificador (ej.: "Nombre y apellido", "Número de orden"). Si no se especifica, se usará el identificador configurado en miSPIDI.</td></tr>
 <tr><td><b><i>identifier</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Valor del identificador (ej.: "Juan Pérez", "FCT-2025-0342"). Útil para trazabilidad interna.</td></tr>
 <tr><td><b><i>description</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Concepto o nota del pago.</td></tr>
@@ -57,15 +90,11 @@ Method: **POST**
   "success": true,
   "message": "Payment session created successfully.",
   "data": {
+    "session_origin": "button",
     "session_id": "3ddc4cfb-c09a-43de-92c1-e4a069732e90",
     "payment_url": "{url}/?id=3ddc4cfb-c09a-43de-92c1-e4a069732e90",
     "currency_reference": "USD",
-    "amount": 50.00,
-    "amount_ves": 6100.00,
-    "amount_usd": 50.00,
-    "bcv_exchange_rate": 122.03,
-    "exchange_rate_from": "USD",
-    "exchange_rate_to": "VES",
+    "amount_reference": 50.00,
     "identifier_label": "Nombre del cliente",
     "identifier": "Juan Pérez",
     "description": "Pago de membresía",
