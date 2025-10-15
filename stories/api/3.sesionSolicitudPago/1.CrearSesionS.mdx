@@ -109,6 +109,46 @@ Method: **POST**
 }
 ```
 
+## 3.3 Crear batch de payment-sessions sin split (1 receptor)
+
+```json
+{
+  "continue_on_error": false,
+  "items": [
+    {
+      "currency_reference": "USD",
+      "amount_reference": 120.00,
+      "agreement_id": "stl_session_01",
+      "identifier_label": "Nombre del cliente",
+      "identifier": "Carlos Díaz",
+      "description": "Pago de suscripción mensual",
+      "success_url": "miapp://pago/exitoso",
+      "failure_url": "miapp://pago/fallido",
+      "webhook_url": "https://miapi.com/spidi/webhook",
+      "due_date_link": "2025-12-10T23:59:59Z",
+      "expire_behavior_link": "keep_active",
+      "late_notice_message": "Tienes un pago pendiente.",
+      "internal_reference": "INV-2025-12-USER_0003"
+    },
+    {
+      "currency_reference": "USD",
+      "amount_reference": 35.50,
+      "agreement_id": "stl_session_01",
+      "identifier_label": "Nombre del cliente",
+      "identifier": "Ana Torres",
+      "description": "Pago de servicio adicional",
+      "success_url": "miapp://pago/exitoso",
+      "failure_url": "miapp://pago/fallido",
+      "webhook_url": "https://miapi.com/spidi/webhook",
+      "due_date_link": "2025-12-05T23:59:59Z",
+      "expire_behavior_link": "keep_active",
+      "late_notice_message": "Recuerda completar tu pago.",
+      "internal_reference": "INV-2025-12-USER_0004"
+    }
+  ]
+}
+```
+
 # 4. Tabla de Parámetros del Request
 
 <table>
