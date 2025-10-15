@@ -25,8 +25,7 @@ Aunque todas usan la misma API, SPIDI ofrece **tres formas diferentes** de inici
 3. 🔗 **Enlace de pago**  
     Cuando quieres generar un link para compartir por email, WhatsApp, SMS u otros canales. Ideal para pagos asincrónicos, fuera de tu aplicación (Ver documentación).
 
-***NOTA: Para Agosto 2025 sólo está disponible la integración mediante el Botón de pago.***  
----
+* ***NOTA: Para Agosto 2025 sólo está disponible la integración mediante el Botón de pago.***  
 
 ### 
 
@@ -44,20 +43,43 @@ Aunque todas usan la misma API, SPIDI ofrece **tres formas diferentes** de inici
 
 Hacemos una distinción entre aplicaciones web y móviles porque, aunque ambas utilizan botones de pago, tienen diferencias técnicas importantes:
 
-| Aspecto | App Web | App Móvil |
-|:---|:---|:---|
-| **Redirección** | window.location.href abre SPIDI en la misma pestaña | Se abre un WebView moderno |
-| **Retorno del usuario** | Automático con success_url y failure_url | Requiere **deeplink** o detección manual de cambios de URL |
-| **Entorno del usuario** | Pestaña del navegador | WebView controlado dentro de la app |
-| **Experiencia de integración** | Flujo más directo, con menos código adicional | Requiere lógica adicional para retornar el control |
+<table>
+<thead>
+<tr>
+<th><strong>Aspecto</strong></th>
+<th><strong>App Web</strong></th>
+<th><strong>App Móvil</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Redirección</strong></td>
+<td><b><i>window.location.href</i></b> abre SPIDI en la misma pestaña</td>
+<td>Se abre un WebView moderno</td>
+</tr>
+<tr>
+<td><strong>Retorno del usuario</strong></td>
+<td>Automático con <b><i>success_url</i></b> y <b><i>failure_url</i></b></td>
+<td>Requiere <strong>deeplink</strong> o detección manual de cambios de URL</td>
+</tr>
+<tr>
+<td><strong>Entorno del usuario</strong></td>
+<td>Pestaña del navegador</td>
+<td>WebView controlado dentro de la app</td>
+</tr>
+<tr>
+<td><strong>Experiencia de integración</strong></td>
+<td>Flujo más directo, con menos código adicional</td>
+<td>Requiere lógica adicional para retornar el control</td>
+</tr>
+</tbody>
+</table>
 
 Por eso, hay una guía específica para cada uno, con recomendaciones técnicas adaptadas.
 
-## 
 
-## 
+* ***Nota: para agosto 2025 los enlaces de pago aún no están disponibles.***
 
-## ***Nota: para agosto 2025 los enlaces de pago aún no están disponibles***
 
 ## **Enlace de pago en SPIDI: cómo, cuándo y por qué usarlo**
 
@@ -93,51 +115,52 @@ Por eso, hay una guía específica para cada uno, con recomendaciones técnicas 
 </thead>
 <tbody>
 <tr>
-<td><strong>Uso típico</strong></td>
+<td>🌐 <strong>Uso típico</strong></td>
 <td>Se integra dentro de una app o sitio web</td>
 <td>Se comparte por correo, WhatsApp, SMS, etc.</td>
 </tr>
 <tr>
-<td><strong>Generación del enlace</strong></td>
+<td>🔗 <strong>Generación del enlace</strong></td>
 <td>Se crea por API <strong>en el momento del clic del usuario</strong></td>
 <td>Se crea por API <strong>cuando deseen</strong></td>
 </tr>
 <tr>
-<td><strong>Tiempo de vida</strong></td>
+<td>⏰ <strong>Tiempo de vida</strong></td>
 <td>Corto: expira a los <strong>10 minutos</strong> desde su creación</td>
 <td>No expira, solo se expira por API</td>
 </tr>
 <tr>
-<td><strong>Interactividad</strong></td>
+<td>🔄 <strong>Interactividad</strong></td>
 <td>El usuario <strong>es redirigido automáticamente</strong> desde la app</td>
 <td>El usuario <strong>hace clic en un link recibido</strong>, no hay app</td>
 </tr>
 <tr>
-<td><strong>Ideal para</strong></td>
+<td>💬 <strong>Ideal para</strong></td>
 <td>Checkouts en apps, compras en línea</td>
 <td>Cobros asincrónicos, recordatorios, links en facturas</td>
 </tr>
 <tr>
-<td><strong>Contexto técnico</strong></td>
+<td>🔒 <strong>Contexto técnico</strong></td>
 <td>Requiere frontend (Web o App) que maneje sesión y redirecciones</td>
 <td>Requiere solo backend para generar y entregar el link</td>
 </tr>
 <tr>
-<td><strong>Gestión del estado del pago</strong></td>
+<td>💖 <strong>Gestión del estado del pago</strong></td>
 <td>Requiere redireccionamiento + validación por API o webhook</td>
 <td>Se valida igual: vía webhook o consultas al endpoint</td>
 </tr>
 <tr>
-<td><strong>Implementación técnica</strong></td>
+<td>🔧 <strong>Implementación técnica</strong></td>
 <td>Necesita lógica de integración en frontend + backend</td>
 <td>Solo requiere integración backend (creación, validación, webhook)</td>
 </tr>
 <tr>
-<td><strong>Dónde se ejecuta el pago</strong></td>
+<td>🌍 <strong>Dónde se ejecuta el pago</strong></td>
 <td>Dentro de la app o web, usando WebView o navegador controlado</td>
 <td>En el navegador del cliente, externo a tu sistema</td>
 </tr>
 </tbody>
 </table>
 
-api-spidi-page-end-000
+
+

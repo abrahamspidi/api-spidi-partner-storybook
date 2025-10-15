@@ -1,0 +1,138 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API/Acuerdo/0. Resumen" />
+
+# API de Acuerdos de Pago
+
+## Descripción General
+
+La API de Acuerdos de Pago es el núcleo del sistema de distribución y liquidación inteligente de fondos de Spidi. Permite crear, gestionar y administrar contratos digitales que definen cómo se procesarán las transacciones financieras, incluyendo la división automática de pagos entre múltiples receptores y la liquidación bancaria inteligente.
+
+### ¿Qué es un Acuerdo de Pago?
+
+Un **Acuerdo de Pago** es un contrato digital que establece las reglas de distribución y liquidación para las transacciones. Funciona como un "contrato inteligente" que define:
+
+- **Cómo se dividirán los fondos** entre el comercio propietario y sus partners o distribuidores
+- **A qué cuentas bancarias** se dirigirán los pagos según el banco de origen del pagador
+- **Qué medios de pago** acepta el acuerdo (débito inmediato, criptomonedas, pagos móviles)
+- **Las reglas de liquidación** que optimizan la distribución de fondos
+
+### Funcionalidades Principales
+
+#### 🎯 Distribución de Pagos (Split Payment)
+- **Split Fijo (FIXED)**: Porcentajes de distribución predefinidos y constantes para todas las transacciones
+- **Split Dinámico (SESSION)**: Configuración flexible que se define en cada sesión de pago
+- **Múltiples Receptores**: Soporte para distribuir fondos entre el comercio propietario y múltiples partners
+- **Validación Automática**: Garantiza que la suma de porcentajes sea exactamente 100%
+
+#### 🏦 Liquidación Bancaria Inteligente
+- **Reglas por Banco de Origen**: Dirige automáticamente los pagos a diferentes cuentas según el banco del pagador
+- **Cuenta por Defecto**: Configuración de respaldo para bancos no especificados en las reglas
+- **Optimización de Costos**: Reduce comisiones bancarias dirigiendo pagos a cuentas específicas
+- **Soporte Multi-Banco**: Compatible con todos los bancos del sistema financiero venezolano
+
+#### 💳 Medios de Pago Configurables
+- **Débito Inmediato**: Pagos directos desde cuentas bancarias
+- **Criptomonedas**: Soporte para pagos con Bitcoin, Ethereum y otras criptomonedas
+- **Pagos Móviles**: Integración con sistemas de pago móvil y billeteras digitales
+- **Configuración Flexible**: Cada acuerdo puede habilitar/deshabilitar medios específicos
+
+#### 🔄 Gestión del Ciclo de Vida
+- **Estados del Acuerdo**: Active, Inactive, Cancelled
+- **Auditoría Completa**: Trazabilidad de creación, modificaciones y uso
+- **Versionado**: Historial de cambios y actualizaciones
+- **Validación en Tiempo Real**: Verificación de integridad y consistencia
+
+### Casos de Uso Típicos
+
+#### 🏪 Comercios con Partners
+- **Distribución de Comisiones**: Automatiza el pago de comisiones a partners y distribuidores
+- **Marketplace**: Divide pagos entre vendedores y la plataforma
+- **Franquicias**: Gestiona la distribución de ingresos entre franquiciador y franquiciados
+
+#### 🏢 Plataformas de Servicios
+- **Servicios de Suscripción**: Distribuye ingresos entre proveedores de contenido y la plataforma
+- **Servicios de Entrega**: Divide pagos entre restaurantes, repartidores y la plataforma
+- **Servicios Financieros**: Gestiona la distribución entre prestamistas y la plataforma
+
+#### 🏦 Optimización Bancaria
+- **Reducción de Costos**: Dirige pagos a cuentas con menores comisiones
+- **Liquidación Eficiente**: Optimiza la distribución según el banco de origen
+- **Gestión de Riesgo**: Diversifica la exposición bancaria
+
+### Tipos de Acuerdo
+
+#### 🔘 Acuerdo Tipo "Button"
+- **Uso**: Para pagos iniciados por el comercio (botones de pago)
+- **Características**: Configuración más simple, ideal para e-commerce
+- **Aplicación**: Tiendas online, servicios digitales, suscripciones
+
+#### 📋 Acuerdo Tipo "Request"
+- **Uso**: Para solicitudes de pago enviadas al cliente
+- **Características**: Mayor flexibilidad en la configuración
+- **Aplicación**: Facturación, servicios B2B, pagos programados
+
+### Ventajas del Sistema
+
+#### ⚡ Automatización Completa
+- **Sin Intervención Manual**: La distribución y liquidación ocurre automáticamente
+- **Tiempo Real**: Procesamiento inmediato de transacciones
+- **Escalabilidad**: Maneja miles de transacciones simultáneamente
+
+#### 🛡️ Seguridad y Confiabilidad
+- **Encriptación End-to-End**: Protección de datos sensibles
+- **Validación Multi-Capa**: Verificación de integridad en cada paso
+- **Auditoría Completa**: Trazabilidad total de todas las operaciones
+
+#### 📊 Transparencia y Control
+- **Reportes Detallados**: Visibilidad completa de todas las transacciones
+- **Dashboard en Tiempo Real**: Monitoreo de acuerdos y distribuciones
+- **Alertas Automáticas**: Notificaciones de eventos importantes
+
+## Endpoints Disponibles
+
+### Operaciones CRUD Completas
+
+* **POST** `/api/v1/agreement` — Crear un nuevo acuerdo de pago con configuración completa de split y liquidación
+* **GET** `/api/v1/agreement/{agreement_id}` — Consultar los detalles completos de un acuerdo específico, incluyendo configuración, estado y historial
+* **GET** `/api/v1/agreement` — Listar todos los acuerdos creados por el usuario con filtros y paginación
+* **PUT** `/api/v1/agreement/{agreement_id}` — Actualizar un acuerdo existente, modificando configuración de split, medios de pago o reglas de liquidación
+* **DELETE** `/api/v1/agreement/{agreement_id}` — Eliminar un acuerdo de pago (soft delete con preservación de historial)
+
+### Características Técnicas
+
+#### 🔐 Autenticación y Autorización
+- **Bearer Token**: Autenticación mediante JWT
+- **Scopes Granulares**: Control de acceso por funcionalidad
+- **Rate Limiting**: Protección contra abuso y sobrecarga
+
+#### 📝 Validación y Errores
+- **Validación Estricta**: Verificación de todos los parámetros de entrada
+- **Mensajes Descriptivos**: Errores claros y accionables
+- **Códigos HTTP Estándar**: Respuestas consistentes y predecibles
+
+#### 🔄 Idempotencia
+- **Claves Idempotentes**: Prevención de duplicados accidentales
+- **Transacciones Atómicas**: Operaciones todo-o-nada
+- **Consistencia de Datos**: Garantía de integridad en todas las operaciones
+
+## Flujo de Trabajo Típico
+
+1. **Creación del Acuerdo**: Define las reglas de distribución y liquidación
+2. **Configuración de Split**: Establece cómo se dividirán los fondos
+3. **Definición de Reglas Bancarias**: Configura la liquidación inteligente
+4. **Activación**: El acuerdo queda listo para procesar transacciones
+5. **Uso en Sesiones**: El acuerdo se aplica automáticamente en cada pago
+6. **Monitoreo**: Seguimiento de transacciones y distribuciones
+7. **Mantenimiento**: Actualizaciones y ajustes según necesidades
+
+## Integración con Otros Módulos
+
+- **Sesiones de Pago**: Los acuerdos se aplican automáticamente en las sesiones
+- **Gestión de Cuentas**: Integración con el sistema de cuentas bancarias
+- **Reportes y Analytics**: Datos para análisis y reportes financieros
+- **Notificaciones**: Alertas y notificaciones de eventos importantes
+
+---
+
+*Para más detalles sobre cada endpoint específico, consulta la documentación individual de cada operación.*

@@ -1,0 +1,64 @@
+---
+alwaysApply: true
+---
+# MDX Documentation Rules
+- This documentations language is primarly spanish but with logic and variable names in english
+- Code snippets in tables should be wrapped like this: <b><i/></b>
+- Tables must be written in basic HTML without styles
+- URLs wrapped with `
+- Code snippets wrapped with ```
+- All urls should start with /{{baseUrl}}
+
+
+# Standard doc page layers (1-8)
+
+All official documentation must follow this fixed pattern for each endpoint:
+
+1. **Description** – functional purpose and context
+2. **Endpoint** – HTTP method, route, headers, authentication
+3. **Request Example** – JSON or HTTP block
+4. **Request Table** – header/path parameters or query/body parameters: field / type / required / description. Each object generates a subtable
+4.x. **Nested Tables** - For each object generated subtable the title the position on the sub-list, should be like "4.1 Subtabla:...", "4.2 Subtabla:...", "4.3 Subtabla:..." and so on
+5. **Response 200 Example**
+6. **Response 200 Table** – field / type / required / description. Each object generates a subtable
+7. **Examples of Response ≠ 200** (errors, warnings)
+8. **Error Table** – structure, HTTP codes, error fields
+
+---
+
+# Example Structure
+
+# 1. Descripción
+# 2. Endpoint
+Method: **POST**
+```
+{{baseUrl}}/...
+```
+# 3. Ejemplo del Request
+```json
+{...}
+```
+# 4. Tabla de Parámetros del Request
+<table>...</table>
+# 4.1 Propiedad Objeto n0
+<table>...</table>
+# 5. Ejemplo de Response 200
+```json
+{
+  "success": true,
+  "data": {...}
+}
+```
+# 6. Tabla de Response 200
+### Campos del Nivel Principal
+<table>...</table>
+# 7. Ejemplos de Response ≠ 200
+### Error 400 - Bad Request
+```json
+{
+  "success": false,
+  "error": {...}
+}
+```
+# 8. Tabla de Errores
+<table>...</table>

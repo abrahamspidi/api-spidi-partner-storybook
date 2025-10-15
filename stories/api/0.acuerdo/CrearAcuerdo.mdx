@@ -1,0 +1,307 @@
+import { Meta } from '@storybook/blocks';
+import { Canvas, Story } from '@storybook/blocks';
+
+<Meta title="API/Acuerdo/1. Crear Acuerdo" />
+
+## Crear Acuerdo
+
+# 1. Descripción
+
+Permite crear un nuevo acuerdo de pago que establece las reglas de distribución y acuerdo para las transacciones. Un acuerdo es un contrato digital que define cómo se procesarán los pagos, incluyendo la división de fondos entre múltiples receptores y las reglas de liquidación bancaria.
+
+**Funcionalidades principales:**
+
+- **Distribución de pagos (Split)**: Define cómo se dividirán los fondos entre el comercio propietario y sus partners o distribuidores
+- **Liquidación bancaria inteligente**: Permite dirigir los pagos a diferentes cuentas bancarias según el banco de origen del pagador
+- **Medios de pago configurables**: Establece qué tipos de pagos acepta el acuerdo (débito inmediato, criptomonedas, pagos móviles)
+- **Flexibilidad de configuración**: Soporta dos modos de operación:
+  - **FIXED**: Porcentajes de distribución predefinidos y fijos para todas las transacciones
+  - **SESSION**: Split configurable dinámicamente en cada sesión de pago
+
+**Casos de uso típicos:**
+- Comercios que trabajan con partners y necesitan distribuir comisiones automáticamente
+- Plataformas de marketplace que requieren dividir pagos entre vendedores y la plataforma
+- Servicios que necesitan liquidar a diferentes cuentas según el origen del pago
+- Sistemas que requieren flexibilidad en la distribución de fondos por transacción
+
+Una vez creado, el acuerdo puede ser utilizado en múltiples sesiones de pago, garantizando consistencia en la distribución y liquidación de fondos.
+
+# 2. Endpoint
+Method: **POST**
+```
+{{baseUrl}}/api/v1/agreement
+```
+
+**Headers requeridos:**
+- `Authorization: Bearer {token}`
+- `Content-Type: application/json`
+- `Idempotency-Key: {unique_key}`
+
+# 3. Ejemplo del Request
+
+### Acuerdo FIXED (porcentajes predefinidos)
+
+```json
+{
+  "title": "Acuerdo Comercio-Partner",
+  "type": "button",
+  "description": "Distribución fija entre comercio y partner",
+  "split_mode": "FIXED",
+  "split": {
+    "rules": [
+      { "recipient_id": "owner", "percent": 85.0, "label": "Comercio" },
+      { "recipient_id": "uuid_partner1", "percent": 15.0, "label": "Distribución interna" }
+    ]
+  },
+  "payment_methods": {
+    "immediate_debit": true,
+    "crypto": true,
+    "mobile_payment": false
+  },
+  "default_bank_account_id": "uuid_sofitasa_001",
+  "rules": [
+    { "origin_bank_code": "0105", "destination_bank_account_id": "uuid_mercantil_007" },
+    { "origin_bank_code": "0108", "destination_bank_account_id": "uuid_provincial_001" }
+  ]
+}
+```
+
+### Acuerdo SESSION (split definido por sesión)
+
+```json
+{
+  "title": "Acuerdo Flexible",
+  "type": "request",
+  "description": "Split configurable por sesión",
+  "split_mode": "SESSION",
+  "payment_methods": {
+    "immediate_debit": true,
+    "crypto": false,
+    "mobile_payment": true
+  },
+  "default_bank_account_id": "uuid_sofitasa_001",
+  "rules": [
+    { "origin_bank_code": "0105", "destination_bank_account_id": "uuid_mercantil_007" }
+  ]
+}
+```
+
+# 4. Tabla de Parámetros del Request
+
+### Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>title</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Título del acuerdo</td></tr>
+<tr><td><b><i>type</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Tipo de acuerdo: `button` o `request`</td></tr>
+<tr><td><b><i>description</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Descripción del acuerdo</td></tr>
+<tr><td><b><i>split_mode</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Modo de split: `FIXED` o `SESSION`</td></tr>
+<tr><td><b><i>split</i></b></td><td><b><i>object</i></b></td><td>❌ No</td><td>Configuración de split (requerido si split_mode es FIXED)</td></tr>
+<tr><td><b><i>payment_methods</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Medios de pago aceptados</td></tr>
+<tr><td><b><i>default_bank_account_id</i></b></td><td><b><i>string (UUID)</i></b></td><td>✔ Sí</td><td>Cuenta bancaria por defecto para acuerdo</td></tr>
+<tr><td><b><i>rules</i></b></td><td><b><i>array</i></b></td><td>❌ No</td><td>Reglas de acuerdo por banco de origen</td></tr>
+</table>
+
+### 4.1 Subtabla: split
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>rules</i></b></td><td><b><i>array</i></b></td><td>✔ Sí</td><td>Reglas de distribución (suma de porcentajes debe ser 100.00)</td></tr>
+</table>
+
+### 4.2 Subtabla: split.rules
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>recipient_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador del receptor (owner o UUID de partner)</td></tr>
+<tr><td><b><i>percent</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Porcentaje de distribución (0.0 - 100.0)</td></tr>
+<tr><td><b><i>label</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Etiqueta descriptiva del receptor</td></tr>
+</table>
+
+### 4.3 Subtabla: payment_methods
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>immediate_debit</i></b></td><td><b><i>boolean</i></b></td><td>✔ Sí</td><td>Permitir débito inmediato</td></tr>
+<tr><td><b><i>crypto</i></b></td><td><b><i>boolean</i></b></td><td>✔ Sí</td><td>Permitir pagos con criptomonedas</td></tr>
+<tr><td><b><i>mobile_payment</i></b></td><td><b><i>boolean</i></b></td><td>✔ Sí</td><td>Permitir pagos móviles</td></tr>
+</table>
+
+### 4.4 Subtabla: rules
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>origin_bank_code</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Código oficial del banco de origen en Venezuela</td></tr>
+<tr><td><b><i>destination_bank_account_id</i></b></td><td><b><i>string (UUID)</i></b></td><td>✔ Sí</td><td>Cuenta bancaria de destino para este banco</td></tr>
+</table>
+
+# 5. Ejemplo de Response 200
+
+```json
+{
+  "success": true,
+  "data": {
+    "agreement_id": "stl_fixed_percent_01",
+    "title": "Acuerdo Comercio-Partner",
+    "type": "button",
+    "description": "Distribución fija entre comercio y partner",
+    "split_mode": "FIXED",
+    "split": {
+      "rules": [
+        { "recipient_id": "owner", "percent": 85.0, "label": "Comercio" },
+        { "recipient_id": "uuid_partner1", "percent": 15.0, "label": "Distribución interna" }
+      ]
+    },
+    "payment_methods": {
+      "immediate_debit": true,
+      "crypto": true,
+      "mobile_payment": false
+    },
+    "default_bank_account_id": "uuid_sofitasa_001",
+    "rules": [
+      { "origin_bank_code": "0105", "destination_bank_account_id": "uuid_mercantil_007" },
+      { "origin_bank_code": "0108", "destination_bank_account_id": "uuid_provincial_001" }
+    ],
+    "status": "active",
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z",
+    "created_by": "user_123",
+    "updated_by": "user_123",
+    "trace_id": "trace_abc123",
+    "ip": "192.168.1.100"
+  }
+}
+```
+
+# 6. Tabla de Response 200
+
+### Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>success</i></b></td><td><b><i>boolean</i></b></td><td>✔ Sí</td><td>Indica si la operación fue exitosa</td></tr>
+<tr><td><b><i>data</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Datos del acuerdo creado</td></tr>
+</table>
+
+### 6.1 Subtabla: data
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>agreement_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador único del acuerdo generado</td></tr>
+<tr><td><b><i>title</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Título del acuerdo</td></tr>
+<tr><td><b><i>type</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Tipo de acuerdo: `button` o `request`</td></tr>
+<tr><td><b><i>description</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Descripción del acuerdo</td></tr>
+<tr><td><b><i>split_mode</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Modo de split configurado: `FIXED` o `SESSION`</td></tr>
+<tr><td><b><i>split</i></b></td><td><b><i>object</i></b></td><td>❌ No</td><td>Configuración de split (presente si split_mode es FIXED)</td></tr>
+<tr><td><b><i>payment_methods</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Medios de pago configurados</td></tr>
+<tr><td><b><i>default_bank_account_id</i></b></td><td><b><i>string (UUID)</i></b></td><td>✔ Sí</td><td>Cuenta bancaria por defecto</td></tr>
+<tr><td><b><i>rules</i></b></td><td><b><i>array</i></b></td><td>❌ No</td><td>Reglas de acuerdo configuradas</td></tr>
+<tr><td><b><i>status</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Estado del acuerdo: `active`, `inactive`, `cancelled`</td></tr>
+<tr><td><b><i>created_at</i></b></td><td><b><i>string (ISO 8601)</i></b></td><td>✔ Sí</td><td>Fecha de creación del acuerdo</td></tr>
+<tr><td><b><i>updated_at</i></b></td><td><b><i>string (ISO 8601)</i></b></td><td>✔ Sí</td><td>Fecha de última actualización</td></tr>
+<tr><td><b><i>created_by</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Usuario que creó el acuerdo</td></tr>
+<tr><td><b><i>updated_by</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Usuario que actualizó el acuerdo</td></tr>
+<tr><td><b><i>trace_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador de trazabilidad</td></tr>
+<tr><td><b><i>ip</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Dirección IP de la solicitud</td></tr>
+</table>
+
+# 7. Ejemplos de Response ≠ 200
+
+### Error 400 - Bad Request
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Datos de request inválidos",
+    "details": [
+      {
+        "field": "split.rules",
+        "message": "La suma de porcentajes debe ser igual a 100.00"
+      },
+      {
+        "field": "default_bank_account_id",
+        "message": "La cuenta bancaria por defecto no existe"
+      },
+      {
+        "field": "split_mode",
+        "message": "Si split_mode es FIXED, el objeto split es requerido"
+      }
+    ]
+  }
+}
+```
+
+### Error 401 - Unauthorized
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Token de autenticación inválido o expirado"
+  }
+}
+```
+
+### Error 404 - Not Found
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "BANK_ACCOUNT_NOT_FOUND",
+    "message": "La cuenta bancaria especificada no existe"
+  }
+}
+```
+
+### Error 409 - Conflict
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "DUPLICATE_AGREEMENT",
+    "message": "Ya existe un acuerdo con el mismo título y configuración"
+  }
+}
+```
+
+# 8. Tabla de Errores
+
+<table>
+<tr><th>Código HTTP</th><th>Código de Error</th><th>Descripción</th><th>Campos de Error</th></tr>
+<tr><td>400</td><td><b><i>VALIDATION_ERROR</i></b></td><td>Datos de request inválidos</td><td><b><i>field</i></b>, <b><i>message</i></b></td></tr>
+<tr><td>401</td><td><b><i>UNAUTHORIZED</i></b></td><td>Token de autenticación inválido</td><td><b><i>message</i></b></td></tr>
+<tr><td>403</td><td><b><i>FORBIDDEN</i></b></td><td>No tienes permisos para esta operación</td><td><b><i>message</i></b></td></tr>
+<tr><td>404</td><td><b><i>BANK_ACCOUNT_NOT_FOUND</i></b></td><td>Cuenta bancaria no encontrada</td><td><b><i>message</i></b></td></tr>
+<tr><td>404</td><td><b><i>RECIPIENT_NOT_FOUND</i></b></td><td>Receptor especificado no existe</td><td><b><i>message</i></b></td></tr>
+<tr><td>409</td><td><b><i>DUPLICATE_AGREEMENT</i></b></td><td>Acuerdo duplicado</td><td><b><i>message</i></b></td></tr>
+<tr><td>422</td><td><b><i>INVALID_SPLIT_CONFIGURATION</i></b></td><td>Configuración de split inválida</td><td><b><i>message</i></b></td></tr>
+<tr><td>422</td><td><b><i>INVALID_BANK_CODE</i></b></td><td>Código de banco inválido</td><td><b><i>message</i></b></td></tr>
+<tr><td>429</td><td><b><i>RATE_LIMIT_EXCEEDED</i></b></td><td>Límite de requests excedido</td><td><b><i>message</i></b>, <b><i>retry_after</i></b></td></tr>
+<tr><td>500</td><td><b><i>INTERNAL_SERVER_ERROR</i></b></td><td>Error interno del servidor</td><td><b><i>message</i></b></td></tr>
+</table>
+
+## Notas Importantes
+
+### Reglas de Acuerdo
+Las reglas de acuerdo permiten dirigir los pagos a diferentes cuentas bancarias según el banco de origen del pagador:
+- Si el pagador viene del banco con código "0105", el pago se dirigirá a la cuenta `uuid_mercantil_007`
+- Si viene del banco "0108", se dirigirá a `uuid_provincial_001`
+- Para cualquier otro banco, se usará la cuenta por defecto `uuid_sofitasa_001`
+
+### Modos de Split
+- **FIXED**: Los porcentajes de distribución están predefinidos en el acuerdo. La suma debe ser exactamente 100.00
+- **SESSION**: El split se define dinámicamente en cada sesión de pago, permitiendo mayor flexibilidad
+
+### Medios de Pago
+El acuerdo define qué tipos de pagos acepta:
+- `immediate_debit`: Débito inmediato desde cuentas bancarias
+- `crypto`: Pagos con criptomonedas
+- `mobile_payment`: Pagos móviles
+
+### Auditoría
+Todos los acuerdos incluyen información de auditoría: `created_by`, `updated_by`, `trace_id`, `ip` y timestamps para trazabilidad completa.

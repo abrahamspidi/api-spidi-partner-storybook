@@ -1,0 +1,223 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Docs/Playbook" />
+
+# Playbook
+
+**Playbook paso a paso** para 100 suscriptores, con payloads tipo y buenas prácticas. La idea es: **(1) crear Paradas**, **(2) crear Enlaces masivos**, **(3) asociarlos**. El siguiente mes: **solo crear nuevos enlaces** y **reemplazarlos** en cada Parada.
+
+---
+
+# **🚀 Primera vez (onboarding de 100 suscriptores)**
+
+## **1\) Crear Paradas (una por suscriptor)**
+
+**Endpoint:** `POST /api/v1/payment-stop/batch`  
+ **Header:** `Idempotency-Key: <uuid-v4>`
+
+* Usa `internal_reference` único por suscriptor (tu ID interno).
+
+* Si ya existía una parada con ese `internal_reference`, la API debe responder idempotente (mismo resultado).
+
+**Ejemplo request (fragmento):**
+
+```json
+{  
+  "continue_on_error": true,  
+  "items": [  
+    {  
+      "internal_reference": "user_0001",  
+      "spidi_id": "…",  
+      "stop_title": "Portal de pago — Ana Pérez",  
+      "empty_state_message": "No tienes pagos pendientes en este momento.",  
+      "status": "active"  
+    },  
+    {  
+      "internal_reference": "user_0002",  
+      "spidi_id": "…",  
+      "stop_title": "Portal de pago — Luis Gómez",  
+      "status": "active"  
+    }  
+  ]  
+}
+```
+
+**Qué guardar en tu DB**
+
+* `internal_reference` ↔ `stop_id` ↔ `stop_url` (clave para próximos pasos).
+
+---
+
+## **2\) Crear Enlaces masivos (100 links, uno por suscriptor)**
+
+**Endpoint:** `POST /api/v1/payment-session/link/batch`  
+ **Header:** `Idempotency-Key: <uuid-v4>`
+
+* Incluye `internal_reference` del **link** (no confundir con el de la Parada). Úsalos como IDs de la factura/periodo (ej. `INV-2025-09-USER_0001`).
+
+* Define `due_date_link`, `expire_behavior_link` y `late_notice_message` según tu política.
+
+* `amount` + `currency_reference` → SPIDI calcula `amount_ves`.
+
+**Ejemplo request (fragmento):**
+
+```json
+{  
+  "continue_on_error": true,  
+  "items": [  
+    {  
+      "internal_reference": "INV-2025-09-USER_0001",  
+      "spidi_id": "…",  
+      "amount": 15.50,  
+      "currency_reference": "USD",  
+      "identifier_label": "Suscriptor",  
+      "identifier": "Ana Pérez",  
+      "description": "Suscripción Premium — Septiembre",  
+      "due_date_link": "2025-09-30T23:59:59Z",  
+      "expire_behavior_link": "keep_active",  
+      "late_notice_message": "Tu servicio está inactivo. Paga para reactivar.",  
+      "success_url": "miapp://pago/exitoso",  
+      "failure_url": "miapp://pago/cancelado",  
+      "webhook_url": "https://miapi.com/spidi/webhook"  
+    }  
+  ]  
+}
+```
+
+**Qué guardar en tu DB**
+
+* `link_internal_reference` ↔ `session_id` ↔ `payment_url` ↔ `status`.
+
+---
+
+## **3\) Asociar cada link a su Parada correspondiente**
+
+**Endpoint (recomendado):** `POST /api/v1/payment-stop/links/batch`  
+ Operaciones por ítem: `op: "add"` con `stop_id` y `session_ids`.
+
+* Mapea por tu DB: `internal_reference (usuario)` → `stop_id`, y `link_internal_reference` → `session_id`.
+
+* Idempotente: agregar el mismo `session_id` dos veces es no-op.
+
+**Ejemplo request (fragmento):**
+
+```json
+{  
+  "continue_on_error": true,  
+  "items": [  
+    { "stop_id": "stp_user_0001", "op": "add", "session_ids": ["sess_u0001_sept"] },  
+    { "stop_id": "stp_user_0002", "op": "add", "session_ids": ["sess_u0002_sept"] }  
+  ]  
+}
+```
+
+**Alternativa por parada (si prefieres):**  
+ `POST /api/v1/payment-stop/{stop_id}/links/add` con `{"items":[{"session_id":"…"}]}`.
+
+---
+
+# **🔁 Segundo mes (y los siguientes)**
+
+## **4\) Crear nuevos Enlaces (100 del mes)**
+
+Repite **paso 2** (nuevo batch de links), cambiando `internal_reference` del **link** (ej. `INV-2025-10-USER_0001`).
+
+* No toques las Paradas: **ya existen** y su `stop_url` no cambia.
+
+## **5\) Reemplazar en cada Parada el link activo por el nuevo**
+
+Hay dos maneras:
+
+### **A) Replace atómico por parada (más simple de razonar)**
+
+**Endpoint:** `POST /api/v1/payment-stop/{stop_id}/links/replace`  
+ **Body:** lista con **solo el nuevo** `session_id`.
+
+* Si existía uno anterior `pending`, queda fuera de los activos (histórico).
+
+* Idempotente con `Idempotency-Key`.
+
+**Ejemplo:**
+
+```json
+{  
+  "items": [{ "session_id": "sess_u0001_oct" }]  
+}
+```
+
+### **B) Batch cruzado (más eficiente en red)**
+
+**Endpoint:** `POST /api/v1/payment-stop/links/batch`  
+ **Body:** items con `op: "replace"` por cada parada.
+
+**Ejemplo (fragmento):**
+
+```json
+{  
+  "continue_on_error": true,  
+  "items": [  
+    { "stop_id": "stp_user_0001", "op": "replace", "session_ids": ["sess_u0001_oct"] },  
+    { "stop_id": "stp_user_0002", "op": "replace", "session_ids": ["sess_u0002_oct"] }  
+  ]  
+}
+```
+
+Si tu operación requiere **mantener dos links activos** (ej. periodo solapado), usa `op: "add"` en lugar de `replace`, y luego **clear** cuando cierre el periodo anterior:
+
+* `POST /payment-stop/{stop_id}/links/add` (añades el nuevo)
+
+* `POST /payment-stop/{stop_id}/links/remove` (retiras el anterior cuando ya no lo quieras activo)
+
+* o `POST /payment-stop/{stop_id}/links/clear` para dejar la parada vacía.
+
+---
+
+# **🔔 Webhooks y sincronización**
+
+Configura y usa webhooks para no depender del front:
+
+* `payment.paid`: marca tu deuda local como **pagada** (y si quieres, **desasocia** el link de la parada o lo dejas que pase solo a histórico).
+
+* `payment.expired`: marca como **expirada** (si usas `expire_behavior_link: expire`).
+
+* `stop.link_added`, `stop.links_replaced`, `stop.link_removed` *(opcional para auditoría)*.
+
+---
+
+# **🧱 Idempotencia y reintentos (muy importante)**
+
+* **Siempre** envía `Idempotency-Key` en batchs (paradas, links, asociaciones).
+
+* Si repites el mismo payload con la misma clave, debes recibir **la misma respuesta** (sin duplicados).
+
+* Guarda `batch_id` y resultados por ítem para reconciliar.
+
+---
+
+# **🧪 Checks y reportes**
+
+* Para **validar** después de cada operación:
+
+  * `GET /payment-stop?status=active&q=…` para listar tus paradas.
+
+  * `GET /payment-stop/{stop_id}` para ver la **foto** (incluye `links_active_count` si lo expusiste).
+
+  * `GET /payment-stop/{stop_id}/links?status=pending` para confirmar qué link quedó activo.
+
+* Para **reportes**:
+
+  * `GET /payment-session?from_date=…&to_date=…&status=paid` (si implementas el listado de links global del comercio).
+
+---
+
+# **✅ Resumen operativo (receta)**
+
+1. **(Una sola vez)** `POST /payment-stop/batch` → 100 paradas (guarda `stop_id`, `stop_url`).
+
+2. **Cada ciclo**  
+    a. `POST /payment-session/link/batch` → 100 nuevos links.  
+    b. `POST /payment-stop/links/batch` con `op: "replace"` → asignas los links del mes a cada parada.
+
+3. **Webhooks** marcan `paid`/`expired` y actualizan tu DB.
+
+4. **Consultas** para ver el estado actual y reportes.
