@@ -273,19 +273,19 @@ GET {{baseUrl}}/api/v1/payment-session/3ddc4cfb-c09a-43de-92c1-e4a069732e90/stat
 
 # 7. Ejemplos de Response ≠ 200
 
-### Error 400 - Bad Request
+### 7.1 400 Bad Request (campo faltante)
 
 ```json
 {
   "success": false,
-  "message": "Missing required field: amount",
+  "message": "Missing required field: session_id",
   "errors": {
-    "amount": "This field is required."
+    "session_id": "This field is required."
   }
 }
 ```
 
-### Error 401 - Unauthorized
+### 7.2 401/403 Unauthorized (credenciales/propiedad)
 
 ```json
 {
@@ -297,32 +297,19 @@ GET {{baseUrl}}/api/v1/payment-session/3ddc4cfb-c09a-43de-92c1-e4a069732e90/stat
 }
 ```
 
-### Error 409 - Conflict
-
-```json
-{
-  "success": false,
-  "message": "Conflict: duplicated request.",
-  "errors": {
-    "Idempotency-Key": "A session already exists for this key."
-  }
-}
-```
-
-### Error 422 - Unprocessable Entity
+### 7.4 422 Unprocessable Entity (tipos/valores inválidos)
 
 ```json
 {
   "success": false,
   "message": "Unprocessable entity.",
   "errors": {
-    "currency_reference": "Allowed values are: 'VES', 'USD'.",
-    "amount": "Must be a number > 0 with two decimals."
+    "session_id": "Invalid session ID format"
   }
 }
 ```
 
-### Error 500 - Internal Server Error
+### 7.5 500 Internal Server Error
 
 ```json
 {
