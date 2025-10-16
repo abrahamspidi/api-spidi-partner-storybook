@@ -1,0 +1,139 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-SPIDI/Autenticacion/Login" />
+
+## Login
+
+# 1. Descripción
+
+Permite autenticar un usuario en el sistema SPIDI utilizando credenciales de acceso. Este endpoint es fundamental para obtener el token de autorización necesario para realizar operaciones posteriores en la API.
+
+**Funcionalidades principales:**
+
+- **Autenticación segura**: Valida las credenciales del usuario (short_name y password)
+- **Generación de token JWT**: Retorna un token de acceso que debe utilizarse en requests posteriores
+- **Control de sesión**: El token tiene un tiempo de expiración definido para mayor seguridad
+
+**Casos de uso típicos:**
+- Inicio de sesión de usuarios comercio
+- Obtención de token para operaciones API
+- Renovación de credenciales de acceso
+- Autenticación en aplicaciones integradas
+
+Una vez autenticado exitosamente, el token JWT debe incluirse en el header `Authorization: Bearer {token}` de todas las requests posteriores a la API.
+
+# 2. Endpoint
+
+Method: **POST**
+```
+"{{baseUrl}}/api/spidipagos/login"
+```
+
+**Headers requeridos:**
+- `Content-Type: application/json`
+
+# 3. Ejemplo del Request
+
+Method: **POST**
+```json
+{
+  "short_name": "spidiusuario1",
+  "password": "clavesecreta"
+}
+```
+
+# 4. Tabla de Parámetros del Request
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>short_name</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Nombre de usuario o identificador único del comercio</td></tr>
+<tr><td><b><i>password</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Contraseña de acceso del usuario</td></tr>
+</table>
+
+# 5. Ejemplo de Response 200
+
+```json
+{
+  "token": "eyJhbGciOiJlUzI1NilsInR5cCI6IkpXVCJ9.eyJzaG9ydF9uYW1lljoiZGInaXRlbClslmlhdCI6MTc2MDY0NTU4OCwiZXhwljoxNzYwNjQ2MTg4fQ.ZZaXHRfa57i4frCFIKLsRHU9Z7tI7JfU_o-TbEcwkN8"
+}
+```
+
+# 6. Tabla de Response 200
+
+### Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>token</i></b></td><td><b><i>string (JWT)</i></b></td><td>✔ Sí</td><td>Token de autorización JWT para autenticar requests posteriores</td></tr>
+</table>
+
+### Notas Importantes - Token JWT
+- El token es un JWT (JSON Web Token) codificado en Base64
+- Debe incluirse en el header `Authorization: Bearer {token}` de requests posteriores
+- Tiene un tiempo de expiración definido por seguridad
+- Contiene información del usuario autenticado y permisos
+
+# 7. Ejemplos de Response ≠ 200
+
+### Error 400 - Bad Request
+```json
+{
+  "success": false,
+  "message": "Missing required fields",
+  "errors": {
+    "short_name": "This field is required.",
+    "password": "This field is required."
+  }
+}
+```
+
+### Error 401 - Unauthorized (credenciales incorrectas)
+```json
+{
+  "success": false,
+  "message": "Invalid credentials",
+  "errors": {
+    "authentication": "The provided credentials are incorrect"
+  }
+}
+```
+
+### Error 422 - Unprocessable Entity
+```json
+{
+  "success": false,
+  "message": "Invalid input data",
+  "errors": {
+    "short_name": "Invalid format for short_name",
+    "password": "Password must be at least 8 characters"
+  }
+}
+```
+
+### Error 500 - Internal Server Error
+```json
+{
+  "success": false,
+  "message": "Internal server error"
+}
+```
+
+# 8. Tabla de Errores
+
+<table>
+<tr><th>Código HTTP</th><th>Código de Error</th><th>Descripción</th><th>Campos de Error</th></tr>
+<tr><td>400</td><td><b><i>VALIDATION_ERROR</i></b></td><td>Campos requeridos faltantes o formato inválido</td><td><b><i>field</i></b>, <b><i>message</i></b></td></tr>
+<tr><td>401</td><td><b><i>UNAUTHORIZED</i></b></td><td>Credenciales incorrectas o usuario no encontrado</td><td><b><i>authentication</i></b>, <b><i>message</i></b></td></tr>
+<tr><td>422</td><td><b><i>INVALID_INPUT</i></b></td><td>Datos de entrada inválidos o no cumplen validaciones</td><td><b><i>field</i></b>, <b><i>message</i></b></td></tr>
+<tr><td>429</td><td><b><i>RATE_LIMIT_EXCEEDED</i></b></td><td>Límite de intentos de login excedido</td><td><b><i>message</i></b>, <b><i>retry_after</i></b></td></tr>
+<tr><td>500</td><td><b><i>INTERNAL_SERVER_ERROR</i></b></td><td>Error interno del servidor</td><td><b><i>message</i></b></td></tr>
+</table>
+
+### 8.1 Subtabla: errors (campos de error comunes)
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b><i>short_name</i></b></td><td><b><i>string</i></b></td><td>Error relacionado con el campo de usuario (faltante, formato inválido)</td></tr>
+<tr><td><b><i>password</i></b></td><td><b><i>string</i></b></td><td>Error relacionado con la contraseña (faltante, longitud insuficiente)</td></tr>
+<tr><td><b><i>authentication</i></b></td><td><b><i>string</i></b></td><td>Error general de autenticación (credenciales incorrectas)</td></tr>
+</table>

@@ -6,6 +6,9 @@ const preview = {
         order: [
           'Introduction',
           'API-SPIDI', [
+            'Autenticacion', [
+              'Login',
+            ],
             'Acuerdo',
             'Sesion Boton de Pago', [
             ],
