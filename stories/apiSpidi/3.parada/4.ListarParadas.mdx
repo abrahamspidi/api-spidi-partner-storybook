@@ -10,14 +10,14 @@ Este endpoint lista **todas las paradas (stops)** del comercio autenticado, con 
 
 Method: **GET**
 ```
-{{baseUrl}}/api/v1/payment-stops
+{{baseUrl}}/api/v1/ext/payment-stops
 ```
 
 # 3. Ejemplo del Request
 
 Method: **GET**
 ```
-{{baseUrl}}/api/v1/payment-stops?status=active&q=caja&limit=20&offset=0&sort=created_desc
+{{baseUrl}}/api/v1/ext/payment-stops?status=active&q=caja&limit=20&offset=0&sort=created_desc
 ```
 
 # 4. Tabla de Parámetros del Request
@@ -155,4 +155,4 @@ Notas:
 
 * Ordena por `updated_desc` para ver primero las paradas modificadas recientemente.
 
-* Si necesitas los **enlaces** de una parada, utiliza el endpoint complementario: `GET /api/v1/payment-stop/{stop_id}/links`.
+* Si necesitas los **enlaces** de una parada, utiliza el endpoint complementario: `GET /api/v1/ext/payment-stops/{stop_id}/links`.

@@ -93,11 +93,11 @@ Un **Acuerdo de Pago** es un contrato digital que establece las reglas de distri
 
 ### Operaciones CRUD Completas
 
-* **POST** `/api/v1/agreements` — Crear un nuevo acuerdo de pago con configuración completa de split y liquidación
-* **GET** `/api/v1/agreements/{agreement_id}` — Consultar los detalles completos de un acuerdo específico, incluyendo configuración, estado y historial
-* **GET** `/api/v1/agreements` — Listar todos los acuerdos creados por el usuario con filtros y paginación
-* **PUT** `/api/v1/agreements/{agreement_id}` — Actualizar un acuerdo existente, modificando configuración de split, medios de pago o reglas de liquidación
-* **DELETE** `/api/v1/agreements/{agreement_id}` — Eliminar un acuerdo de pago (soft delete con preservación de historial)
+* **POST** `/api/v1/ext/agreements` — Crear un nuevo acuerdo de pago con configuración completa de split y liquidación
+* **GET** `/api/v1/ext/agreements/{agreement_id}` — Consultar los detalles completos de un acuerdo específico, incluyendo configuración, estado y historial
+* **GET** `/api/v1/ext/agreements` — Listar todos los acuerdos creados por el usuario con filtros y paginación
+* **PUT** `/api/v1/ext/agreements/{agreement_id}` — Actualizar un acuerdo existente, modificando configuración de split, medios de pago o reglas de liquidación
+* **DELETE** `/api/v1/ext/agreements/{agreement_id}` — Eliminar un acuerdo de pago (soft delete con preservación de historial)
 
 ### Características Técnicas
 
