@@ -1,0 +1,267 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-SPIDI/Asociar Solicitud a Parada/1. Operar Batch" />
+
+# Operar en lote enlaces de Paradas (batch)
+
+# 1. Descripción
+
+Este endpoint ejecuta operaciones en lote para asociar/desasociar/reemplazar/limpiar sesiones de pago (`session_id`) visibles en una o varias Paradas (`stop_id`) en una sola llamada.
+
+* Operaciones soportadas: `add`, `remove`, `replace`, `clear`.
+
+* Idempotente mediante encabezado `Idempotency-Key`.
+
+* Cada ítem se procesa de forma independiente; el resultado se devuelve por Parada.
+
+**Notas importantes:**
+
+* **Idempotencia:** usa siempre `Idempotency-Key` en operaciones en lote.
+* **Solo sesiones `pending`** pueden activarse (`add`/`replace`). Las sesiones `paid`/`expired` pasan a histórico automáticamente.
+* **`replace` con lista vacía** equivale a `clear` (limpieza atómica).
+
+---
+
+# 2. Endpoint
+
+Method: **POST**
+```
+{{baseUrl}}/api/v1/payment-stops/links/batch
+```
+
+**Headers**
+
+Idempotency-Key: \<uuid-v4\>  
+Content-Type: application/json  
+Authorization: Bearer \<token\>
+
+---
+
+# 3. Ejemplo del Request
+
+```json
+{  
+  "continue_on_error": true,  
+  "items": [  
+    { "stop_id": "stp_111", "op": "add",     "session_ids": ["sess_A", "sess_B"] },  
+    { "stop_id": "stp_222", "op": "remove",  "session_ids": ["sess_C"] },  
+    { "stop_id": "stp_333", "op": "replace", "session_ids": ["sess_D"] },  
+    { "stop_id": "stp_444", "op": "clear" }  
+  ]  
+}
+```
+
+---
+
+# 4. Tabla de Parámetros del Request
+
+## Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Req.</th><th>Descripción</th></tr>
+<tr><td><b>continue_on_error</b></td><td>boolean</td><td>✅</td><td>Si <b><i>true</i></b>, continúa procesando el resto aunque algún ítem falle. Default: <b><i>false</i></b>.</td></tr>
+<tr><td><b>items</b></td><td>object[]</td><td>✅</td><td>Lista de operaciones por Parada. Debe contener al menos <b><i>1</i></b> ítem.</td></tr>
+</table>
+
+# 4.1 Subtabla: Request → [items]
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Req. según op</th><th>Descripción</th></tr>
+<tr><td><b>stop_id</b></td><td>string</td><td>✅ (todos)</td><td>Parada sobre la que se ejecuta la operación. Debe pertenecer al comercio autenticado.</td></tr>
+<tr><td><b>op</b></td><td>string</td><td>✅ (todos)</td><td>Operación: <b><i>add</i></b> | <b><i>remove</i></b> | <b><i>replace</i></b> | <b><i>clear</i></b>.</td></tr>
+<tr><td><b>session_ids</b></td><td>string[]</td><td>✅ (add/remove/replace)</td><td>IDs de sesiones involucradas. Solo sesiones <b><i>pending</i></b> pueden activarse (add/replace).</td></tr>
+</table>
+
+**Reglas de negocio**
+
+* <b><i>add</i></b>: agrega 1..N <b><i>session_id</i></b> como activos (si ya estaban, es no-op y se reportan en <b>already_present</b>).
+
+* <b><i>remove</i></b>: desasocia 1..N <b><i>session_id</i></b> activos (si no estaban activos, se reportan en <b>not_active</b> o <b>not_found</b>).
+
+* <b><i>replace</i></b>: sustituye atómicamente el conjunto activo por <b>session_ids</b>. Con lista vacía ⇒ <b><i>clear</i></b>.
+
+* <b><i>clear</i></b>: elimina todos los activos (la Parada puede quedar en estado Empty).
+
+**Ordenación:** realiza el orden de visualización con el endpoint dedicado `PATCH {{baseUrl}}/payment-stop/links/reorder` tras completar el batch.
+
+---
+
+# 5. Ejemplo de Response 200
+
+### 5.1 Éxito total
+
+```json
+{  
+  "success": true,  
+  "message": "Batch processed: 4 items succeeded.",  
+  "batch_id": "batch_9a1b2c3d-ef45-6789-abcd-0123456789ab",  
+  "results": [  
+    { "stop_id": "stp_111", "op": "add", "success": true, "added": ["sess_A","sess_B"], "already_present": [] },  
+    { "stop_id": "stp_222", "op": "remove", "success": true, "removed": ["sess_C"], "not_active": [], "not_found": [] },  
+    { "stop_id": "stp_333", "op": "replace", "success": true, "active_now": ["sess_D"], "replaced_previous": ["sess_X"] },  
+    { "stop_id": "stp_444", "op": "clear", "success": true, "cleared": true }  
+  ]  
+}
+```
+
+### 5.2 Parcial con errores
+
+```json
+{  
+  "success": false,  
+  "message": "Batch processed with partial errors: 3 succeeded, 1 failed.",  
+  "batch_id": "batch_1c2d3e4f-5566-7788-99aa-bbccddeeff00",  
+  "results": [  
+    { "stop_id": "stp_111", "op": "add", "success": true, "added": ["sess_A"], "already_present": ["sess_B"] },  
+    { "stop_id": "stp_222", "op": "remove", "success": true, "removed": [], "not_active": ["sess_C"], "not_found": [] },  
+    { "stop_id": "stp_333", "op": "replace", "success": false, "errors": { "session_ids[0]": "Session is not pending (paid/expired cannot be set active)." } },  
+    { "stop_id": "stp_444", "op": "clear", "success": true, "cleared": true }  
+  ]  
+}
+```
+
+**Verificación posterior de resultados:**
+
+Después de ejecutar un batch, puedes verificar el estado actualizado de múltiples Paradas usando `POST {{baseUrl}}/api/v1/payment-stop/links/query`.
+
+**Recomendaciones:**
+
+* Úsalo inmediatamente después de un batch cuando proceses más de una Parada o necesites refrescar un panel administrativo.
+* Combínalo con `only_fields=["session_id","status","payment_url"]` para obtener una vista ligera y rápida.
+* Para auditoría, consulta `GET {{baseUrl}}/payment-stop/{stop_id}/links` con filtros como `status=pending`.
+
+**Webhooks recomendados:** escucha `stop.link_added`, `stop.link_removed`, `stop.links_replaced`, `stop.links_cleared` (y `stop.links_reordered` en el endpoint correspondiente).
+
+---
+
+# 6. Tabla de Response 200
+
+## Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td>boolean</td><td><b><i>true</i></b> si todo el batch fue exitoso; <b><i>false</i></b> si hubo al menos un fallo.</td></tr>
+<tr><td><b>message</b></td><td>string</td><td>Mensaje legible con el resumen del procesamiento.</td></tr>
+<tr><td><b>batch_id</b></td><td>string</td><td>Identificador único del batch (útil para auditoría y reintentos idempotentes).</td></tr>
+<tr><td><b>results</b></td><td>object[]</td><td>Resultado por ítem (por <b>stop_id</b>/<b>op</b>).</td></tr>
+</table>
+
+# 6.1 Subtabla: Response 200 → results
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>stop_id</b></td><td>string</td><td>Parada afectada.</td></tr>
+<tr><td><b>op</b></td><td>string</td><td>Operación ejecutada.</td></tr>
+<tr><td><b>success</b></td><td>boolean</td><td>Resultado del ítem.</td></tr>
+<tr><td><b>errors</b></td><td>object/null</td><td>Detalle solo si <b><i>success=false</i></b>.</td></tr>
+</table>
+
+**Campos específicos por operación**
+
+* <b><i>add</i></b>
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>added</b></td><td>string[]</td><td>Sesiones agregadas como activas.</td></tr>
+<tr><td><b>already_present</b></td><td>string[]</td><td>Sesiones ya activas (no-op).</td></tr>
+</table>
+
+* <b><i>remove</i></b>
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>removed</b></td><td>string[]</td><td>Sesiones desasociadas de activos.</td></tr>
+<tr><td><b>not_active</b></td><td>string[]</td><td>No estaban activas (histórico o nunca asociadas).</td></tr>
+<tr><td><b>not_found</b></td><td>string[]</td><td>No asociadas a esa Parada.</td></tr>
+</table>
+
+* <b><i>replace</i></b>
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>active_now</b></td><td>string[]</td><td>Conjunto final de activos tras la operación.</td></tr>
+<tr><td><b>replaced_previous</b></td><td>string[]</td><td>Sesiones que dejaron de estar activas.</td></tr>
+</table>
+
+* <b><i>clear</i></b>
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>cleared</b></td><td>boolean</td><td>Indica si la limpieza fue aplicada.</td></tr>
+</table>
+
+---
+
+# 7. Ejemplos de Response ≠ 200
+
+### Error 400 - Bad Request
+
+```json
+{  
+  "success": false,  
+  "message": "Invalid batch payload.",  
+  "errors": {  
+    "items": "Must be a non-empty array.",  
+    "items[0].op": "Allowed values are: add, remove, replace, clear.",  
+    "items[1].session_ids": "Required for op=add/remove/replace."  
+  }  
+}
+```
+
+### Error 409 - Conflict
+
+```json
+{  
+  "success": false,  
+  "message": "Idempotency conflict.",  
+  "errors": {  
+    "Idempotency-Key": "A different payload was previously submitted with the same key."  
+  }  
+}
+```
+
+### Error 422 - Unprocessable Entity
+
+```json
+{  
+  "success": false,  
+  "message": "Unprocessable entity.",  
+  "errors": {  
+    "items[2].session_ids[0]": "Session is not pending (paid/expired cannot be set active).",  
+    "items[3].stop_id": "Stop does not belong to your commerce credentials."  
+  }  
+}
+```
+
+### Error 500 - Internal Server Error
+
+```json
+{  
+  "success": false,  
+  "message": "Internal server error."  
+}
+```
+
+
+---
+
+# 8. Tabla de Errores
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td>boolean</td><td>Siempre <b><i>false</i></b> en respuestas de error.</td></tr>
+<tr><td><b>message</b></td><td>string</td><td>Mensaje descriptivo del error.</td></tr>
+<tr><td><b>errors</b></td><td>object</td><td>Detalles específicos de los errores de validación.</td></tr>
+</table>
+
+## 8.1 Códigos de Error HTTP
+
+<table>
+<tr><th>Código</th><th>Descripción</th><th>Casos de uso</th></tr>
+<tr><td><b><i>400</i></b></td><td>Bad Request</td><td>Payload inválido, campos requeridos faltantes, formato incorrecto.</td></tr>
+<tr><td><b><i>409</i></b></td><td>Conflict</td><td>Conflicto de idempotencia, clave ya utilizada con payload diferente.</td></tr>
+<tr><td><b><i>422</i></b></td><td>Unprocessable Entity</td><td>Reglas de negocio violadas, sesiones no válidas, paradas no autorizadas.</td></tr>
+<tr><td><b><i>500</i></b></td><td>Internal Server Error</td><td>Error interno del servidor, problemas de conectividad.</td></tr>
+</table>
+
+

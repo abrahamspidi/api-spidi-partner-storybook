@@ -1,0 +1,249 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-SPIDI/Asociar Solicitud a Parada/2. Reordenar" />
+
+# 1. Descripción
+
+Este endpoint permite **definir el orden de visualización** de los enlaces de pago activos (derivados de **sesiones `session_id`**) dentro de una o varias **Paradas** (`stop_id`) **en una sola llamada**.
+
+* No agrega ni quita sesiones; **solo** cambia el **orden**.
+
+* **Idempotente** mediante `Idempotency-Key`.
+
+* Control de concurrencia opcional mediante **`order_version`** (recomendado).
+
+**Notas importantes:**
+
+* **Separación de responsabilidades:** usa `reorder` **solo** para ordenar. Para agregar/quitar/sustituir, utiliza el batch de **operar enlaces**.
+* **Idempotencia siempre:** envía `Idempotency-Key`; misma clave + mismo payload ⇒ misma respuesta.
+
+# 2. Endpoint
+
+Method: **PATCH**
+```
+{{baseUrl}}/api/v1/payments-stop/links/reorder
+```
+
+**Headers**
+
+Authorization: Bearer \<token\>  
+Idempotency-Key: \<uuid-v4\>  
+Content-Type: application/json
+
+# 3. Ejemplo del Request
+
+Method: **PATCH**
+
+```json
+{  
+  "continue_on_error": true,  
+  "items": [  
+    {  
+      "stop_id": "stp_111",  
+      "session_ids": ["sess_B", "sess_A", "sess_C"],  
+      "mode": "append"  
+    },  
+    {  
+      "stop_id": "stp_222",  
+      "session_ids": ["sess_X", "sess_Y"],  
+      "mode": "strict"  
+    }  
+  ]  
+}
+```
+
+* **`mode=append`**: reordena las sesiones listadas arriba y **cualquier activa no listada queda al final** manteniendo su orden relativo actual.
+
+* **`mode=strict`**: la lista debe representar **exactamente** el conjunto de activos; si falta alguna activa o sobra alguna no activa, se devuelve error por ítem.
+
+# 4. Tabla de Parámetros del Request
+
+## Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Req.</th><th>Descripción</th></tr>
+<tr><td><b>continue_on_error</b></td><td>boolean</td><td>✅</td><td>Si <b><i>true</i></b>, continúa procesando el resto de ítems aunque alguno falle. Default: <b><i>false</i></b>.</td></tr>
+<tr><td><b>items</b></td><td>object[]</td><td>✅</td><td>Lista de instrucciones de reorden por Parada. Al menos 1 ítem.</td></tr>
+</table>
+
+# 4.1 Subtabla: Request → [items]
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Req.</th><th>Descripción</th></tr>
+<tr><td><b>stop_id</b></td><td>string</td><td>✅</td><td>Identificador de la Parada a reordenar (debe pertenecer al comercio autenticado).</td></tr>
+<tr><td><b>session_ids</b></td><td>string[]</td><td>✅</td><td><b>Nuevo orden deseado</b>. Deben ser <b><i>session_id</i></b> <b>activos</b> en esa Parada (ver <b><i>mode</i></b>).</td></tr>
+<tr><td><b>mode</b></td><td>string</td><td>❌</td><td><b><i>append</i></b> (default) o <b><i>strict</i></b>. Define reglas cuando faltan/sobran activos respecto a la lista enviada. **Nota:** `append` para reordenar parcialmente sin romper el conjunto activo; `strict` para forzar una lista **exacta** (ideal para flujos totalmente controlados).</td></tr>
+</table>
+
+**Reglas principales**
+
+* Solo **sesiones activas** pueden ordenarse.
+
+* **`append`**: reordena las listadas; las activas no listadas se **conservan al final**.
+
+* **`strict`**: la lista debe contener **todas y solo** las activas, sin duplicados.
+
+# 5. Ejemplo de Response 200
+
+### 5.1 Éxito total
+
+```json
+{  
+  "success": true,  
+  "message": "Batch reorder processed: 2 items succeeded.",  
+  "batch_id": "batch_5e9a1b2c-3344-5566-7788-99aabbccdd00",  
+  "results": [  
+    {  
+      "stop_id": "stp_111",  
+      "success": true,  
+      "applied_order": ["sess_B", "sess_A", "sess_C", "sess_D"],  
+      "mode": "append"  
+    },  
+    {  
+      "stop_id": "stp_222",  
+      "success": true,  
+      "applied_order": ["sess_X", "sess_Y"],  
+      "mode": "strict"  
+    }  
+  ]  
+}
+```
+
+En el primer ítem, había una activa adicional `sess_D` no listada; quedó **al final** (modo `append`).  
+La `order_version` aumenta con cada cambio aplicado.
+
+### 5.2 Parcial con errores
+
+```json
+{  
+  "success": false,  
+  "message": "Batch reorder processed with partial errors: 1 succeeded, 1 failed.",  
+  "batch_id": "batch_aa11bb22-cc33-dd44-ee55-ff6677889900",  
+  "results": [  
+    {  
+      "stop_id": "stp_111",  
+      "success": true,  
+      "applied_order": ["sess_B", "sess_A", "sess_C"],  
+      "mode": "append"  
+    },  
+    {  
+      "stop_id": "stp_222",  
+      "success": false,  
+      "mode": "strict",  
+      "errors": {  
+        "missing_actives": ["sess_Z"],  
+        "not_active": ["sess_Q"],  
+        "duplicates": ["sess_Y"]  
+      }  
+    }  
+  ]  
+}
+```
+
+# 6. Tabla de Response 200
+
+## Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td>boolean</td><td><b><i>true</i></b> si <b>todos</b> los ítems fueron exitosos; <b><i>false</i></b> si al menos uno falló.</td></tr>
+<tr><td><b>message</b></td><td>string</td><td>Resumen legible del resultado.</td></tr>
+<tr><td><b>batch_id</b></td><td>string</td><td>Identificador único del batch para auditoría/idempotencia.</td></tr>
+<tr><td><b>results</b></td><td>object[]</td><td>Resultados por ítem (<b>stop_id</b>).</td></tr>
+</table>
+
+# 6.1 Subtabla: Response 200 → results
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>stop_id</b></td><td>string</td><td>Parada afectada.</td></tr>
+<tr><td><b>success</b></td><td>boolean</td><td>Resultado del ítem.</td></tr>
+<tr><td><b>mode</b></td><td>string</td><td><b><i>append</i></b> o <b><i>strict</i></b>.</td></tr>
+<tr><td><b>applied_order</b></td><td>string[]</td><td>Orden final aplicado (solo si <b><i>success=true</i></b>).</td></tr>
+<tr><td><b>errors</b></td><td>object/null</td><td>Detalle de validaciones cuando <b><i>success=false</i></b>.</td></tr>
+</table>
+
+**Posibles errores por ítem**
+
+* `missing_actives`: sesiones activas no incluidas (en `strict`).
+
+* `not_active`: IDs listados que no están activos.
+
+* `not_found`: IDs no asociados a la Parada.
+
+* `duplicates`: IDs repetidos en la lista.
+
+**Observabilidad y validaciones:**
+
+* **Observabilidad:** registra el orden aplicado y escucha el webhook `stop.links_reordered` (si está habilitado) para sincronizar UIs.
+* **Validaciones previas:** en `strict`, primero consulta `GET {{baseUrl}}/payment-stop/{stop_id}/links?status=pending` para conocer el conjunto activo actual.
+
+# 7. Ejemplos de Response ≠ 200
+
+### Error 400 - Bad Request
+
+```json
+{  
+  "success": false,  
+  "message": "Invalid batch payload.",  
+  "errors": {  
+    "items": "Must be a non-empty array.",  
+    "items[0].mode": "Allowed values are: append, strict.",  
+    "items[1].session_ids": "Must be a non-empty array of strings."  
+  }  
+}
+```
+
+### Error 409 - Conflict
+
+```json
+{  
+  "success": false,  
+  "message": "Order version conflict.",  
+  "errors": {  
+    "stp_222.order_version": "Provided 12, current is 13."  
+  }  
+}
+```
+
+### Error 422 - Unprocessable Entity
+
+```json
+{  
+  "success": false,  
+  "message": "Unprocessable entity.",  
+  "errors": {  
+    "items[0].session_ids[2]": "Session is not active.",  
+    "items[1].session_ids": "List contains duplicates."  
+  }  
+}
+```
+
+### Error 500 - Internal Server Error
+
+```json
+{  
+  "success": false,  
+  "message": "Internal server error."  
+}
+```
+
+# 8. Tabla de Errores
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td>boolean</td><td>Siempre <b><i>false</i></b> en respuestas de error.</td></tr>
+<tr><td><b>message</b></td><td>string</td><td>Resumen legible del error principal.</td></tr>
+<tr><td><b>errors</b></td><td>object</td><td>Detalles específicos de los errores de validación.</td></tr>
+</table>
+
+## 8.1 Códigos de Error HTTP
+
+<table>
+<tr><th>Código</th><th>Descripción</th><th>Casos de uso</th></tr>
+<tr><td><b><i>400</i></b></td><td>Bad Request</td><td>Payload inválido, campos requeridos faltantes, formato incorrecto.</td></tr>
+<tr><td><b><i>409</i></b></td><td>Conflict</td><td>Conflicto de idempotencia, versión desactualizada.</td></tr>
+<tr><td><b><i>422</i></b></td><td>Unprocessable Entity</td><td>Reglas de negocio violadas, sesiones no válidas.</td></tr>
+<tr><td><b><i>500</i></b></td><td>Internal Server Error</td><td>Error interno del servidor, problemas de conectividad.</td></tr>
+</table>
+

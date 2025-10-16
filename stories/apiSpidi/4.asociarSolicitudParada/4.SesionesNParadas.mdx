@@ -1,0 +1,285 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-SPIDI/Asociar Solicitud a Parada/4. Sesiones N Paradas" />
+
+# 1. Descripción
+
+Devuelve, en **una sola llamada**, los **enlaces de pago activos** (derivados de sesiones `pending`) para **varias Paradas** (`stop_id`).  
+Incluye **paginación por Parada**, filtros básicos y posibilidad de limitar campos para reducir payload.
+
+**¿Por qué POST para "leer"?**  
+Acepta listas grandes de `stop_id` y *tokens* de paginación por Parada; un `GET` se quedaría corto por límites de longitud de URL.
+
+**Notas importantes:**
+
+* Este endpoint está optimizado para **UI cliente** y devuelve **solo activos por defecto** (= `status=pending`).
+* Si necesitas histórico, usa `status: "historical"` o `include_history: true` en el request.
+* Máximo recomendado: ~200 `stop_ids` por request; para más, pagina tu *input*.
+
+# 2. Endpoint
+
+Method: **POST**
+```
+{{baseUrl}}/api/v1/payment-stop/links/query
+```
+
+**Headers**
+
+Authorization: Bearer \<token\>  
+Content-Type: application/json
+
+# 3. Ejemplo del Request
+
+Method: **POST**
+
+### 3.1 Consulta simple (solo activos)
+
+```json
+{  
+  "stop_ids": ["stp_111", "stp_222", "stp_333"]  
+}
+```
+
+### 3.2 Con paginación por Parada y campos mínimos
+
+```json
+{  
+  "stop_ids": ["stp_111", "stp_222"],  
+  "per_stop": {  
+    "page_size": 20,  
+    "sort": "created_at",  
+    "order": "desc",  
+    "only_fields": ["session_id", "payment_url", "expires_at"]  
+  }  
+}
+```
+
+### 3.3 Reanudación por Parada (usando `next_cursor` previo)
+
+```json
+{  
+  "stop_ids": ["stp_111", "stp_222", "stp_333"],  
+  "per_stop": {  
+    "cursor_by_stop": {  
+      "stp_111": "cur_aaa",  
+      "stp_333": "cur_ccc"  
+    },  
+    "page_size": 50  
+  }  
+}
+```
+
+
+# 4. Tabla de Parámetros del Request
+
+## Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Req.</th><th>Descripción</th></tr>
+<tr><td><b>stop_ids</b></td><td>string[]</td><td>✅</td><td>Lista de Paradas a consultar (máx. recomendado: 200 por request).</td></tr>
+<tr><td><b>status</b></td><td>string</td><td>❌</td><td><b><i>active</i></b> (default, alias de <b><i>pending</i></b>), <b><i>pending</i></b>, <b><i>paid</i></b>, <b><i>expired</i></b>, <b><i>historical</i></b>.</td></tr>
+<tr><td><b>per_stop</b></td><td>object</td><td>❌</td><td>Configuración de paginación y filtros por Parada.</td></tr>
+</table>
+
+# 4.1 Subtabla: Request → per_stop
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Req.</th><th>Descripción</th></tr>
+<tr><td><b>page_size</b></td><td>integer</td><td>❌</td><td>Tamaño por Parada (1..200, default 50).</td></tr>
+<tr><td><b>sort</b></td><td>string</td><td>❌</td><td><b><i>created_at</i></b> | <b><i>updated_at</i></b> | <b><i>expires_at</i></b> | <b><i>amount</i></b> (default <b><i>created_at</i></b>).</td></tr>
+<tr><td><b>order</b></td><td>string</td><td>❌</td><td><b><i>asc</i></b> | <b><i>desc</i></b> (default <b><i>desc</i></b>).</td></tr>
+<tr><td><b>only_fields</b></td><td>string[]</td><td>❌</td><td>Limitar campos (p. ej., <b><i>["session_id","payment_url","expires_at"]</i></b>).</td></tr>
+<tr><td><b>cursor_by_stop</b></td><td>object{<b><i>`stop-token`</i></b>}</td><td>❌</td><td>Cursor por Parada para continuar desde una respuesta previa. **Nota:** usa `next_cursor` por `stop_id` para cargas incrementales eficientes (evita traer todo siempre).</td></tr>
+</table>
+
+# 5. Ejemplo de Response 200
+
+```json
+{  
+  "success": true,  
+  "requested": {  
+    "stop_ids": ["stp_111", "stp_222", "stp_333"],  
+    "status": "active",  
+    "per_stop": { "page_size": 20, "sort": "created_at", "order": "desc" }  
+  },  
+  "results": [  
+    {  
+      "stop_id": "stp_111",  
+      "page_size": 20,  
+      "has_next": true,  
+      "next_cursor": "cur_aaa_next",  
+      "total_estimate": 72,  
+      "items": [  
+        {  
+          "session_id": "sess_A",  
+          "payment_url": "https://pay.spidi.io/sess_A",  
+          "status": "pending",  
+          "amount": { "value": "15.00", "currency": "USD_BCV" },  
+          "amount_bs": { "value": "Bs. 552,00", "rate_date": "2025-10-16" },  
+          "created_at": "2025-10-15T14:25:32Z",  
+          "expires_at": "2025-10-15T14:35:32Z",  
+          "order_index": 0  
+        }  
+      ]  
+    },  
+    {  
+      "stop_id": "stp_222",  
+      "page_size": 20,  
+      "has_next": false,  
+      "next_cursor": null,  
+      "total_estimate": 2,  
+      "items": [  
+        {  
+          "session_id": "sess_X",  
+          "payment_url": "https://pay.spidi.io/sess_X",  
+          "status": "pending",  
+          "amount": { "value": "120.00", "currency": "USD_BCV" },  
+          "created_at": "2025-10-15T12:01:10Z",  
+          "expires_at": "2025-10-15T12:11:10Z",  
+          "order_index": 1  
+        },  
+        {  
+          "session_id": "sess_Y",  
+          "payment_url": "https://pay.spidi.io/sess_Y",  
+          "status": "pending",  
+          "amount": { "value": "90000000", "currency": "VES" },  
+          "created_at": "2025-10-14T19:01:10Z",  
+          "expires_at": "2025-10-14T19:11:10Z",  
+          "order_index": 2  
+        }  
+      ]  
+    },  
+    {  
+      "stop_id": "stp_333",  
+      "error": { "code": "not_found", "message": "Stop not found." }  
+    }  
+  ]  
+}
+```
+
+# 6. Tabla de Response 200
+
+## Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td>boolean</td><td><b><i>true</i></b> si el batch de consulta se procesó (aunque existan errores por Parada).</td></tr>
+<tr><td><b>requested</b></td><td>object</td><td>Eco de parámetros aplicados.</td></tr>
+<tr><td><b>results</b></td><td>object[]</td><td>Resultado por <b>stop_id</b>.</td></tr>
+</table>
+
+# 6.1 Subtabla: Response 200 → results (éxito)
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>stop_id</b></td><td>string</td><td>Parada consultada.</td></tr>
+<tr><td><b>page_size</b></td><td>integer</td><td>Tamaño aplicado por Parada.</td></tr>
+<tr><td><b>has_next</b></td><td>boolean</td><td>Si hay más resultados.</td></tr>
+<tr><td><b>next_cursor</b></td><td>string?</td><td>Cursor para continuar la paginación de <b>esa Parada</b>.</td></tr>
+<tr><td><b>total_estimate</b></td><td>integer?</td><td>Estimación rápida del total (opcional).</td></tr>
+<tr><td><b>items</b></td><td>object[]</td><td>Lista de sesiones (cada una con su <b><i>payment_url</i></b>).</td></tr>
+</table>
+
+**Campos típicos en `items[]`:**
+
+* `session_id` (string)
+* `payment_url` (string)  
+* `status` = `pending|paid|expired` (en este endpoint, por defecto `pending`)
+* `amount` `{ value, currency }` (VES o referencia: USD_BCV, EUR_BCV, COP, USDT)
+* `amount_bs` `{ value, rate_date }` (si aplica)
+* `created_at`, `updated_at?`, `expires_at?`, `paid_at?`
+* `agreement_id?`, `internal_reference?`, `customer_ref?`, `order_index?`, `receipt_url?`, `metadata?`
+
+**Optimización de payload:**
+
+* Usa `only_fields` cuando renders simples (lista clicable con `session_id`, `payment_url`, `expires_at`).
+* **Orden consistente:** `sort` + `order` por Parada; si necesitas priorización visual, combina con el endpoint de **`reorder`**.
+
+# 6.2 Subtabla: Response 200 → results (con error)
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>stop_id</b></td><td>string</td><td>Parada consultada.</td></tr>
+<tr><td><b>error</b></td><td>object</td><td><b><i>```{ code, message }```</i></b> — p. ej. <b><i>```not_found```</i></b>, <b><i>```forbidden```</i></b>, <b><i>```invalid_cursor```</i></b>.</td></tr>
+</table>
+
+# 7. Ejemplos de Response ≠ 200
+
+### Error 400 - Bad Request
+
+```json
+{  
+  "success": false,  
+  "message": "Invalid payload.",  
+  "errors": {  
+    "stop_ids": "Must be a non-empty array."  
+  }  
+}
+```
+
+### Error 401 - Unauthorized
+
+```json
+{  
+  "success": false,  
+  "message": "Unauthorized."  
+}
+```
+
+### Error 403 - Forbidden
+
+```json
+{  
+  "success": false,  
+  "message": "Forbidden: stop does not belong to your commerce."  
+}
+```
+
+### Error 422 - Unprocessable Entity
+
+```json
+{  
+  "success": false,  
+  "message": "Unprocessable entity.",  
+  "errors": {  
+    "per_stop.page_size": "Must be between 1 and 200.",  
+    "per_stop.cursor_by_stop.stp_111": "Invalid cursor format."  
+  }  
+}
+```
+
+### Error 500 - Internal Server Error
+
+```json
+{  
+  "success": false,  
+  "message": "Internal server error."  
+}
+```
+
+# 8. Tabla de Errores
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td>boolean</td><td>Siempre <b><i>false</i></b> en respuestas de error.</td></tr>
+<tr><td><b>message</b></td><td>string</td><td>Resumen legible del error principal.</td></tr>
+<tr><td><b>errors</b></td><td>object</td><td>Detalles específicos de los errores de validación.</td></tr>
+</table>
+
+## 8.1 Códigos de Error HTTP
+
+<table>
+<tr><th>Código</th><th>Descripción</th><th>Casos de uso</th></tr>
+<tr><td><b><i>400</i></b></td><td>Bad Request</td><td>Payload inválido, campos requeridos faltantes.</td></tr>
+<tr><td><b><i>401</i></b></td><td>Unauthorized</td><td>Token de autorización faltante o inválido.</td></tr>
+<tr><td><b><i>403</i></b></td><td>Forbidden</td><td>Parada no pertenece a las credenciales del comercio.</td></tr>
+<tr><td><b><i>422</i></b></td><td>Unprocessable Entity</td><td>Cursor inválido, page_size fuera de rango.</td></tr>
+<tr><td><b><i>500</i></b></td><td>Internal Server Error</td><td>Error interno del servidor.</td></tr>
+</table>
+
+---
+
+## Notas de seguridad y observabilidad
+
+* **Seguridad:** siempre `Authorization: Bearer <token>`; valida pertenencia de cada `stop_id`.
+* **Observabilidad:** si combinas con operaciones batch o reordenamientos, registra `request_id`/`batch_id` en logs para correlación.

@@ -1,0 +1,291 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-SPIDI/Asociar Solicitud a Parada/3. Sesiones Parada" />
+
+# 1. Descripción
+
+Devuelve la **lista de sesiones asociadas** a una Parada (`stop_id`) y sus **enlaces de pago (`payment_url`)**, con soporte de **filtros**, **ordenación** y **paginación**.  
+Es el endpoint clave para **pintar la UI operativa**, **auditoría** y **observabilidad** (qué ve el cliente en su Parada y qué tiene activo/vigente).
+
+**Notas importantes:**
+
+* **UI de cliente:** usa `status=active` (alias de `pending`) para pintar solo lo visible/accionable.
+* **Auditoría:** habilita `include_history=true` y ordena por `updated_at desc`.
+* **Delta queries:** usa `updated_after` para sincronización incremental en paneles o jobs.
+* **No asumir éxito por URL:** incluso si llegas a `success_url`, **valida siempre** el resultado consultando el estado de la sesión.
+
+# 2. Endpoint
+
+Method: **GET**
+```
+`{{baseUrl}}/api/v1/payment-stops/{stop_id}/links`
+```
+
+**Headers**
+
+Authorization: Bearer \<token\>  
+Accept: application/json
+
+**Query params (opcionales)**
+
+* `status`: `pending|paid|expired|active|historical`
+
+  * `active` = alias conveniente para `pending` (visibles/activos en Parada).
+
+  * `historical` = `paid` + `expired`.
+
+* `search`: texto libre para filtrar por `internal_reference`, `customer_ref`, etc.
+
+* `sort`: `created_at|updated_at|expires_at|amount` (por defecto `created_at:desc`).
+
+* `order`: `asc|desc` (por defecto `desc`).
+
+* `page`: entero ≥ 1 (por defecto `1`).
+
+* `page_size`: entero 1..200 (por defecto `50`).
+
+* `include_history`: `true|false` (por defecto `true`).
+
+* `updated_after`: ISO-8601 para delta queries (por ejemplo, `2025-10-01T00:00:00Z`).
+
+* `only_fields`: lista separada por comas para reducir payload (p. ej., `session_id,payment_url,status`).
+
+**Nota:** si **no** pasas filtros, el endpoint devuelve **activos e histórico** (según `include_history=true`) ordenado por `created_at desc`.
+
+**Tamaños de página:** preferir `page_size` 50–100; para cargas pesadas, 200.
+
+# 3. Ejemplo del Request
+
+Method: **GET**
+
+### 3.1 Listar solo activos (para UI del cliente)
+
+```
+{{baseUrl}}/api/v1/payment-stops/stp_123/links?status=active&sort=created_at&order=desc&page=1&page_size=20
+```
+
+### 3.2 Auditoría completa con paginación
+
+```
+{{baseUrl}}/api/v1/payment-stops/stp_123/links?include_history=true&sort=updated_at&order=desc&page=2&page_size=50
+```
+
+### 3.3 Cambios desde una fecha (delta)
+
+```
+{{baseUrl}}/api/v1/payment-stops/stp_123/links?updated_after=2025-10-01T00:00:00Z
+```
+
+### 3.4 Respuesta liviana (solo campos clave)
+
+```
+{{baseUrl}}/api/v1/payment-stops/stp_123/links?status=pending&only_fields=session_id,payment_url,status,expires_at
+```
+
+# 4. Tabla de Parámetros del Request
+
+## Campos del Nivel Principal
+
+<table>
+<tr><th>Param</th><th>Tipo</th><th>Req.</th><th>Descripción</th></tr>
+<tr><td><b>status</b></td><td>string</td><td>❌</td><td>Filtra por estado: <b><i>pending</i></b>, <b><i>paid</i></b>, <b><i>expired</i></b>, <b><i>active</i></b> (alias de <b><i>pending</i></b>), <b><i>historical</i></b> (paid+expired).</td></tr>
+<tr><td><b>search</b></td><td>string</td><td>❌</td><td>Texto para buscar por referencias internas u otros campos indexados.</td></tr>
+<tr><td><b>sort</b></td><td>string</td><td>❌</td><td>Campo de ordenación: <b><i>created_at</i></b>, <b><i>updated_at</i></b>, <b><i>expires_at</i></b>, <b><i>amount</i></b>. Default: <b><i>created_at</i></b>.</td></tr>
+<tr><td><b>order</b></td><td>string</td><td>❌</td><td><b><i>asc</i></b> o <b><i>desc</i></b>. Default: <b><i>desc</i></b>.</td></tr>
+<tr><td><b>page</b></td><td>integer</td><td>❌</td><td>Página (≥1). Default: <b><i>1</i></b>.</td></tr>
+<tr><td><b>page_size</b></td><td>integer</td><td>❌</td><td>Tamaño de página (1..200). Default: <b><i>50</i></b>.</td></tr>
+<tr><td><b>include_history</b></td><td>boolean</td><td>❌</td><td>Incluye histórico (<b><i>paid/expired</i></b>). Default: <b><i>true</i></b>.</td></tr>
+<tr><td><b>updated_after</b></td><td>datetime</td><td>❌</td><td>Retorna solo elementos con <b><i>updated_at</i></b> posterior (delta incremental).</td></tr>
+<tr><td><b>only_fields</b></td><td>string</td><td>❌</td><td>Coma-separado para limitar campos y optimizar payload. **Nota:** reduce payload con `only_fields` cuando la UI solo necesita `session_id`, `payment_url`, `status`, `expires_at`.</td></tr>
+</table>
+
+# 5. Ejemplo de Response 200
+
+### 5.1 UI del cliente (solo activos, respuesta liviana)
+
+```json
+{  
+  "stop_id": "stp_123",  
+  "page": 1,  
+  "page_size": 20,  
+  "total": 2,  
+  "has_next": false,  
+  "items": [  
+    {  
+      "session_id": "sess_A",  
+      "payment_url": "https://pay.spidi.io/sess_A",  
+      "status": "pending",  
+      "amount": { "value": "15.00", "currency": "USD_BCV" },  
+      "amount_bs": { "value": "Bs. 552,00", "rate_date": "2025-10-16" },  
+      "created_at": "2025-10-15T14:25:32Z",  
+      "expires_at": "2025-10-15T14:35:32Z",  
+      "order_index": 0  
+    },  
+    {  
+      "session_id": "sess_B",  
+      "payment_url": "https://pay.spidi.io/sess_B",  
+      "status": "pending",  
+      "amount": { "value": "120.000.000,00", "currency": "VES" },  
+      "created_at": "2025-10-15T12:01:10Z",  
+      "expires_at": "2025-10-15T12:11:10Z",  
+      "order_index": 1  
+    }  
+  ]  
+}
+```
+
+### 5.2 Auditoría (activos + histórico, página 2)
+
+```json
+{  
+  "stop_id": "stp_123",  
+  "page": 2,  
+  "page_size": 50,  
+  "total": 125,  
+  "has_next": true,  
+  "items": [  
+    {  
+      "session_id": "sess_98",  
+      "payment_url": "https://pay.spidi.io/sess_98",  
+      "status": "paid",  
+      "amount": { "value": "9.99", "currency": "USD_BCV" },  
+      "amount_bs": { "value": "Bs. 366,63", "rate_date": "2025-10-10" },  
+      "agreement_id": "agr_001",  
+      "internal_reference": "INV-9842",  
+      "customer_ref": "cust_778",  
+      "created_at": "2025-10-10T16:12:08Z",  
+      "updated_at": "2025-10-10T16:13:01Z",  
+      "paid_at": "2025-10-10T16:12:59Z",  
+      "receipt_url": "https://pay.spidi.io/receipt/sess_98",  
+      "order_index": 0,  
+      "metadata": { "plan": "pro" }  
+    },  
+    {  
+      "session_id": "sess_97",  
+      "payment_url": "https://pay.spidi.io/sess_97",  
+      "status": "expired",  
+      "amount": { "value": "20.00", "currency": "USD_BCV" },  
+      "created_at": "2025-10-10T16:00:00Z",  
+      "updated_at": "2025-10-10T16:12:00Z",  
+      "expires_at": "2025-10-10T16:10:00Z",  
+      "expiration_behavior": "message_only",  
+      "order_index": 1  
+    }  
+  ]  
+}
+```
+
+# 6. Tabla de Response 200
+
+## Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>stop_id</b></td><td>string</td><td>Parada consultada.</td></tr>
+<tr><td><b>page</b></td><td>integer</td><td>Página actual.</td></tr>
+<tr><td><b>page_size</b></td><td>integer</td><td>Tamaño de página aplicado.</td></tr>
+<tr><td><b>total</b></td><td>integer</td><td>Total de elementos que cumplen los filtros.</td></tr>
+<tr><td><b>has_next</b></td><td>boolean</td><td>Indica si hay página siguiente.</td></tr>
+<tr><td><b>items</b></td><td>object[]</td><td>Lista de sesiones asociadas (cada una con su <b><i>payment_url</i></b>).</td></tr>
+</table>
+
+# 6.1 Subtabla: Response 200 → items
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>session_id</b></td><td>string</td><td>Identificador de la <b>sesión de pago</b>.</td></tr>
+<tr><td><b>payment_url</b></td><td>string</td><td><b>Enlace de pago</b> asociado a la sesión.</td></tr>
+<tr><td><b>status</b></td><td>string</td><td><b><i>pending</i></b> | <b><i>paid</i></b> | <b><i>expired</i></b>.</td></tr>
+<tr><td><b>amount</b></td><td>object</td><td>Monto original: <b><i>`{ value, currency }`</i></b> (VES o moneda de referencia: <b><i>`USD_BCV`</i></b>, <b><i>`EUR_BCV`</i></b>, <b><i>`COP`</i></b>, <b><i>`USDT`</i></b>).</td></tr>
+<tr><td><b>amount_bs</b></td><td>object?</td><td>Monto expresado en Bs. cuando la referencia no es VES. <b><i>```{ value, rate_date }```</i></b>.</td></tr>
+<tr><td><b>agreement_id</b></td><td>string?</td><td>Acuerdo de liquidación aplicado (si existe).</td></tr>
+<tr><td><b>internal_reference</b></td><td>string?</td><td>Identificador interno del comercio (requerido en Solicitudes).</td></tr>
+<tr><td><b>customer_ref</b></td><td>string?</td><td>Referencia del cliente (si aplica).</td></tr>
+<tr><td><b>created_at</b></td><td>datetime</td><td>Fecha/hora de creación de la sesión.</td></tr>
+<tr><td><b>updated_at</b></td><td>datetime?</td><td>Fecha/hora de última actualización.</td></tr>
+<tr><td><b>expires_at</b></td><td>datetime?</td><td>Vencimiento de la sesión (Botón: 10 min; Solicitud: configurable).</td></tr>
+<tr><td><b>paid_at</b></td><td>datetime?</td><td>Fecha/hora de confirmación de pago (si <b><i>paid</i></b>).</td></tr>
+<tr><td><b>expiration_behavior</b></td><td>string?</td><td><b><i>expire</i></b> | <b><i>message_only</i></b> (solo Solicitudes).</td></tr>
+<tr><td><b>order_index</b></td><td>integer?</td><td>Posición relativa en la Parada (para visualización). **Nota:** `order_index` refleja el resultado del endpoint **reorder**; no lo asumas si no lo consultas.</td></tr>
+<tr><td><b>receipt_url</b></td><td>string?</td><td>URL del comprobante de pago SPIDI (si <b><i>paid</i></b>).</td></tr>
+<tr><td><b>metadata</b></td><td>object?</td><td>Datos adicionales definidos por el comercio.</td></tr>
+
+**Webhooks complementarios:**
+
+* Para cambios en tiempo real, escucha `stop.link_added`, `stop.link_removed`, `stop.links_replaced`, `stop.links_cleared`, `stop.links_reordered`.
+</table>
+
+# 7. Ejemplos de Response ≠ 200
+
+### Error 400 - Bad Request
+
+```json
+{  
+  "success": false,  
+  "message": "Invalid query parameters.",  
+  "errors": {  
+    "status": "Allowed: pending, paid, expired, active, historical.",  
+    "page_size": "Must be between 1 and 200."  
+  }  
+}
+```
+
+### Error 401 - Unauthorized
+
+```json
+{  
+  "success": false,  
+  "message": "Unauthorized."  
+}
+```
+
+### Error 404 - Not Found
+
+```json
+{  
+  "success": false,  
+  "message": "Stop not found."  
+}
+```
+
+### Error 422 - Unprocessable Entity
+
+```json
+{  
+  "success": false,  
+  "message": "Unprocessable entity.",  
+  "errors": {  
+    "updated_after": "Must be a valid ISO-8601 datetime."  
+  }  
+}
+```
+
+### Error 500 - Internal Server Error
+
+```json
+{  
+  "success": false,  
+  "message": "Internal server error."  
+}
+```
+
+# 8. Tabla de Errores
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td>boolean</td><td>Siempre <b><i>false</i></b> en respuestas de error.</td></tr>
+<tr><td><b>message</b></td><td>string</td><td>Resumen legible del error principal.</td></tr>
+<tr><td><b>errors</b></td><td>object</td><td>Detalles específicos de los errores de validación.</td></tr>
+</table>
+
+## 8.1 Códigos de Error HTTP
+
+<table>
+<tr><th>Código</th><th>Descripción</th><th>Casos de uso</th></tr>
+<tr><td><b><i>400</i></b></td><td>Bad Request</td><td>Parámetros de consulta inválidos, valores fuera de rango.</td></tr>
+<tr><td><b><i>401</i></b></td><td>Unauthorized</td><td>Token de autorización faltante o inválido.</td></tr>
+<tr><td><b><i>404</i></b></td><td>Not Found</td><td>Parada no encontrada o no pertenece al comercio.</td></tr>
+<tr><td><b><i>422</i></b></td><td>Unprocessable Entity</td><td>Filtros inconsistentes, formato de fecha inválido.</td></tr>
+<tr><td><b><i>500</i></b></td><td>Internal Server Error</td><td>Error interno del servidor, problemas de conectividad.</td></tr>
+</table>
+

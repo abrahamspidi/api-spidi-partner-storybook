@@ -3,3 +3,88 @@ import { Meta } from '@storybook/blocks';
 <Meta title="API-SPIDI/Asociar Solicitud a Parada/0. Resumen" />
 
 ## **Asociar Solicitud a Parada**
+
+## **Resumen: Asociación entre Paradas y Solicitudes**
+
+La **asociación entre Paradas y Sesiones de Pago SPIDI** permite vincular, en una sola llamada o de forma individual, los **enlaces de pago (`payment_url`)** derivados de cada **sesión de pago (`session_id`)** con una **Parada (`stop_id`)** específica.  
+ Esta relación convierte cada Parada en un **contenedor dinámico de sesiones activas**, ofreciendo una experiencia continua para el cliente y una administración centralizada para el comercio.
+
+Cada Parada puede tener **0, 1 o varias sesiones activas asociadas**, todas compartiendo el mismo `stop_id`.  
+ Los endpoints disponibles permiten **operar en lote**, **reordenar** o **consultar** las sesiones asociadas de forma eficiente y segura.
+
+---
+
+### **Concepto operativo**
+
+* Una Parada actúa como el **punto de referencia único** del cliente o suscripción.
+
+* Las sesiones de pago representan operaciones activas y se asocian a esa Parada; en la interfaz del cliente aparecen como sus enlaces de pago (`payment_url`).
+
+* Las empresas pueden **agregar, remover, reemplazar, limpiar** o **reordenar** las sesiones activas según sus procesos comerciales o ciclos de renovación.
+
+* La asociación es completamente **dinámica**, **reversible** y **trazable** mediante el API.
+
+* SPIDI mantiene una trazabilidad completa de todas las operaciones de asociación para auditoría y sincronización con tu sistema.
+
+---
+
+### **⚙️ Endpoints principales**
+
+<table>
+<tr>
+<th>Método</th>
+<th>Endpoint</th>
+<th>Descripción</th>
+</tr>
+<tr>
+<td><b>POST</b></td>
+<td>`{{baseUrl}}/api/v1/payment-stop/links/batch`</td>
+<td>Ejecuta operaciones en lote para asociar, desasociar, reemplazar o limpiar sesiones de pago en una o varias Paradas. Soporta las operaciones `add`, `remove`, `replace`, `clear`. Idempotente mediante `Idempotency-Key`.</td>
+</tr>
+<tr>
+<td><b>PATCH</b></td>
+<td>`{{baseUrl}}/api/v1/payment-stop/links/reorder`</td>
+<td>Define el orden de visualización de los enlaces de pago (`payment_url`) dentro de una Parada o en lote para varias.</td>
+</tr>
+<tr>
+<td><b>GET</b></td>
+<td>`{{baseUrl}}/api/v1/payment-stop/{stop_id}/links`</td>
+<td>Devuelve la lista completa de sesiones asociadas a una Parada, incluyendo sus estados y sus enlaces de pago.</td>
+</tr>
+<tr>
+<td><b>POST</b></td>
+<td>`{{baseUrl}}/api/v1/payment-stop/links/query`</td>
+<td>Permite consultar los enlaces activos de múltiples Paradas en una sola llamada, con filtros, paginación y reducción de campos. Optimizado para paneles y sincronización masiva.</td>
+</tr>
+</table>
+
+---
+
+### **Buenas prácticas de implementación**
+
+* **Idempotencia:** usa siempre `Idempotency-Key` en operaciones en lote; misma clave \+ mismo payload → misma respuesta.
+
+* Solo las sesiones en estado `pending` pueden asociarse como activas; las `paid` o `expired` se mueven automáticamente al histórico.
+
+* `replace` con `session_ids: []` equivale a `clear` (limpieza total).
+
+* Usa `reorder` después de un `replace` o `add` para actualizar el orden visual.
+
+* Para sincronizar o renderizar múltiples Paradas, utiliza `POST {{baseUrl}}/payment-stop/links/query`, limitando los campos con `only_fields` para eficiencia.
+
+* Implementa webhooks de tipo `stop.link_*` para mantener tu backend sincronizado sin depender de polling frecuente.
+
+---
+
+### **Beneficios operativos**
+
+* **Escalabilidad:** maneja cientos de Paradas y miles de enlaces en pocas llamadas.
+
+* **Flexibilidad:** soporta operaciones masivas o por Parada individual.
+
+* **Trazabilidad total:** cada batch genera un `batch_id` para auditoría y conciliación.
+
+* **Eficiencia:** reduce la carga de consultas repetitivas con `links/query`.
+
+* **Experiencia persistente:** el cliente siempre accede al mismo `stop_url`, con sus enlaces actualizados automáticamente.
+

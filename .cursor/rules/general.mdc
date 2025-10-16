@@ -8,10 +8,11 @@ alwaysApply: true
 - This documentations language is primarly spanish but with logic and variable names in english
 - Code snippets in tables should be wrapped like this: <b><i/></b>
 - Tables must be written in basic HTML without styles
-- URLs wrapped with `
+- All urls should start with {{baseUrl}} without initial / but wrapped in quotes
+- URLs wrapped with ` even inside tables
 - Code snippets wrapped with ```
-- All urls should start with {{baseUrl}} without initial 
-
+- Do not use <code> tag
+- Always add some kind of wrapper backticks to braces since they break MDX
 
 # Standard doc page layers (1-8)
 
