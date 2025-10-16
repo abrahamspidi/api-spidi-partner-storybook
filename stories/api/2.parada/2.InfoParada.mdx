@@ -1,0 +1,107 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API/Parada/2. Info Parada" />
+
+## **2\. Obtener información de la parada \[no para 3eros\]**
+
+Este endpoint permite consultar los detalles de una parada previamente creada en SPIDI y solo sus enlaces activos. 
+
+## **2\. Endpoint**
+
+**GET** {{base\_url}}/api/v1/payment-stops/{stop\_id}
+
+## **3\. Ejemplo del Request (JSON)**
+
+Header:  
+Idempotency-Key: \<uuid-v4\>  
+GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812c1
+
+## **4\. Tabla explicación de cada campo del Request**
+
+### 4.1 Campos de nivel raíz
+
+### Parámetros
+
+| Campo | Tipo dato | Requerido | Descripción de la posible transformación del origen  |
+| ----- | ----- | ----- | ----- |
+| **Path** `stop_id` | **string** | ✅ Sí | Identificador único de la parada (UUID). |
+
+| Campo | Tipo | Requerido | Descripción |
+| ----- | ----- | ----- | ----- |
+| **spidi\_id** | **string (UUID)** | ✅ Sí | Identificador del comercio en SPIDI (validado contra las credenciales del request). |
+
+### **5\. Ejemplos de Response 200**
+
+json
+
+| {   "success": true,   "message": "Payment stop details retrieved successfully.",   "data": {     "stop\_id": "7f8b2c6a-4d19-45df-9a10-3e872aa812c1",     "stop\_url": "https://pay.spidi.com/stop/7f8b2c6a",     "internal\_reference": "USER-2025-0931",     "stop\_title": "Caja Principal \- Suscripción Premium",     "empty\_state\_message": "Actualmente no tienes pagos pendientes.",     "created\_at": "2025-02-10T15:42:00Z",     "links\_active": \[       {         "session\_id": "21f43a2b-d9ff-42d2-87ce-559bdaf1f901",         "payment\_url": "https://pay.spidi.com/21f43a2b-d9ff-42d2-87ce-559bdaf1f901",         "status": "pending",         "amount": 15.50,         "currency\_reference": "USD",         "amount\_ves": 1900.00,         "due\_date\_link": "2025-03-01T00:00:00Z",         "expire\_behavior\_link": "keep\_active",         "late\_notice\_message": "Tu servicio está inactivo. Realiza el pago ahora para recuperar la continuidad de tu suscripción.",       }     \]   } } |
+| :---- |
+
+### **6\. Tablas explicación de cada campo del Response 200**
+
+### **6.1 Campos de nivel raíz (Response 200\)**
+
+| Campo | Tipo | Descripción |
+| ----- | ----- | ----- |
+| **success** | boolean | **Generado.** True si el endpoint se proceso de forma exitosa. False de lo contrario. |
+| **message** | string | **Generado.** Mensaje de confirmación legible para humanos. |
+| **data** | \[objeto\] | **Generado.** Lista del objeto con la información de las paradas creadas. |
+
+### **6.2 Subtabla: Response 200 → data**
+
+| results.x | Tipo | Descripción |
+| ----- | ----- | ----- |
+| **stop\_id** | **string/ null** | **Generado.** Identificador de la Parada SPIDI creada. |
+| **stop\_url** | **string/ null** | **Generado.** URL permanente de la parada individual. |
+| **internal\_reference** | **string** | **Eco.** |
+| **stop\_title** | **string** | **Eco.** |
+| **empty\_state\_message** | **string** | **Eco.** |
+| **status** | **string** | **Eco \+ transformado.** `"active"` (por defecto) o `"disabled"` según el request. |
+| **created\_at** | **string** | Fecha y hora de creación (ISO 8601). |
+| **links\_active** | **\[objeto\]** |  |
+
+### **6.3 Subtabla: Response 200 → data.links\_active**
+
+| results.x | Tipo | Descripción |
+| ----- | ----- | ----- |
+| **session\_id** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
+| **payment\_url** | **string** | **Generado.** Link “URL” donde el usuario puede ser redirigido para realizar el pago, sin pasar por la parada. En caso de haber creado parada, se recomienda suministrar al pagador el **stop\_url** |
+| **status** | **string** |  |
+| **currency\_reference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
+| **amount** | **number** | Monto total en la moneda indicada por currency\_reference (2 decimales). |
+| **amount\_ves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amount\_ves irá cambiando a medida que cambie la tasa oficial. |
+| **due\_date\_link** | **string (ISO 8601\)** | Fecha y hora límite (Venezuela) de vencimiento. Si se alcanza, el enlace se comportará como se elija en campo: **expire\_behavior\_link** |
+| **expire\_behavior\_link** | **string** | Define qué le ocurre al enlace al vencer el due\_date\_link.  Valores posibles:  **"expire"**: el enlace queda expirado. Si hay una parada asociada, se debe generar un nuevo enlace y asociar a la parada. “**keep\_active**”: el enlace sigue vigente, pero se muestra una advertencia. Esto es ideal cuando no hay penalización en costo, pero sí en servicio. |
+| **late\_notice\_message** | **string** | Si posterior a la fecha de vencimiento el enlace sigue activo (keep\_active), se mostrará el mensaje al pagador que se defina en este campo. Ejemplo: “Tu servicio está inactivo. Realiza el pago ahora para recuperar la continuidad de tu suscripción.", |
+
+### **6.4 Subtabla: Response 200 → data.links\_history**
+
+| results.x | Tipo | Descripción |
+| ----- | ----- | ----- |
+| **session\_id** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
+| **status** | **string** |  |
+| **currency\_reference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
+| **amount** | **number** | Monto total en la moneda indicada por currency\_reference (2 decimales). |
+| **amount\_ves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amount\_ves irá cambiando a medida que cambie la tasa oficial. |
+| **paid\_at** | **string** |  |
+
+### 
+
+### 
+
+## **7\. Ejemplos de Responses diferentes de 200**
+
+json
+
+| {   "success": false,   "message": "Payment stop not found.",   "errors": {     "stop\_id": "No payment stop exists with the provided stop\_id."   } } |
+| :---- |
+
+## **8\. Tabla de explicación de Response con error**
+
+### **8.1 Campos de nivel raíz (errores 4xx/5xx)**
+
+| Campo | Tipo | Descripción |
+| ----- | ----- | ----- |
+| **success** | **boolean** | Siempre false en caso de error. |
+| **message** | **string** | Resumen legible del error principal. |
+| **errors** | **objeto | null** | Detalle por campo (opcional). |

@@ -1,0 +1,118 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API/Parada/4. Listar Paradas" />
+
+## **2\. Listar paradas asociadas al usuario spidi**
+
+Este endpoint lista **todas las paradas (stops)** del comercio autenticado, con soporte de **búsqueda y filtros** (por estado, título, referencia interna) y **paginación**. Es útil para construir listados administrativos, buscadores y reportes.
+
+## **2\. Endpoint**
+
+**GET** {{base\_url}}/api/v1/payment-stops
+
+## **3\. Ejemplo del Request (JSON)**
+
+Header:  
+GET https://api.spidi.com/api/v1/payment-stop?status=active\&q=caja\&limit=20\&offset=0\&sort=created\_desc
+
+## **4\. Tabla explicación de cada campo del Request**
+
+### 4.1 Campos de nivel raíz
+
+| Campo | Tipo | Requerido | Descripción |
+| ----- | ----- | ----- | ----- |
+| **spidi\_id** | **string (UUID)** | ✅ Sí | Identificador del comercio en SPIDI (validado contra las credenciales del request). |
+
+### Parámetros
+
+| Campo | Tipo dato | Requerido | Descripción de la posible transformación del origen  |
+| ----- | ----- | ----- | ----- |
+| **Query** `status` | **string** | ❌ Opcional | Filtra por estado de la parada: `active` o `disabled`. Si se omite, se listan todas. |
+| **Query** `q` | **string** | ❌ Opcional | Búsqueda por texto en `stop_title` y/o `internal_reference` (contiene). |
+| **Query** `internal_reference` | **string** | ❌ Opcional | Filtra por coincidencia exacta de la referencia interna. |
+| **Query** `from_date` | **string** | ❌ Opcional | ISO 8601 (UTC). Devuelve links **creados** desde esta fecha/hora (inclusive). |
+| **Query** `to_date` | **string** | ❌ Opcional | ISO 8601 (UTC). Devuelve links **creados** hasta esta fecha/hora (inclusive). |
+| **Query** `limit` | **integer** | ❌ Opcional | Máximo de elementos a devolver. Por defecto `50`. Máximo recomendado `200`. |
+| **Query** `offset` | **integer** | ❌ Opcional | Desplazamiento para paginación. Por defecto `0`. |
+| **Query** `sort` | **string** | ❌ Opcional | Orden. Valores sugeridos: `created_desc` (default), `created_asc`, `updated_desc`, `updated_asc`. |
+
+Notas:
+
+* Los filtros pueden combinarse (ej. `status=active&q=caja`).  
+* Si envías `internal_reference`, tiene prioridad sobre `q` para ese campo.
+
+### **5\. Ejemplos de Response 200**
+
+json
+
+| {   "success": true,   "message": "Payment stops retrieved successfully.",   "data": {     "total": 2,     "limit": 20,     "offset": 0,     "items": \[       {         "stop\_id": "stp\_92f3a5e1-1c9f-4a23-bbcd-6d42b0a0a9f4",         "stop\_url": "https://pay.spidi.com/s/stp\_92f3a5e1-1c9f-4a23-bbcd-6d42b0a0a9f4",         "internal\_reference": "caja\_001",         "stop\_title": "Caja Principal",         "empty\_state\_message": "No hay pagos disponibles en este momento.",         "status": "active",         "created\_at": "2025-09-27T14:05:21Z",         "updated\_at": "2025-09-30T10:12:34Z",         "links\_active\_count": 1       },       {         "stop\_id": "stp\_a12f34cd-56ef-78ab-90cd-12ef34ab56cd",         "stop\_url": "https://pay.spidi.com/s/stp\_a12f34cd-56ef-78ab-90cd-12ef34ab56cd",         "internal\_reference": "condominio\_torre\_a",         "stop\_title": "Condominio Torre A",         "empty\_state\_message": "No existen deudas registradas.",         "status": "disabled",         "created\_at": "2025-08-12T09:31:10Z",         "updated\_at": "2025-09-01T08:15:00Z",         "links\_active\_count": 0       }     \]   } } |
+| :---- |
+
+### **6\. Tablas explicación de cada campo del Response 200**
+
+### **6.1 Campos de nivel raíz (Response 200\)**
+
+| Campo | Tipo | Descripción |
+| ----- | ----- | ----- |
+| **success** | boolean | **Generado.** True si el endpoint se proceso de forma exitosa. False de lo contrario. |
+| **message** | string | **Generado.** Mensaje de confirmación legible para humanos. |
+| **data** | \[objeto\] | **Generado.** Lista del objeto con la información de las paradas creadas. |
+
+### **6.2 Subtabla: Response 200 → data**
+
+| results.x | Tipo | Descripción |
+| ----- | ----- | ----- |
+| **total** | **integer** | Total de paradas que cumplen con los filtros aplicados. |
+| **limit** | **integer** | Límite aplicado en esta página. |
+| **offset** | **integer** | Offset aplicado en esta página |
+| **items** | **\[objeto\]** | Lista de paradas devueltas en esta página. |
+
+### **6.3 Subtabla: Response 200 → data.items**
+
+| results.x | Tipo | Descripción |
+| ----- | ----- | ----- |
+| **stop\_id** | **string/ null** | **Generado.** Identificador de la Parada SPIDI creada. |
+| **stop\_url** |  |  |
+| **internal\_reference** |  |  |
+| **stop\_title** | **string** | **Eco.** |
+| **empty\_state\_message** | **string** | **Eco.** |
+| **status** | **string** | **Eco \+ transformado.** `"active"` (por defecto) o `"disabled"` según el request. |
+| **created\_at** | **string** | Fecha y hora de creación (ISO 8601). |
+| **links\_active\_count** | **integer** |  |
+| **expired\_at** |  | Fecha/hora de expiración (solo si `status = expired`). |
+
+## **7\. Ejemplos de Responses diferentes de 200**
+
+json
+
+| {   "success": false,   "message": "Invalid query parameters.",   "errors": {     "status": "Allowed values are: pending, paid, expired.",     "limit": "Must be an integer between 1 and 200.",     "from\_date": "Must be a valid ISO 8601 datetime."   } } |
+| :---- |
+
+## **8\. Tabla de explicación de Response con error**
+
+### **8.1 Campos de nivel raíz (errores 4xx/5xx)**
+
+| Campo | Tipo | Descripción |
+| ----- | ----- | ----- |
+| **success** | **boolean** | Siempre false en caso de error. |
+| **message** | **string** | Resumen legible del error principal. |
+| **errors** | **objeto | null** | Detalle por campo (opcional). |
+
+### **8.2 Subtabla: errors (cuando exista)**
+
+| Campo | Tipo | Descripción |
+| ----- | ----- | ----- |
+| **status** | **string** | Valor fuera del conjunto permitido. |
+| **limit** | **string** | Límite fuera de rango o de tipo incorrecto. |
+| **from\_date** | **string** | Fechas con formato inválido o rango inconsistente. |
+| **to\_date** | **string** | Fechas con formato inválido o rango inconsistente. |
+
+## **Buenas prácticas**
+
+* Usa `q` para búsquedas rápidas por título/referencia; si necesitas coincidencia exacta en referencia, usa `internal_reference`.
+
+* Implementa paginación en tu UI con `limit` y `offset`.
+
+* Ordena por `updated_desc` para ver primero las paradas modificadas recientemente.
+
+* Si necesitas los **enlaces** de una parada, utiliza el endpoint complementario: `GET /api/v1/payment-stop/{stop_id}/links`.
