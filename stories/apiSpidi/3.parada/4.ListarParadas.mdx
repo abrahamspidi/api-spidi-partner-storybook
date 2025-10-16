@@ -8,7 +8,7 @@ Este endpoint lista **todas las paradas (stops)** del comercio autenticado, con 
 
 ## **2\. Endpoint**
 
-**GET** {{base\_url}}/api/v1/payment-stops
+**GET** {{baseUrl}}/api/v1/payment-stops
 
 ## **3\. Ejemplo del Request (JSON)**
 
@@ -43,10 +43,41 @@ Notas:
 
 ### **5\. Ejemplos de Response 200**
 
-json
-
-| {   "success": true,   "message": "Payment stops retrieved successfully.",   "data": {     "total": 2,     "limit": 20,     "offset": 0,     "items": \[       {         "stop\_id": "stp\_92f3a5e1-1c9f-4a23-bbcd-6d42b0a0a9f4",         "stop\_url": "https://pay.spidi.com/s/stp\_92f3a5e1-1c9f-4a23-bbcd-6d42b0a0a9f4",         "internal\_reference": "caja\_001",         "stop\_title": "Caja Principal",         "empty\_state\_message": "No hay pagos disponibles en este momento.",         "status": "active",         "created\_at": "2025-09-27T14:05:21Z",         "updated\_at": "2025-09-30T10:12:34Z",         "links\_active\_count": 1       },       {         "stop\_id": "stp\_a12f34cd-56ef-78ab-90cd-12ef34ab56cd",         "stop\_url": "https://pay.spidi.com/s/stp\_a12f34cd-56ef-78ab-90cd-12ef34ab56cd",         "internal\_reference": "condominio\_torre\_a",         "stop\_title": "Condominio Torre A",         "empty\_state\_message": "No existen deudas registradas.",         "status": "disabled",         "created\_at": "2025-08-12T09:31:10Z",         "updated\_at": "2025-09-01T08:15:00Z",         "links\_active\_count": 0       }     \]   } } |
-| :---- |
+```json
+{
+  "success": true,
+  "message": "Payment stops retrieved successfully.",
+  "data": {
+    "total": 2,
+    "limit": 20,
+    "offset": 0,
+    "items": [
+      {
+        "stop_id": "stp_92f3a5e1-1c9f-4a23-bbcd-6d42b0a0a9f4",
+        "stop_url": "https://pay.spidi.com/s/stp_92f3a5e1-1c9f-4a23-bbcd-6d42b0a0a9f4",
+        "internal_reference": "caja_001",
+        "stop_title": "Caja Principal",
+        "empty_state_message": "No hay pagos disponibles en este momento.",
+        "status": "active",
+        "created_at": "2025-09-27T14:05:21Z",
+        "updated_at": "2025-09-30T10:12:34Z",
+        "links_active_count": 1
+      },
+      {
+        "stop_id": "stp_a12f34cd-56ef-78ab-90cd-12ef34ab56cd",
+        "stop_url": "https://pay.spidi.com/s/stp_a12f34cd-56ef-78ab-90cd-12ef34ab56cd",
+        "internal_reference": "condominio_torre_a",
+        "stop_title": "Condominio Torre A",
+        "empty_state_message": "No existen deudas registradas.",
+        "status": "disabled",
+        "created_at": "2025-08-12T09:31:10Z",
+        "updated_at": "2025-09-01T08:15:00Z",
+        "links_active_count": 0
+      }
+    ]
+  }
+}
+```
 
 ### **6\. Tablas explicación de cada campo del Response 200**
 
@@ -72,21 +103,28 @@ json
 | results.x | Tipo | Descripción |
 | ----- | ----- | ----- |
 | **stop\_id** | **string/ null** | **Generado.** Identificador de la Parada SPIDI creada. |
-| **stop\_url** |  |  |
-| **internal\_reference** |  |  |
+| **stop\_url** | **string** | **Generado.** URL permanente de la parada individual. |
+| **internal\_reference** | **string** | **Eco.** |
 | **stop\_title** | **string** | **Eco.** |
 | **empty\_state\_message** | **string** | **Eco.** |
 | **status** | **string** | **Eco \+ transformado.** `"active"` (por defecto) o `"disabled"` según el request. |
 | **created\_at** | **string** | Fecha y hora de creación (ISO 8601). |
-| **links\_active\_count** | **integer** |  |
-| **expired\_at** |  | Fecha/hora de expiración (solo si `status = expired`). |
+| **links\_active\_count** | **integer** | **Generado.** Número de enlaces activos en la parada. |
+| **updated\_at** | **string** | **Generado.** Fecha y hora de última actualización (ISO 8601). |
 
 ## **7\. Ejemplos de Responses diferentes de 200**
 
-json
-
-| {   "success": false,   "message": "Invalid query parameters.",   "errors": {     "status": "Allowed values are: pending, paid, expired.",     "limit": "Must be an integer between 1 and 200.",     "from\_date": "Must be a valid ISO 8601 datetime."   } } |
-| :---- |
+```json
+{
+  "success": false,
+  "message": "Invalid query parameters.",
+  "errors": {
+    "status": "Allowed values are: pending, paid, expired.",
+    "limit": "Must be an integer between 1 and 200.",
+    "from_date": "Must be a valid ISO 8601 datetime."
+  }
+}
+```
 
 ## **8\. Tabla de explicación de Response con error**
 

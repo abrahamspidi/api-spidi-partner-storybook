@@ -8,7 +8,7 @@ Este endpoint permite consultar los detalles de una parada previamente creada en
 
 ## **2\. Endpoint**
 
-**GET** {{base\_url}}/api/v1/payment-stops/{stop\_id}
+**GET** {{baseUrl}}/api/v1/payment-stops/{stop\_id}
 
 ## **3\. Ejemplo del Request (JSON)**
 
@@ -32,10 +32,33 @@ GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812
 
 ### **5\. Ejemplos de Response 200**
 
-json
-
-| {   "success": true,   "message": "Payment stop details retrieved successfully.",   "data": {     "stop\_id": "7f8b2c6a-4d19-45df-9a10-3e872aa812c1",     "stop\_url": "https://pay.spidi.com/stop/7f8b2c6a",     "internal\_reference": "USER-2025-0931",     "stop\_title": "Caja Principal \- Suscripción Premium",     "empty\_state\_message": "Actualmente no tienes pagos pendientes.",     "created\_at": "2025-02-10T15:42:00Z",     "links\_active": \[       {         "session\_id": "21f43a2b-d9ff-42d2-87ce-559bdaf1f901",         "payment\_url": "https://pay.spidi.com/21f43a2b-d9ff-42d2-87ce-559bdaf1f901",         "status": "pending",         "amount": 15.50,         "currency\_reference": "USD",         "amount\_ves": 1900.00,         "due\_date\_link": "2025-03-01T00:00:00Z",         "expire\_behavior\_link": "keep\_active",         "late\_notice\_message": "Tu servicio está inactivo. Realiza el pago ahora para recuperar la continuidad de tu suscripción.",       }     \]   } } |
-| :---- |
+```json
+{
+  "success": true,
+  "message": "Payment stop details retrieved successfully.",
+  "data": {
+    "stop_id": "7f8b2c6a-4d19-45df-9a10-3e872aa812c1",
+    "stop_url": "https://pay.spidi.com/stop/7f8b2c6a",
+    "internal_reference": "USER-2025-0931",
+    "stop_title": "Caja Principal - Suscripción Premium",
+    "empty_state_message": "Actualmente no tienes pagos pendientes.",
+    "created_at": "2025-02-10T15:42:00Z",
+    "links_active": [
+      {
+        "session_id": "21f43a2b-d9ff-42d2-87ce-559bdaf1f901",
+        "payment_url": "https://pay.spidi.com/21f43a2b-d9ff-42d2-87ce-559bdaf1f901",
+        "status": "pending",
+        "amount": 15.50,
+        "currency_reference": "USD",
+        "amount_ves": 1900.00,
+        "due_date_link": "2025-03-01T00:00:00Z",
+        "expire_behavior_link": "keep_active",
+        "late_notice_message": "Tu servicio está inactivo. Realiza el pago ahora para recuperar la continuidad de tu suscripción."
+      }
+    ]
+  }
+}
+```
 
 ### **6\. Tablas explicación de cada campo del Response 200**
 
@@ -58,15 +81,15 @@ json
 | **empty\_state\_message** | **string** | **Eco.** |
 | **status** | **string** | **Eco \+ transformado.** `"active"` (por defecto) o `"disabled"` según el request. |
 | **created\_at** | **string** | Fecha y hora de creación (ISO 8601). |
-| **links\_active** | **\[objeto\]** |  |
+| **links\_active** | **\[objeto\]** | **Generado.** Lista de enlaces activos en la parada. |
 
 ### **6.3 Subtabla: Response 200 → data.links\_active**
 
 | results.x | Tipo | Descripción |
 | ----- | ----- | ----- |
 | **session\_id** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
-| **payment\_url** | **string** | **Generado.** Link “URL” donde el usuario puede ser redirigido para realizar el pago, sin pasar por la parada. En caso de haber creado parada, se recomienda suministrar al pagador el **stop\_url** |
-| **status** | **string** |  |
+| **payment\_url** | **string** | **Generado.** Link "URL" donde el usuario puede ser redirigido para realizar el pago, sin pasar por la parada. En caso de haber creado parada, se recomienda suministrar al pagador el **stop\_url** |
+| **status** | **string** | Estado del enlace: `pending`, `paid`, `expired` |
 | **currency\_reference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
 | **amount** | **number** | Monto total en la moneda indicada por currency\_reference (2 decimales). |
 | **amount\_ves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amount\_ves irá cambiando a medida que cambie la tasa oficial. |
@@ -79,11 +102,11 @@ json
 | results.x | Tipo | Descripción |
 | ----- | ----- | ----- |
 | **session\_id** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
-| **status** | **string** |  |
+| **status** | **string** | Estado del enlace: `pending`, `paid`, `expired` |
 | **currency\_reference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
 | **amount** | **number** | Monto total en la moneda indicada por currency\_reference (2 decimales). |
-| **amount\_ves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amount\_ves irá cambiando a medida que cambie la tasa oficial. |
-| **paid\_at** | **string** |  |
+| **amount\_ves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a "VES", entonces este amount\_ves irá cambiando a medida que cambie la tasa oficial. |
+| **paid\_at** | **string** | Fecha/hora de pago (solo si `status = paid`) |
 
 ### 
 
@@ -91,10 +114,15 @@ json
 
 ## **7\. Ejemplos de Responses diferentes de 200**
 
-json
-
-| {   "success": false,   "message": "Payment stop not found.",   "errors": {     "stop\_id": "No payment stop exists with the provided stop\_id."   } } |
-| :---- |
+```json
+{
+  "success": false,
+  "message": "Payment stop not found.",
+  "errors": {
+    "stop_id": "No payment stop exists with the provided stop_id."
+  }
+}
+```
 
 ## **8\. Tabla de explicación de Response con error**
 

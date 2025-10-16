@@ -12,7 +12,7 @@ Uso típico: construir tablas/consultas administrativas, reportes o vistas detal
 
 ## **2\. Endpoint**
 
-**GET** {{base\_url}}/api/v1/payment-stops/{stop\_id}/links
+**GET** {{baseUrl}}/api/v1/payment-stops/{stop\_id}/links
 
 ## **3\. Ejemplo del Request (JSON)**
 
@@ -42,10 +42,73 @@ GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812
 
 ### **5\. Ejemplos de Response 200**
 
-json
-
-| {   "success": true,   "message": "Links retrieved successfully.",   "data": {     "stop\_id": "7f8b2c6a-4d19-45df-9a10-3e872aa812c1",     "total": 3,     "limit": 20,     "offset": 0,     "items": \[       {         "session\_id": "21f43a2b-d9ff-42d2-87ce-559bdaf1f901",         "status": "pending",         "payment\_url": "https://pay.spidi.com/21f43a2b-d9ff-42d2-87ce-559bdaf1f901",         "created\_at": "2025-02-15T12:30:22Z",         "updated\_at": "2025-02-15T12:31:10Z",         "amount": 15.50,         "currency\_reference": "USD",         "amount\_ves": 1900.00,         "bcv\_exchange\_rate": 122.58,         "exchange\_rate\_from": "USD",         "exchange\_rate\_to": "VES",         "identifier\_label": "Suscriptor",         "identifier": "Juan Pérez",         "description": "Mensualidad febrero",         "due\_date\_link": "2025-03-01T00:00:00Z",         "expire\_behavior\_link": "keep\_active",         "late\_notice\_message": "Tu servicio está inactivo. Paga para reactivar."       },       {         "session\_id": "ea1db23f-5932-49a5-a96d-08bfb14c9c34",         "status": "paid",         "payment\_url": "https://pay.spidi.com/ea1db23f-5932-49a5-a96d-08bfb14c9c34",         "created\_at": "2025-01-30T16:55:11Z",         "updated\_at": "2025-01-30T17:05:40Z",         "amount": 15.50,         "currency\_reference": "USD",         "amount\_ves": 1870.00,         "bcv\_exchange\_rate": 120.65,         "exchange\_rate\_from": "USD",         "exchange\_rate\_to": "VES",         "identifier\_label": "Suscriptor",         "identifier": "Juan Pérez",         "description": "Mensualidad enero",         "paid\_at": "2025-01-30T17:05:33Z"       },       {         "session\_id": "b9d2d470-3c1e-4d3a-9b3a-8a7b0d7e3a12",         "status": "expired",         "payment\_url": "https://pay.spidi.com/b9d2d470-3c1e-4d3a-9b3a-8a7b0d7e3a12",         "created\_at": "2025-01-10T10:10:05Z",         "updated\_at": "2025-01-10T10:20:15Z",         "amount": 15.50,         "currency\_reference": "USD",         "amount\_ves": 1810.00,         "bcv\_exchange\_rate": 116.77,         "exchange\_rate\_from": "USD",         "exchange\_rate\_to": "VES",         "identifier\_label": "Suscriptor",         "identifier": "Juan Pérez",         "description": "Mensualidad diciembre",         "expired\_at": "2025-01-10T10:20:15Z"       }     \]   } }  |
-| :---- |
+```json
+{
+  "success": true,
+  "message": "Links retrieved successfully.",
+  "data": {
+    "stop_id": "7f8b2c6a-4d19-45df-9a10-3e872aa812c1",
+    "total": 3,
+    "limit": 20,
+    "offset": 0,
+    "items": [
+      {
+        "session_id": "21f43a2b-d9ff-42d2-87ce-559bdaf1f901",
+        "status": "pending",
+        "payment_url": "https://pay.spidi.com/21f43a2b-d9ff-42d2-87ce-559bdaf1f901",
+        "created_at": "2025-02-15T12:30:22Z",
+        "updated_at": "2025-02-15T12:31:10Z",
+        "amount": 15.50,
+        "currency_reference": "USD",
+        "amount_ves": 1900.00,
+        "bcv_exchange_rate": 122.58,
+        "exchange_rate_from": "USD",
+        "exchange_rate_to": "VES",
+        "identifier_label": "Suscriptor",
+        "identifier": "Juan Pérez",
+        "description": "Mensualidad febrero",
+        "due_date_link": "2025-03-01T00:00:00Z",
+        "expire_behavior_link": "keep_active",
+        "late_notice_message": "Tu servicio está inactivo. Paga para reactivar."
+      },
+      {
+        "session_id": "ea1db23f-5932-49a5-a96d-08bfb14c9c34",
+        "status": "paid",
+        "payment_url": "https://pay.spidi.com/ea1db23f-5932-49a5-a96d-08bfb14c9c34",
+        "created_at": "2025-01-30T16:55:11Z",
+        "updated_at": "2025-01-30T17:05:40Z",
+        "amount": 15.50,
+        "currency_reference": "USD",
+        "amount_ves": 1870.00,
+        "bcv_exchange_rate": 120.65,
+        "exchange_rate_from": "USD",
+        "exchange_rate_to": "VES",
+        "identifier_label": "Suscriptor",
+        "identifier": "Juan Pérez",
+        "description": "Mensualidad enero",
+        "paid_at": "2025-01-30T17:05:33Z"
+      },
+      {
+        "session_id": "b9d2d470-3c1e-4d3a-9b3a-8a7b0d7e3a12",
+        "status": "expired",
+        "payment_url": "https://pay.spidi.com/b9d2d470-3c1e-4d3a-9b3a-8a7b0d7e3a12",
+        "created_at": "2025-01-10T10:10:05Z",
+        "updated_at": "2025-01-10T10:20:15Z",
+        "amount": 15.50,
+        "currency_reference": "USD",
+        "amount_ves": 1810.00,
+        "bcv_exchange_rate": 116.77,
+        "exchange_rate_from": "USD",
+        "exchange_rate_to": "VES",
+        "identifier_label": "Suscriptor",
+        "identifier": "Juan Pérez",
+        "description": "Mensualidad diciembre",
+        "expired_at": "2025-01-10T10:20:15Z"
+      }
+    ]
+  }
+}
+```
 
 ### **6\. Tablas explicación de cada campo del Response 200**
 
@@ -75,7 +138,7 @@ json
 | **status** | **string** | Estado: `pending`, `paid`, `expired` |
 | **payment\_url** | **string** | **Generado.** Link “URL” donde el usuario puede ser redirigido para realizar el pago, sin pasar por la parada. En caso de haber creado parada, se recomienda suministrar al pagador el **stop\_url** |
 | **created\_at** | **string** | Fecha/hora de creación (ISO 8601). |
-| **updated\_at** |  | Última actualización (ISO 8601). |
+| **updated\_at** | **string** | Última actualización (ISO 8601). |
 | **currency\_reference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
 | **amount** | **number** | Monto total en la moneda indicada por currency\_reference (2 decimales). |
 | **amount\_ves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amount\_ves irá cambiando a medida que cambie la tasa oficial. |
@@ -84,23 +147,22 @@ json
 | **exchange\_rate\_to** | **string** | **Generado.** Moneda destino de la tasa (siempre "VES"). |
 | **identifier\_label** | **string** | **Eco request.** |
 | **identifier** | **string** | **Eco request.** |
-| **description** |  |  |
+| **description** | **string** | **Eco request.** |
 | **due\_date\_link** | **string (ISO 8601\)** | Fecha y hora límite (Venezuela) de vencimiento. Si se alcanza, el enlace se comportará como se elija en campo: **expire\_behavior\_link** |
 | **expire\_behavior\_link** | **string** | Define qué le ocurre al enlace al vencer el due\_date\_link.  Valores posibles:  **"expire"**: el enlace queda expirado. Si hay una parada asociada, se debe generar un nuevo enlace y asociar a la parada. “**keep\_active**”: el enlace sigue vigente, pero se muestra una advertencia. Esto es ideal cuando no hay penalización en costo, pero sí en servicio. |
 | **late\_notice\_message** | **string** | Si posterior a la fecha de vencimiento el enlace sigue activo (keep\_active), se mostrará el mensaje al pagador que se defina en este campo. Ejemplo: “Tu servicio está inactivo. Realiza el pago ahora para recuperar la continuidad de tu suscripción.", |
-| **paid\_at** |  | Fecha/hora de pago (solo si `status = paid`) |
-| **expired\_at** |  | Fecha/hora de expiración (solo si `status = expired`). |
+| **paid\_at** | **string** | Fecha/hora de pago (solo si `status = paid`) |
+| **expired\_at** | **string** | Fecha/hora de expiración (solo si `status = expired`). |
 
 ### **6.4 Subtabla: Response 200 → data.links\_history**
 
 | results.x | Tipo | Descripción |
 | ----- | ----- | ----- |
 | **session\_id** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
-| **status** | **string** |  |
+| **status** | **string** | Estado: `pending`, `paid`, `expired` |
 | **currency\_reference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
 | **amount** | **number** | Monto total en la moneda indicada por currency\_reference (2 decimales). |
 | **amount\_ves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amount\_ves irá cambiando a medida que cambie la tasa oficial. |
-|  |  |  |
 
 ### 
 
@@ -108,10 +170,17 @@ json
 
 ## **7\. Ejemplos de Responses diferentes de 200**
 
-json
-
-| {   "success": false,   "message": "Invalid query parameters.",   "errors": {     "status": "Allowed values are: pending, paid, expired.",     "limit": "Must be an integer between 1 and 200.",     "from\_date": "Must be a valid ISO 8601 datetime."   } } |
-| :---- |
+```json
+{
+  "success": false,
+  "message": "Invalid query parameters.",
+  "errors": {
+    "status": "Allowed values are: pending, paid, expired.",
+    "limit": "Must be an integer between 1 and 200.",
+    "from_date": "Must be a valid ISO 8601 datetime."
+  }
+}
+```
 
 ## **8\. Tabla de explicación de Response con error**
 

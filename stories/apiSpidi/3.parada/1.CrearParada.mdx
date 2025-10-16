@@ -25,7 +25,7 @@ Cada parada siempre tendrá su propio `stop_id` y un `stop_url` estables, que pe
 
 ## **2\. Endpoint**
 
-**POST** {{base\_url}}/api/v1/payment-stops/batch
+**POST** {{baseUrl}}/api/v1/payment-stops/batch
 
 ## **3\. Ejemplo del Request (JSON)**
 
@@ -34,8 +34,26 @@ Idempotency-Key: \<uuid-v4\>
 
 Body:
 
-| {     "spidi\_id": "a966ce0d-3af3-415d-ba86-1db5a1c21cf0",     "continue\_on\_error": false,     "items": \[     {       "internal\_reference": "8233232"        "stop\_title": "Federico Díaz",       "empty\_state\_message": "No tienes pagos pendientes",       "status": "active",     },     {       "internal\_reference": "8233235"       "stop\_title": "Juan González",       "empty\_state\_message": "No tienes pagos pendientes",       "status": "active",     }   \]   } |
-| :---- |
+```json
+{
+  "spidi_id": "a966ce0d-3af3-415d-ba86-1db5a1c21cf0",
+  "continue_on_error": false,
+  "items": [
+    {
+      "internal_reference": "8233232",
+      "stop_title": "Federico Díaz",
+      "empty_state_message": "No tienes pagos pendientes",
+      "status": "active"
+    },
+    {
+      "internal_reference": "8233235",
+      "stop_title": "Juan González",
+      "empty_state_message": "No tienes pagos pendientes",
+      "status": "active"
+    }
+  ]
+}
+```
 
 Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio Edificio.
 
@@ -60,10 +78,39 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 
 ## **5\. Ejemplos de Response 200**
 
-json
-
-| {   "success": true,   "message": "Batch processed: 2 items created.",   "batch\_id": "batch\_54fa7a9e-31f1-41f0-a6b9-2cd05662c721",   "results": \[     {       "internal\_reference": "8233232",       "success": true,       "data": {         "stop\_id": "stp\_f9317c1b-8a4f-4d7e-9f25-3a2b8b9a4f12",         "stop\_url": "https://mispidi.com/s/stp\_f9317c1b-8a4f-4d7e-9f25-3a2b8b9a4f12",         "stop\_title": "Federico Díaz",         "empty\_state\_message": "No tienes pagos pendientes",         "status": "active",         "created\_at": "2025-09-27T14:15:43Z"       }     },     {       "internal\_reference": "8233235",       "success": true,       "data": {         "stop\_id": "stp\_a12f34cd-56ef-78ab-90cd-12ef34ab56cd",         "stop\_url": "https://mispidi.com/s/stp\_a12f34cd-56ef-78ab-90cd-12ef34ab56cd",         "stop\_title": "Juan González",         "empty\_state\_message": "No tienes pagos pendientes",         "status": "active",         "created\_at": "2025-09-27T14:15:43Z"       }     }   \] }   |
-| :---- |
+```json
+{
+  "success": true,
+  "message": "Batch processed: 2 items created.",
+  "batch_id": "batch_54fa7a9e-31f1-41f0-a6b9-2cd05662c721",
+  "results": [
+    {
+      "internal_reference": "8233232",
+      "success": true,
+      "data": {
+        "stop_id": "stp_f9317c1b-8a4f-4d7e-9f25-3a2b8b9a4f12",
+        "stop_url": "https://mispidi.com/s/stp_f9317c1b-8a4f-4d7e-9f25-3a2b8b9a4f12",
+        "stop_title": "Federico Díaz",
+        "empty_state_message": "No tienes pagos pendientes",
+        "status": "active",
+        "created_at": "2025-09-27T14:15:43Z"
+      }
+    },
+    {
+      "internal_reference": "8233235",
+      "success": true,
+      "data": {
+        "stop_id": "stp_a12f34cd-56ef-78ab-90cd-12ef34ab56cd",
+        "stop_url": "https://mispidi.com/s/stp_a12f34cd-56ef-78ab-90cd-12ef34ab56cd",
+        "stop_title": "Juan González",
+        "empty_state_message": "No tienes pagos pendientes",
+        "status": "active",
+        "created_at": "2025-09-27T14:15:43Z"
+      }
+    }
+  ]
+}
+```
 
 ### **6\. Tablas explicación de cada campo del Response 200**
 
@@ -94,31 +141,48 @@ json
 
 ### **7.1 400 Bad Request (campo faltante)**
 
-json
-
-| {   "success": false,   "message": "Missing required field: stop\_title",   "errors": {     "stop\_title": "This field is required."   } }  |
-| :---- |
+```json
+{
+  "success": false,
+  "message": "Missing required field: stop_title",
+  "errors": {
+    "stop_title": "This field is required."
+  }
+}
+```
 
 ### **6.2 401/403 Unauthorized (credenciales/propiedad)**
 
-json
-
-| {   "success": false,   "message": "Unauthorized.",   "errors": {     "spidi\_id": "The credentials are incorrect"   } } |
-| :---- |
+```json
+{
+  "success": false,
+  "message": "Unauthorized.",
+  "errors": {
+    "spidi_id": "The credentials are incorrect"
+  }
+}
+```
 
 ### **6.4 422 Unprocessable Entity (tipos/valores inválidos)**
 
-json
-
-| {   "success": false,   "message": "Unprocessable entity.",   "errors": {     "stop\_title": 2323,   } } |
-| :---- |
+```json
+{
+  "success": false,
+  "message": "Unprocessable entity.",
+  "errors": {
+    "stop_title": 2323
+  }
+}
+```
 
 ### **6.5 500 Internal Server Error**
 
-json
-
-| {   "success": false,   "message": "Internal server error." } |
-| :---- |
+```json
+{
+  "success": false,
+  "message": "Internal server error."
+}
+```
 
 ## **7\. Tabla de explicación de cada campo de los distintos Response (errores)**
 
