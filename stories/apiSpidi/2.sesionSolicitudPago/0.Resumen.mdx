@@ -1,0 +1,67 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-SPIDI/Sesion Solicitud de Pago/0. Resumen" />
+
+## **Solicitudes de Pago SPIDI**
+
+Las **Solicitudes de Pago SPIDI** permiten **emitir invitaciones de pago preconfiguradas** con monto e identificación, optimizando la experiencia del pagador y asegurando que cada transacción sea **organizada, trazable y coherente con la planificación operativa** de tu plataforma. 
+
+Son la herramienta ideal para **recibir pagos directos, pagos recurrentes, suscripciones o procesos programados**, sin necesidad de que el cliente esté dentro de tu plataforma al momento del pago.
+
+Cada solicitud se crea mediante el **API de SPIDI** y se asocia a un **enlace único de pago (`payment_url`)**, que puede enviarse por **QR, correo electrónico, WhatsApp, SMS u otros canales de comunicación**.
+
+El cliente simplemente abre ese enlace para completar el pago en la interfaz segura de SPIDI.
+
+---
+
+### **Flujo de una solicitud de pago**
+
+* La **sesión se crea por API cuando se desee**, de forma **programada o manual**, unitaria o masiva, según la lógica de tu sistema.
+
+* Cada sesión requiere definir un **monto** (en **bolívares** o en una **moneda de referencia** como **dólar BCV, euro BCV, peso colombiano o USDT**) y una **identificación interna (`internal_reference`)** para asociarla a una operación o cliente específico.
+
+* Al crear la sesión, **SPIDI genera un hash único** que identifica de forma segura la operación y su estado inicial (`status`) es **`pending`**.
+
+* La **duración de la sesión es configurable**, pudiendo establecer:
+
+  * una **fecha y hora de vencimiento**,
+
+  * o definir que **nunca expire**.  
+     Si vence, puede configurarse para **expirar completamente** o **mostrar un mensaje personalizado** al usuario.
+
+* Los posibles estados de una solicitud son: **`pending`, `paid`, `expired`**.
+
+  * Un **pago fallido no termina la sesión**, por lo que no existe el estado `failed`.
+
+* El **pago puede ocurrir cualquier día**. Si la moneda de referencia usada al crear la sesión **no es bolívares**, el monto en Bs se **ajustará automáticamente a la tasa del BCV vigente en el momento del acceso**.
+
+* En la respuesta se devuelve un **`payment_url`**, al que el cliente debe acceder para completar el pago.
+
+* Una vez finalizado el pago, **SPIDI puede redirigir automáticamente** al usuario hacia la **`success_url`** o **`failure_url`**, si fueron configuradas.
+
+* Un **segundo endpoint** permite **consultar el estado** de la solicitud y sincronizar el resultado con tu sistema mediante **webhooks** o **consultas directas**.
+
+* Cada solicitud puede asociarse a un **acuerdo de liquidación**, con **reglas personalizadas**, **cuentas destino distintas** o **splits específicos** entre varios receptores.
+
+* Puedes habilitar que la solicitud ofrezca distintas **opciones de pago inmediatas**: **débito bancario**, **Pago Móvil** o **pago con criptomonedas (Binance Pay)**, todas con **liquidación directa en bolívares**.
+
+* Los endpoints del API permiten **crear múltiples solicitudes de pago (1..N) en un mismo request**, optimizando procesos masivos o automatizados.
+
+---
+
+### **Relación con las Paradas SPIDI**
+
+Cuando las **Solicitudes de Pago** se utilizan en escenarios de **suscripciones, pagos recurrentes o relaciones comerciales continuas**, las **Paradas SPIDI** son su acompañante ideal.  
+ Cada cliente puede contar con una **Parada única y permanente**, donde consulta, paga y gestiona todas sus solicitudes activas o anteriores, manteniendo un **punto de acceso único y trazable**.
+
+---
+
+### **⚙️ Resumen de endpoints**
+
+Las solicitudes utilizan los mismos endpoints base que los botones, adaptados a su contexto:
+
+* **Crear solicitud de pago (S):** genera de \[1 a N\] sesiones de pago y devuelve sus respectivos `payment_url`.
+
+* **Consultar solicitud de pago (S):** permite conocer el estado actual y el resultado final (`pending`, `paid`, `expired`).
+
+SPIDI se encarga del resto: **conexión bancaria, validación, liquidación y notificación**, garantizando operaciones seguras, trazables y compatibles con el sistema financiero venezolano.

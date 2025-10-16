@@ -1,0 +1,117 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-SPIDI/Sesion Boton de Pago/1. En Web" />
+
+## **Botón SPIDI para Web**
+
+El **Botón SPIDI para Web** permite integrar pagos inmediatos en cualquier **sitio o aplicación web**, ofreciendo a tus usuarios una experiencia de pago fluida, segura y dentro del navegador.  
+ Dependiendo de cómo desees abrir la página de pago de SPIDI, existen **dos estrategias posibles** de integración.
+
+---
+
+### **Estrategia 1 — Misma pestaña (recomendada)**
+
+#### **Flujo**
+
+Tu aplicación web → SPIDI (misma pestaña) → Redirección automática a tu web (éxito o fallo)
+
+#### **Pasos**
+
+1. El usuario hace clic en el botón de pago en tu web.
+
+2. Tu backend crea una sesión de pago con SPIDI mediante el endpoint de creación, incluyendo:
+
+   * `success_url`: URL de éxito (obligatoria)
+
+   * `failure_url`: URL de error (obligatoria)
+
+   * `webhook_url`: opcional, pero altamente recomendado
+
+3. SPIDI responde con un `session_id`.
+
+4. Tu frontend construye el `payment_url` → `{url_base}/{session_id}`.
+
+5. Rediriges al usuario con `window.location.href` para abrir SPIDI en la misma pestaña.
+
+6. Una vez completado el intento de pago, SPIDI redirige automáticamente al `success_url` o `failure_url`, concatenando el parámetro `session_id`.
+
+   * Ejemplo:
+
+     * `{success_url}?session_id=sess_abc123`
+
+     * `{failure_url}?session_id=sess_abc123`
+
+7. Tu aplicación debe leer el `session_id` desde la URL y **consultar el endpoint de estado de sesión** para validar el resultado.  
+    Nunca asumas que llegar al `success_url` implica un pago exitoso; siempre valida con el endpoint.
+
+8. Si implementaste un **webhook**, también recibirás la notificación en tu API.
+
+#### **Consideraciones técnicas**
+
+* SPIDI solo agrega el parámetro `session_id` en la redirección.
+
+* No incluye estado ni información sensible.
+
+* Los estados posibles son: `pending`, `paid`, `failed`, `expired`.
+
+#### **Nota estratégica — Comprobante y fidelización**
+
+Al consultar el estado de una sesión mediante el endpoint de **status**, SPIDI devuelve también una **URL única del comprobante de pago**.  
+ Se recomienda mostrar este enlace al usuario desde tu aplicación:
+
+* Mejora la **transparencia** y la **confianza**.
+
+* En el comprobante, SPIDI invita al usuario a **registrarse**, lo que:
+
+  * Mejora su experiencia en futuros pagos.
+
+  * **Reduce las comisiones** que SPIDI le cobra a tu aplicación.
+
+  * Establece una relación directa SPIDI–usuario, facilitando futuros cobros.
+
+**Incluir el comprobante es una buena práctica que mejora la UX y reduce costos operativos a mediano plazo.**
+
+---
+
+### **Estrategia 2 — Nueva pestaña (casos especiales)**
+
+#### **Flujo**
+
+Tu aplicación web → Nueva pestaña con SPIDI → El usuario cierra la pestaña → Regresa manualmente a tu web
+
+#### **Cuándo usarla**
+
+Solo en casos donde necesites mostrar el pago en una pestaña separada por razones de experiencia de usuario o restricciones técnicas del navegador.
+
+#### **Pasos**
+
+1. El usuario hace clic en el botón de pago.
+
+2. Tu backend crea la sesión de pago con SPIDI, incluyendo únicamente:
+
+   * `webhook_url` (opcional, pero recomendado).
+
+   * `success_url` y `failure_url` deben quedar vacíos.
+
+3. SPIDI responde con el `session_id`.
+
+4. Tu frontend construye el `payment_url` → `{url_base}/{session_id}`.
+
+5. Pides al usuario abrir el enlace en una **nueva pestaña**.
+
+6. El pago se realiza en la página de SPIDI.
+
+7. Al finalizar, el usuario **cierra la pestaña manualmente** y vuelve a la pestaña original.
+
+8. Tu aplicación puede:
+
+   * Consultar periódicamente el estado de la sesión.
+
+   * Mostrar un botón “Ya pagué” para disparar la verificación.
+
+   * Usar el **webhook** para recibir la confirmación en backend.
+
+#### **Nota estratégica — Comprobante y fidelización**
+
+Al igual que en la estrategia 1, el endpoint de **status** devuelve la **URL del comprobante de pago SPIDI**.  
+Mostrar este comprobante en tu interfaz genera confianza y reduce costos a largo plazo al incentivar el registro del usuario en SPIDI.

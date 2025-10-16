@@ -1,6 +1,6 @@
 import { Meta } from '@storybook/blocks';
 
-<Meta title="API/Sesion Boton de Pago/2. Status Sesion B" />
+<Meta title="API-SPIDI/Sesion Boton de Pago/4. Status Sesion B" />
 
 ## Status de Sesion de Pago
 # 1. Descripción
@@ -40,7 +40,7 @@ Si necesitas mostrar o procesar datos de la liquidación, consulta el endpoint d
 
 Method: **GET**
 ```
-{{baseUrl}}/api/v1/payment-session/{session_id}/status
+{{baseUrl}}/api/v1/payment-sessions/{session_id}/status
 ```
 
 **Headers requeridos:**
@@ -49,13 +49,13 @@ Method: **GET**
 
 **Compatibilidad temporal versión vieja:**
 ```
-{{baseUrl}}/api/v1/payment-session/status/{session_id}
+{{baseUrl}}/api/v1/payment-sessions/status/{session_id}
 ```
 
 # 3. Ejemplo del Request
 Method: **GET**
 ```
-{{baseUrl}}/api/v1/payment-session/3ddc4cfb-c09a-43de-92c1-e4a069732e90/status
+{{baseUrl}}/api/v1/payment-sessions/3ddc4cfb-c09a-43de-92c1-e4a069732e90/status
 ```
 
 # 4. Tabla de Parámetros del Request
@@ -64,7 +64,7 @@ Method: **GET**
 
 <table>
 <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
-<tr><td><b><i>session_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>ID de la sesión de pago generada y recibida en el response del endpoint …/payment-session/button. **Formato**: ^[a-zA-Z0-9_-]+$</td></tr>
+<tr><td><b><i>session_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>ID de la sesión de pago generada y recibida en el response del endpoint …/payment-sessions/buttons. **Formato**: ^[a-zA-Z0-9_-]+$</td></tr>
 </table>
 
 *(No hay body ni query params en este endpoint.)*

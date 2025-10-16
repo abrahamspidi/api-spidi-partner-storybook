@@ -5,29 +5,31 @@ const preview = {
       storySort: {
         order: [
           'Introduction',
-          'API', [
+          'API-SPIDI', [
             'Acuerdo',
             'Sesion Boton de Pago', [
-              '0. Resumen',
-              '1. Crear Sesion B',
-              // '2. Obtener Sesion B',
-              // '3. Actualizar Sesion B',
-              // '4. Eliminar Sesion B',
+            ],
+            'Sesion Solicitud de Pago', [
             ],
             'Parada',
-            'Sesion Solicitud de Pago', [
-              '0. Resumen',
-              '1. Crear Sesion S',
-              // '2. Obtener Sesion S',
-              // '3. Actualizar Sesion S',
-              // '4. Eliminar Sesion S',
-            ]
+            'Asociar Solicitud a Parada',
           ],
-          'Examples', [
+          'API-MAP', [
+            'Sofitasa', [
+              'Mapeo Plataforma', [
+                'Crear Operador',
+              ],
+            ],
+            'Crixto', [
+              'Mapeo Spidi', [
+                'Sesion Cripto',
+              ],
+            ],
+          ],
+          'DOCS', [
             'Servicios', [
               'Autenticacion',
             ],
-            'Playbook',
           ]
         ],
       },

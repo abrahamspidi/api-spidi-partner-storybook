@@ -1,0 +1,140 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-SPIDI/Sesion Boton de Pago/2. En Apps" />
+
+## **Botón SPIDI para App**
+
+El **Botón SPIDI para App** permite integrar pagos inmediatos dentro de **aplicaciones móviles** (Android, iOS o frameworks híbridos) mediante **deeplinks o navegación WebView**, manteniendo la experiencia del usuario dentro del entorno de tu app.
+
+---
+
+### **Integración para Aplicaciones Móviles**
+
+Cuando tu app abre la página de pago de SPIDI dentro de un **WebView**, existen **dos estrategias posibles** para recuperar el control una vez que el usuario finaliza (o cancela) el pago.
+
+---
+
+### **Estrategia 1 — Uso de deeplink (recomendada)**
+
+#### **Flujo**
+
+Tu App móvil → SPIDI (WebView) → Redirección automática a tu app (éxito o fallo)
+
+#### **Pasos**
+
+1. El usuario hace clic en el botón de pago dentro de tu app.
+
+2. Tu backend crea una sesión de pago con SPIDI, incluyendo:
+
+   * `success_url`: tu deeplink de éxito (por ejemplo, `miapp://pago-exitoso`)
+
+   * `failure_url`: tu deeplink de error (por ejemplo, `miapp://pago-fallido`)
+
+   * `webhook_url`: opcional, pero altamente recomendado
+
+3. SPIDI responde con el `session_id` y el `payment_url` (`{url_base}/{session_id}`).
+
+4. Abres el `payment_url` dentro de un **WebView moderno** (por ejemplo, WKWebView o Chrome Custom Tabs).
+
+5. Una vez el usuario completa o cancela el pago, SPIDI redirige al `success_url` o `failure_url`, concatenando el parámetro `session_id`:
+
+   * `miapp://pago-exitoso?session_id=sess_abc123`
+
+   * `miapp://pago-fallido?session_id=sess_abc123`
+
+6. Tu app intercepta el deeplink y abre la pantalla nativa correspondiente.
+
+7. Con el `session_id`, consulta el **endpoint de estado** para verificar el resultado (`pending`, `paid`, `failed`, `expired`).
+
+8. Si configuraste un **webhook**, también recibirás la notificación automática en tu API.
+
+#### **Ventajas**
+
+* No requiere lógica adicional para interceptar URLs.
+
+* El sistema operativo detecta automáticamente el esquema (`miapp://`) y abre tu app.
+
+* Es la forma más limpia y segura de retornar al flujo original.
+
+---
+
+### **Estrategia 2 — Captura del cambio de URL**
+
+#### **Flujo**
+
+Tu App móvil → SPIDI (WebView) → Detección de cambio de URL → Cierre del WebView → Pantalla nativa (éxito o fallo)
+
+#### **Pasos**
+
+1. El usuario hace clic en el botón de pago.
+
+2. Tu backend crea una sesión de pago con SPIDI, incluyendo:
+
+   * `webhook_url`: opcional, pero altamente recomendado.
+
+   * `success_url` y `failure_url`: pueden dejarse vacíos.
+
+3. SPIDI responde con el `session_id`.
+
+4. Tu app construye el `payment_url` → `{url_base}/{session_id}` y lo abre en el WebView.
+
+5. Cuando el pago termina, la URL dentro del WebView cambia hacia una página de resultado de SPIDI.
+
+6. Tu app debe:
+
+   * Detectar el cambio de URL dentro del WebView.
+
+   * Cerrar el WebView desde tu código.
+
+   * Mostrar la pantalla nativa correspondiente (éxito o fallo).
+
+7. Tu app conserva el `session_id` y consulta el **endpoint de estado** para validar el resultado.
+
+8. Si configuraste un **webhook**, también recibirás la notificación en tu backend.
+
+#### **Ventajas y consideraciones**
+
+* Útil cuando no puedes registrar un esquema personalizado.
+
+* Requiere lógica en el WebView para analizar URLs entrantes.
+
+* Asegúrate de usar componentes modernos como **WKWebView**, **Chrome Custom Tabs** o equivalentes en **React Native**, **Flutter** o **Capacitor**.
+
+---
+
+### **Nota técnica sobre WebView**
+
+SPIDI requiere que el WebView soporte:
+
+* Interceptar cambios de URL.
+
+* Ejecutar JavaScript.
+
+* Estar actualizado con soporte de seguridad moderno.
+
+Ejemplos recomendados:
+
+* **iOS:** WKWebView
+
+* **Android:** Chrome Custom Tabs
+
+* **React Native / Flutter / Capacitor:** WebView con interceptores de URL activos
+
+---
+
+### **Nota estratégica — Comprobante de pago y fidelización**
+
+Al consultar el estado de una sesión mediante el **endpoint de status**, SPIDI devuelve también una **URL única del comprobante de pago**.  
+ Mostrar este comprobante en tu app tiene beneficios clave:
+
+* Mejora la **transparencia** y la **confianza del usuario**.
+
+* En la página del comprobante, SPIDI invita al usuario a **registrarse**, lo que:
+
+  * Facilita sus futuros pagos.
+
+  * **Reduce las comisiones** que SPIDI le cobra a tu aplicación.
+
+  * Establece una relación directa SPIDI–usuario, facilitando cobros posteriores.
+
+💡 **Consejo:** Mostrar el comprobante desde tu app no solo mejora la experiencia del usuario, sino que también reduce costos operativos a mediano plazo.

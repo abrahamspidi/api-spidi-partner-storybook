@@ -1,0 +1,66 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-SPIDI/Parada/0. Resumen" />
+
+## **Paradas SPIDI**
+
+Las **Paradas SPIDI** son espacios únicos y permanentes asociados a cada cliente, donde este puede **consultar, gestionar y pagar todas sus solicitudes de pago activas o históricas**, sin necesidad de recibir nuevos enlaces cada vez.  
+Funcionan como un **punto de acceso trazable y constante**, ideal para **relaciones comerciales continuas, suscripciones o pagos recurrentes**, simplificando la experiencia tanto para el pagador como para la empresa.
+
+---
+
+### **Estados de una Parada**
+
+* **Active:** existe al menos un enlace de pago activo; se muestran los pagos disponibles en una lista con su identificador, monto y estado.
+
+* **Empty (sin enlaces activos):** la parada muestra el estado “no hay pagos disponibles”.
+
+* **Disabled:** la parada está deshabilitada temporalmente, pero puede reactivarse.
+
+* **Deleted:** la parada fue eliminada definitivamente.
+
+  ---
+
+### **Cómo funcionan**
+
+* Cada Parada se crea y asocia mediante el **API de SPIDI**, vinculándola siempre a un mismo cliente o referencia o a múltiples clientes o referencias específicas de tu plataforma.
+
+* Posee una **URL única y permanente**, que el cliente puede visitar en cualquier momento para consultar y pagar.
+
+* Desde esa URL, el cliente ve todas sus **solicitudes de pago** (pendientes, vencidas o completadas), cada una con su `payment_url` generado por SPIDI.
+
+* Los pagos se procesan en la **interfaz segura de SPIDI**, con las mismas opciones inmediatas: **débito bancario, Pago Móvil y Binance Pay (USDT)**, siempre con **liquidación directa en bolívares**.
+
+* La Parada puede configurarse para mostrar **solo solicitudes activas** o **todo el historial**, según las necesidades de tu plataforma.
+
+* Tu plataforma puede usar una **única Parada por cliente** o generar **Paradas específicas por servicio, contrato o suscripción**.
+
+  ---
+
+### **Integración técnica**
+
+* Las Paradas pueden **crearse de forma individual o masiva** mediante el endpoint  
+   `POST /api/v1/payment-stops/batch`, que permite generar **1..N Paradas en un solo request**.  
+   Esta función resulta clave para procesos de **onboarding inicial** (por ejemplo, 100 suscriptores) y **reintentos idempotentes**.
+
+* Cada Parada se identifica por un **`stop_id`** y puede consultarse o modificarse posteriormente.
+
+* Las Paradas agrupan las **Solicitudes de Pago** relacionadas con un mismo cliente o referencia lógica.
+
+* Es recomendable definir y mantener un campo **`internal_reference`** para cada recurso (cliente, contrato o factura), que servirá para:
+
+  * **Conciliar y auditar** operaciones entre tu sistema y SPIDI.
+
+  * **Asociar solicitudes de pago** con su Parada correspondiente.
+
+  ---
+
+### **⚙️ Resumen de endpoints**
+
+* **Crear Parada (P):** genera una o varias Paradas vinculadas a clientes o referencias internas.
+
+* **Consultar Parada (P):** devuelve el detalle y los enlaces de pago asociados.
+
+* **Actualizar o deshabilitar Parada (P):** permite ajustar título, mensaje o estado.
+
+* **Eliminar Parada (P):** baja definitiva, aunque se recomienda deshabilitar antes de eliminar.

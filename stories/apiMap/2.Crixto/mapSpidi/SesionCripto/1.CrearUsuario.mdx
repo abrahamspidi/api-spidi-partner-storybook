@@ -1,0 +1,131 @@
+
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-MAP/Crixto/Mapeo Spidi/Sesion Cripto/1. Crear Usuario" />
+
+## Crear Usuario en Crixto
+
+# 1. Descripción
+
+Permite registrar el identificador único (spidi_id) del usuario/comercio en el sistema Crixto. Este endpoint es fundamental para establecer la relación entre el dispositivo SPIDI y la plataforma, permitiendo la autenticación y gestión de sesiones criptográficas.
+
+**Funcionalidades principales:**
+- **Registro de dispositivo**: Asocia un spidi_id único con un nombre de dispositivo
+- **Configuración de comercio**: Establece el alias del comercio para identificación
+- **Activación de estado**: Habilita o deshabilita la funcionalidad del dispositivo
+- **Validación de unicidad**: Previene duplicados de spidi_id en el sistema
+
+# 2. Endpoint
+
+Method: **POST**
+```
+{{baseUrl}}/api/crypto/register-spidi
+```
+
+**Headers requeridos:**
+- `Content-Type: application/json`
+- `Authorization: Bearer {token}`
+
+# 3. Ejemplo del Request
+
+```json
+{
+  "spidi_id": "a966ce0d-3af3-415d-ba86-1db5a1c21cf0",
+  "device_name": "mispidi",
+  "merchant": "usernameX",
+  "status": true
+}
+```
+
+# 4. Tabla de Parámetros del Request
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>spidi_id</i></b></td><td><b><i>string (UUID)</i></b></td><td>✔ Sí</td><td>Identificador único del dispositivo SPIDI</td></tr>
+<tr><td><b><i>device_name</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Nombre del dispositivo (siempre "mispidi")</td></tr>
+<tr><td><b><i>merchant</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Alias del comercio para identificación</td></tr>
+<tr><td><b><i>status</i></b></td><td><b><i>boolean</i></b></td><td>✔ Sí</td><td>Estado del dispositivo (true = activo, false = inactivo)</td></tr>
+</table>
+
+# 5. Ejemplo de Response 200
+
+```json
+{
+  "success": true,
+  "message": "Mi SPIDI registered successfully.",
+  "data": {
+    "spidi_id": "a966ce0d-3af3-415d-ba86-1db5a1c21cf0",
+    "device_name": "mispidi",
+    "merchant": "usernameX",
+    "status": true
+  }
+}
+```
+
+# 6. Tabla de Response 200
+
+### Campos del Nivel Principal
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>success</i></b></td><td><b><i>boolean</i></b></td><td>✔ Sí</td><td>Indica si la operación fue exitosa</td></tr>
+<tr><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Mensaje de confirmación del registro</td></tr>
+<tr><td><b><i>data</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Datos del usuario registrado</td></tr>
+</table>
+
+### 6.1 Subtabla: data
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>spidi_id</i></b></td><td><b><i>string (UUID)</i></b></td><td>✔ Sí</td><td>Eco del spidi_id enviado en el request</td></tr>
+<tr><td><b><i>device_name</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco del device_name enviado en el request</td></tr>
+<tr><td><b><i>merchant</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco del merchant enviado en el request</td></tr>
+<tr><td><b><i>status</i></b></td><td><b><i>boolean</i></b></td><td>✔ Sí</td><td>Eco del status enviado en el request</td></tr>
+</table>
+
+# 7. Ejemplos de Response ≠ 200
+
+### Error 400 - Bad Request (Serial ya existe)
+
+```json
+{
+  "success": false,
+  "message": "Serial already exists",
+  "errors": {
+    "spidi_id": "Serial already registered"
+  }
+}
+```
+
+### Error 400 - Bad Request (Nombre de dispositivo inválido)
+
+```json
+{
+  "success": false,
+  "message": "Invalid device name",
+  "errors": {
+    "device_name": "Device name is required"
+  }
+}
+```
+
+### Error 500 - Internal Server Error
+
+```json
+{
+  "success": false,
+  "message": "Internal server error",
+  "errors": {}
+}
+```
+
+# 8. Tabla de Errores
+
+<table>
+<tr><th>Código HTTP</th><th>Código de Error</th><th>Descripción</th><th>Campos de Error</th></tr>
+<tr><td>400</td><td><b><i>DUPLICATE_SERIAL</i></b></td><td>El spidi_id ya está registrado</td><td><b><i>spidi_id</i></b>, <b><i>message</i></b></td></tr>
+<tr><td>400</td><td><b><i>INVALID_DEVICE_NAME</i></b></td><td>Nombre de dispositivo inválido o faltante</td><td><b><i>device_name</i></b>, <b><i>message</i></b></td></tr>
+<tr><td>400</td><td><b><i>VALIDATION_ERROR</i></b></td><td>Datos de request inválidos</td><td><b><i>field</i></b>, <b><i>message</i></b></td></tr>
+<tr><td>401</td><td><b><i>UNAUTHORIZED</i></b></td><td>Token de autenticación inválido</td><td><b><i>message</i></b></td></tr>
+<tr><td>500</td><td><b><i>INTERNAL_SERVER_ERROR</i></b></td><td>Error interno del servidor</td><td><b><i>message</i></b></td></tr>
+</table>

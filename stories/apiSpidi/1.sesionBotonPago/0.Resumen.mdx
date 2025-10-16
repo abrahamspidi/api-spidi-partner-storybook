@@ -1,0 +1,53 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-SPIDI/Sesion Boton de Pago/0. Resumen" />
+
+## **Botones de Pago SPIDI**
+
+Los **Botones de Pago SPIDI** son la forma más directa de **recibir pagos inmediatos** desde tu **sitio web o aplicación móvil**, permitiendo que tus usuarios paguen desde **cualquier banco venezolano o de Binance Pay (USDT)** sin salir de tu entorno digital.
+
+El botón SPIDI te permite habilitar todos los medios de pago inmediatos del país —**débito bancario, Pago Móvil y Binance Pay (USDT)**—, con **liquidación directa en bolívares**.
+
+Los botones pueden integrarse en dos modalidades, según el entorno en el que desees implementarlos:
+
+* **Botón SPIDI para Web:** para sitios o aplicaciones web, donde el pago ocurre directamente en el navegador.
+
+* **Botón SPIDI para App:** pensado para aplicaciones móviles (Android, iOS o frameworks híbridos), con soporte para **deeplinks o navegación WebView**.
+
+---
+
+### **Base común de todos los flujos de Botones de pago**
+
+* Todos los procesos se basan en la **creación de una sesión de pago** a través del **API de SPIDI**, especificando un **monto** (en **bolívares** o en una **moneda de referencia** como **dólar BCV, euro BCV, peso colombiano o USDT**) y una **identificación** que permite asociar la transacción con tu sistema de origen.
+
+* Al crear la sesión, **SPIDI genera un hash único** que identifica de forma segura cada operación, y el estado inicial (`status`) del enlace es **`pending`**.
+
+* La **sesión tiene una vida útil de 10 minutos**, tras lo cual caduca automáticamente si no se completa el pago.
+
+* Los posibles estados de una sesión son: **`pending`, `paid`, `failed`, `expired`**.
+
+  * Un estado **`failed`** termina definitivamente la sesión de pago.
+
+* El **pago siempre ocurre el mismo día**; en horas cercanas a la **medianoche no se permiten operaciones**, para garantizar la correcta conciliación entre sistemas bancarios.
+
+* En la respuesta se devuelve un **`payment_url`**, y deberás **redirigir al usuario que va a pagar** a esa dirección para completar el proceso.
+
+* Una vez finalizado el pago, **SPIDI puede redirigir automáticamente** al usuario hacia la **`success_url`** o **`failure_url`**, en caso de haber sido configuradas.
+
+* Un **segundo endpoint** permite **consultar el estado** de la sesión de pago, conocer su resultado y, opcionalmente, **sincronizarlo con tu plataforma** mediante **webhooks** o **consultas directas**.
+
+* Cada sesión puede asociarse a un **acuerdo de liquidación**, donde se definen las **reglas personalizadas de liquidación**, las **cuentas destino** y los **splits específicos** entre varios receptores.
+
+* Puedes habilitar que la sesión ofrezca distintas **opciones de pago inmediatas**: **débito bancario**, **Pago Móvil** o **pago con criptomonedas (Binance Pay)**, todas con **liquidación directa en bolívares**.
+
+---
+
+### **Resumen de endpoints**
+
+Ambas modalidades utilizan los mismos endpoints base del API:
+
+* **Crear sesión de pago (B):** genera la sesión y devuelve el `payment_url`.
+
+* **Consultar sesión de pago (B):** permite verificar el estado y resultado de la transacción (`pending`, `paid`, `failed`, `expired`).
+
+SPIDI se encarga del resto: **conexión bancaria, validación, liquidación y notificación**, garantizando confirmaciones inmediatas y trazabilidad completa.
