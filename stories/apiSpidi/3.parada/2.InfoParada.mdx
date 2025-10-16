@@ -2,37 +2,32 @@ import { Meta } from '@storybook/blocks';
 
 <Meta title="API/Parada/2. Info Parada" />
 
-## **2. Obtener información de la parada [no para 3eros]**
+# 1. Descripción
 
-Este endpoint permite consultar los detalles de una parada previamente creada en SPIDI y solo sus enlaces activos. 
+Este endpoint permite consultar los detalles de una parada previamente creada en SPIDI y solo sus enlaces activos.
 
-## **2. Endpoint**
+# 2. Endpoint
 
-**GET** {{baseUrl}}/api/v1/payment-stops/{stop_id}
+Method: **GET**
+```
+{{baseUrl}}/api/v1/payment-stops/{stop_id}
+```
 
-## **3. Ejemplo del Request (JSON)**
+# 3. Ejemplo del Request
 
-Header:  
-Idempotency-Key: `uuid-v4`  
-GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812c1
+Method: **GET**
+```
+{{baseUrl}}/api/v1/payment-stops/7f8b2c6a-4d19-45df-9a10-3e872aa812c1
+```
 
-## **4. Tabla explicación de cada campo del Request**
-
-### 4.1 Campos de nivel raíz
-
-### Parámetros
-
-<table>
-<tr><th>Campo</th><th>Tipo dato</th><th>Requerido</th><th>Descripción de la posible transformación del origen</th></tr>
-<tr><td><b>Path</b> <b><i>stop_id</i></b></td><td><b>string</b></td><td>✅ Sí</td><td>Identificador único de la parada (UUID).</td></tr>
-</table>
+# 4. Tabla de Parámetros del Request
 
 <table>
 <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
-<tr><td><b>spidi_id</b></td><td><b>string (UUID)</b></td><td>✅ Sí</td><td>Identificador del comercio en SPIDI (validado contra las credenciales del request).</td></tr>
+<tr><td><b>stop_id</b></td><td><b>string (UUID)</b></td><td>✅ Sí</td><td>Identificador único de la parada (UUID).</td></tr>
 </table>
 
-### **5. Ejemplos de Response 200**
+# 5. Ejemplo de Response 200
 
 ```json
 {
@@ -62,60 +57,53 @@ GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812
 }
 ```
 
-### **6. Tablas explicación de cada campo del Response 200**
+# 6. Tabla de Response 200
 
-### **6.1 Campos de nivel raíz (Response 200)**
+## Campos del Nivel Principal
 
-| Campo | Tipo | Descripción |
-| ----- | ----- | ----- |
-| **success** | boolean | **Generado.** True si el endpoint se proceso de forma exitosa. False de lo contrario. |
-| **message** | string | **Generado.** Mensaje de confirmación legible para humanos. |
-| **data** | [objeto] | **Generado.** Lista del objeto con la información de las paradas creadas. |
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td>boolean</td><td>✅ Sí</td><td><b>Generado.</b> True si el endpoint se proceso de forma exitosa. False de lo contrario.</td></tr>
+<tr><td><b>message</b></td><td>string</td><td>✅ Sí</td><td><b>Generado.</b> Mensaje de confirmación legible para humanos.</td></tr>
+<tr><td><b>data</b></td><td>[objeto]</td><td>✅ Sí</td><td><b>Generado.</b> Lista del objeto con la información de las paradas creadas.</td></tr>
+</table>
 
-### **6.2 Subtabla: Response 200 → data**
+### 6.1 Subtabla: Response 200 → data
 
-| results.x | Tipo | Descripción |
-| ----- | ----- | ----- |
-| **stopid** | **string/ null** | **Generado.** Identificador de la Parada SPIDI creada. |
-| **stopurl** | **string/ null** | **Generado.** URL permanente de la parada individual. |
-| **internalreference** | **string** | **Eco.** |
-| **stoptitle** | **string** | **Eco.** |
-| **emptystatemessage** | **string** | **Eco.** |
-| **status** | **string** | **Eco + transformado.** `"active"` (por defecto) o `"disabled"` según el request. |
-| **createdat** | **string** | Fecha y hora de creación (ISO 8601). |
-| **linksactive** | **[objeto]** | **Generado.** Lista de enlaces activos en la parada. |
+<table>
+<tr><th>results.x</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b>stop_id</b></td><td><b>string/ null</b></td><td>✅ Sí</td><td><b>Generado.</b> Identificador de la Parada SPIDI creada.</td></tr>
+<tr><td><b>stop_url</b></td><td><b>string/ null</b></td><td>✅ Sí</td><td><b>Generado.</b> URL permanente de la parada individual.</td></tr>
+<tr><td><b>internal_reference</b></td><td><b>string</b></td><td>✅ Sí</td><td><b>Eco.</b></td></tr>
+<tr><td><b>stop_title</b></td><td><b>string</b></td><td>✅ Sí</td><td><b>Eco.</b></td></tr>
+<tr><td><b>empty_state_message</b></td><td><b>string</b></td><td>❌ No</td><td><b>Eco.</b></td></tr>
+<tr><td><b>status</b></td><td><b>string</b></td><td>✅ Sí</td><td><b>Eco + transformado.</b> <b><i>"active"</i></b> (por defecto) o <b><i>"disabled"</i></b> según el request.</td></tr>
+<tr><td><b>created_at</b></td><td><b>string</b></td><td>✅ Sí</td><td>Fecha y hora de creación (ISO 8601).</td></tr>
+<tr><td><b>links_active</b></td><td><b>[objeto]</b></td><td>❌ No</td><td><b>Generado.</b> Lista de enlaces activos en la parada.</td></tr>
+</table>
 
-### **6.3 Subtabla: Response 200 → data.linksactive**
+### 6.2 Subtabla: Response 200 → data.links_active
 
-| results.x | Tipo | Descripción |
-| ----- | ----- | ----- |
-| **sessionid** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
-| **paymenturl** | **string** | **Generado.** Link "URL" donde el usuario puede ser redirigido para realizar el pago, sin pasar por la parada. En caso de haber creado parada, se recomienda suministrar al pagador el **stopurl** |
-| **status** | **string** | Estado del enlace: `pending`, `paid`, `expired` |
-| **currencyreference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
-| **amount** | **number** | Monto total en la moneda indicada por currencyreference (2 decimales). |
-| **amountves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amountves irá cambiando a medida que cambie la tasa oficial. |
-| **duedatelink** | **string (ISO 8601)** | Fecha y hora límite (Venezuela) de vencimiento. Si se alcanza, el enlace se comportará como se elija en campo: **expirebehaviorlink** |
-| **expirebehaviorlink** | **string** | Define qué le ocurre al enlace al vencer el duedatelink.  Valores posibles:  **"expire"**: el enlace queda expirado. Si hay una parada asociada, se debe generar un nuevo enlace y asociar a la parada. “**keepactive**”: el enlace sigue vigente, pero se muestra una advertencia. Esto es ideal cuando no hay penalización en costo, pero sí en servicio. |
-| **latenoticemessage** | **string** | Si posterior a la fecha de vencimiento el enlace sigue activo (keepactive), se mostrará el mensaje al pagador que se defina en este campo. Ejemplo: “Tu servicio está inactivo. Realiza el pago ahora para recuperar la continuidad de tu suscripción.", |
-
-### **6.4 Subtabla: Response 200 → data.linkshistory**
-
-| results.x | Tipo | Descripción |
-| ----- | ----- | ----- |
-| **sessionid** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
-| **status** | **string** | Estado del enlace: `pending`, `paid`, `expired` |
-| **currencyreference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
-| **amount** | **number** | Monto total en la moneda indicada por currencyreference (2 decimales). |
-| **amountves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a "VES", entonces este amountves irá cambiando a medida que cambie la tasa oficial. |
-| **paidat** | **string** | Fecha/hora de pago (solo si `status = paid`) |
+<table>
+<tr><th>results.x</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b>session_id</b></td><td><b>string</b></td><td>✅ Sí</td><td><b>Generado.</b> Identificador único de la sesión de pago creada.</td></tr>
+<tr><td><b>payment_url</b></td><td><b>string</b></td><td>✅ Sí</td><td><b>Generado.</b> Link "URL" donde el usuario puede ser redirigido para realizar el pago, sin pasar por la parada. En caso de haber creado parada, se recomienda suministrar al pagador el **stop_url**</td></tr>
+<tr><td><b>status</b></td><td><b>string</b></td><td>✅ Sí</td><td>Estado del enlace: <b><i>pending</i></b>, <b><i>paid</i></b>, <b><i>expired</i></b></td></tr>
+<tr><td><b>currency_reference</b></td><td><b>string</b></td><td>✅ Sí</td><td>Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: <b><i>"USD"</i></b>, <b><i>"EUR"</i></b>, <b><i>"COP"</i></b>. Si el monto en bolívares es fijo y no se desea indexar, se debe poner <b><i>"VES"</i></b>.</td></tr>
+<tr><td><b>amount</b></td><td><b>number</b></td><td>✅ Sí</td><td>Monto total en la moneda indicada por currency_reference (2 decimales).</td></tr>
+<tr><td><b>amount_ves</b></td><td><b>number</b></td><td>✅ Sí</td><td><b>Generado.</b> Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a "VES", entonces este amount_ves irá cambiando a medida que cambie la tasa oficial.</td></tr>
+<tr><td><b>due_date_link</b></td><td><b>string (ISO 8601)</b></td><td>❌ No</td><td>Fecha y hora límite (Venezuela) de vencimiento. Si se alcanza, el enlace se comportará como se elija en campo: **expire_behavior_link**</td></tr>
+<tr><td><b>expire_behavior_link</b></td><td><b>string</b></td><td>❌ No</td><td>Define qué le ocurre al enlace al vencer el due_date_link. Valores posibles: <b><i>"expire"</i></b>: el enlace queda expirado. Si hay una parada asociada, se debe generar un nuevo enlace y asociar a la parada. <b><i>"keep_active"</i></b>: el enlace sigue vigente, pero se muestra una advertencia. Esto es ideal cuando no hay penalización en costo, pero sí en servicio.</td></tr>
+<tr><td><b>late_notice_message</b></td><td><b>string</b></td><td>❌ No</td><td>Si posterior a la fecha de vencimiento el enlace sigue activo (keep_active), se mostrará el mensaje al pagador que se defina en este campo. Ejemplo: "Tu servicio está inactivo. Realiza el pago ahora para recuperar la continuidad de tu suscripción."</td></tr>
+</table>
 
 ### 
 
 ### 
 
-## **7. Ejemplos de Responses diferentes de 200**
+# 7. Ejemplos de Response ≠ 200
 
+### Error 404 - Not Found
 ```json
 {
   "success": false,
@@ -126,12 +114,11 @@ GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812
 }
 ```
 
-## **8. Tabla de explicación de Response con error**
+# 8. Tabla de Errores
 
-### **8.1 Campos de nivel raíz (errores 4xx/5xx)**
-
-| Campo | Tipo | Descripción |
-| ----- | ----- | ----- |
-| **success** | **boolean** | Siempre false en caso de error. |
-| **message** | **string** | Resumen legible del error principal. |
-| **errors** | **objeto | null** | Detalle por campo (opcional). |
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td><b>boolean</b></td><td>✅ Sí</td><td>Siempre false en caso de error.</td></tr>
+<tr><td><b>message</b></td><td><b>string</b></td><td>✅ Sí</td><td>Resumen legible del error principal.</td></tr>
+<tr><td><b>errors</b></td><td><b>objeto | null</b></td><td>❌ No</td><td>Detalle por campo (opcional).</td></tr>
+</table>

@@ -2,7 +2,7 @@ import { Meta } from '@storybook/blocks';
 
 <Meta title="API/Parada/1. Crear Parada" />
 
-## **1. Crear parada o lote de paradas**
+# 1. Descripción
 
 Este endpoint permite crear una o múltiples **paradas de SPIDI** vacías en un mismo request.  
 Una **parada** es un contenedor estable identificado por un `stop_id` y un `stop_url`. Su función es servir como **punto de acceso permanente**, al que posteriormente se le podrán asociar 0, 1 o N **enlaces de pago**.
@@ -19,20 +19,20 @@ Este endpoint permite crear:
 
 1. **Una sola parada por request**, cuando se quiere crear una parada de manera puntual.
 
-2. **Múltiples paradas en lote**, cuando se requiere registrar varias de forma simultánea (ej. una empresa de suscripciones que quiere generar el portal de pago “la parada” de todos sus clientes).
+2. **Múltiples paradas en lote**, cuando se requiere registrar varias de forma simultánea (ej. una empresa de suscripciones que quiere generar el portal de pago "la parada" de todos sus clientes).
 
 Cada parada siempre tendrá su propio `stop_id` y un `stop_url` estables, que permanecen en el tiempo aunque se agreguen o expiren enlaces de pago asociados.
 
-## **2. Endpoint**
+# 2. Endpoint
 
-**POST** {{baseUrl}}/api/v1/payment-stops/batch
+Method: **POST**
+```
+{{baseUrl}}/api/v1/payment-stops/batch
+```
 
-## **3. Ejemplo del Request (JSON)**
+# 3. Ejemplo del Request
 
-Header:  
-Idempotency-Key: `uuid-v4`
-
-Body:
+Method: **POST**
 
 ```json
 {
@@ -57,9 +57,7 @@ Body:
 
 Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio Edificio.
 
-## **4. Tabla explicación de cada campo del Request**
-
-### 4.1 Campos de nivel raíz
+# 4. Tabla de Parámetros del Request
 
 <table>
 <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
@@ -68,7 +66,7 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 <tr><td><b>items</b></td><td><b>[object]</b></td><td>✅ Sí</td><td>Listado de objeto, al menos 1 ítem es necesario</td></tr>
 </table>
 
-### 4.2 Subtabla: Request → [items]
+# 4.1 Subtabla: Request → [items]
 
 <table>
 <tr><th>items.x</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
@@ -78,7 +76,7 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 <tr><td><b>status</b></td><td><b>string</b></td><td>❌ Opcional</td><td>Estado inicial de la parada: <b><i>"active"</i></b> (por defecto) o <b><i>"disabled"</i></b>.</td></tr>
 </table>
 
-## **5. Ejemplos de Response 200**
+# 5. Ejemplo de Response 200
 
 ```json
 {
@@ -114,37 +112,36 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 }
 ```
 
-### **6. Tablas explicación de cada campo del Response 200**
+# 6. Tabla de Response 200
 
-### **6.1 Campos de nivel raíz (Response 200)**
+## Campos del Nivel Principal
 
 <table>
-<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
-<tr><td><b>success</b></td><td>boolean</td><td><b>Generado.</b> True si el endpoint se proceso de forma exitosa. False de lo contrario.</td></tr>
-<tr><td><b>message</b></td><td>string</td><td><b>Generado.</b> Mensaje de confirmación legible para humanos.</td></tr>
-<tr><td><b>batch_id</b></td><td>string</td><td><b>Generado.</b> Identificador único del lote</td></tr>
-<tr><td><b>results</b></td><td>[objeto]</td><td><b>Generado.</b> Lista del objeto con la información de las paradas creadas.</td></tr>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td>boolean</td><td>✅ Sí</td><td><b>Generado.</b> True si el endpoint se proceso de forma exitosa. False de lo contrario.</td></tr>
+<tr><td><b>message</b></td><td>string</td><td>✅ Sí</td><td><b>Generado.</b> Mensaje de confirmación legible para humanos.</td></tr>
+<tr><td><b>batch_id</b></td><td>string</td><td>✅ Sí</td><td><b>Generado.</b> Identificador único del lote</td></tr>
+<tr><td><b>results</b></td><td>[objeto]</td><td>✅ Sí</td><td><b>Generado.</b> Lista del objeto con la información de las paradas creadas.</td></tr>
 </table>
 
-### **6.2 Subtabla: Response 200 → results**
+### 6.1 Subtabla: Response 200 → results
 
 <table>
-<tr><th>results.x</th><th>Tipo</th><th>Descripción</th></tr>
-<tr><td><b>stop_id</b></td><td><b>string/ null</b></td><td><b>Generado.</b> Identificador de la Parada SPIDI creada.</td></tr>
-<tr><td><b>stop_url</b></td><td><b>string/ null</b></td><td><b>Generado.</b> URL permanente de la parada individual.</td></tr>
-<tr><td><b>internal_reference</b></td><td><b>string</b></td><td><b>Eco.</b></td></tr>
-<tr><td><b>stop_title</b></td><td><b>string</b></td><td><b>Eco.</b></td></tr>
-<tr><td><b>empty_state_message</b></td><td><b>string</b></td><td><b>Eco.</b></td></tr>
-<tr><td><b>status</b></td><td><b>string</b></td><td><b>Eco + transformado.</b> <b><i>"active"</i></b> (por defecto) o <b><i>"disabled"</i></b> según el request.</td></tr>
-<tr><td><b>created_at</b></td><td><b>string</b></td><td>Fecha y hora de creación (ISO 8601).</td></tr>
+<tr><th>results.x</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b>stop_id</b></td><td><b>string/ null</b></td><td>✅ Sí</td><td><b>Generado.</b> Identificador de la Parada SPIDI creada.</td></tr>
+<tr><td><b>stop_url</b></td><td><b>string/ null</b></td><td>✅ Sí</td><td><b>Generado.</b> URL permanente de la parada individual.</td></tr>
+<tr><td><b>internal_reference</b></td><td><b>string</b></td><td>✅ Sí</td><td><b>Eco.</b></td></tr>
+<tr><td><b>stop_title</b></td><td><b>string</b></td><td>✅ Sí</td><td><b>Eco.</b></td></tr>
+<tr><td><b>empty_state_message</b></td><td><b>string</b></td><td>❌ No</td><td><b>Eco.</b></td></tr>
+<tr><td><b>status</b></td><td><b>string</b></td><td>✅ Sí</td><td><b>Eco + transformado.</b> <b><i>"active"</i></b> (por defecto) o <b><i>"disabled"</i></b> según el request.</td></tr>
+<tr><td><b>created_at</b></td><td><b>string</b></td><td>✅ Sí</td><td>Fecha y hora de creación (ISO 8601).</td></tr>
 </table>
 
 ### 
 
-## **7. Ejemplos de Responses diferentes de 200**
+# 7. Ejemplos de Response ≠ 200
 
-### **7.1 400 Bad Request (campo faltante)**
-
+### Error 400 - Bad Request
 ```json
 {
   "success": false,
@@ -155,8 +152,7 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 }
 ```
 
-### **6.2 401/403 Unauthorized (credenciales/propiedad)**
-
+### Error 401/403 - Unauthorized
 ```json
 {
   "success": false,
@@ -167,8 +163,7 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 }
 ```
 
-### **6.4 422 Unprocessable Entity (tipos/valores inválidos)**
-
+### Error 422 - Unprocessable Entity
 ```json
 {
   "success": false,
@@ -179,8 +174,7 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 }
 ```
 
-### **6.5 500 Internal Server Error**
-
+### Error 500 - Internal Server Error
 ```json
 {
   "success": false,
@@ -188,15 +182,13 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 }
 ```
 
-## **7. Tabla de explicación de cada campo de los distintos Response (errores)**
-
-### **7.1 Campos de nivel raíz (errores 4xx/5xx)**
+# 8. Tabla de Errores
 
 <table>
-<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
-<tr><td><b>success</b></td><td><b>boolean</b></td><td>Siempre false en caso de error.</td></tr>
-<tr><td><b>message</b></td><td><b>string</b></td><td>Resumen legible del error principal.</td></tr>
-<tr><td><b>errors</b></td><td><b>objeto | null</b></td><td>Detalle por campo (opcional).</td></tr>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td><b>boolean</b></td><td>✅ Sí</td><td>Siempre false en caso de error.</td></tr>
+<tr><td><b>message</b></td><td><b>string</b></td><td>✅ Sí</td><td>Resumen legible del error principal.</td></tr>
+<tr><td><b>errors</b></td><td><b>objeto | null</b></td><td>❌ No</td><td>Detalle por campo (opcional).</td></tr>
 </table>
 
 <table>
