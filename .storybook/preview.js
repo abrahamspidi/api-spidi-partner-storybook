@@ -9,9 +9,10 @@ const preview = {
             'Acuerdo',
             'Sesion Boton de Pago', [
             ],
-            'Parada',
             'Sesion Solicitud de Pago', [
-            ]
+            ],
+            'Parada',
+            'Asociar Solicitud a Parada',
           ],
           'API-MAP', [
             'Sofitasa', [
