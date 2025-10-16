@@ -2,63 +2,52 @@ import { Meta } from '@storybook/blocks';
 
 <Meta title="API-SPIDI/Sesion Boton de Pago/0. Resumen" />
 
-## **Botón de pago en SPIDI: lo esencial** 
+## **Botones de Pago SPIDI**
 
-El **botón de pago** se usa dentro de una aplicación web o móvil para permitir que el usuario **realice un pago inmediato**. Al hacer clic en el botón, se redirige temporalmente al usuario a una página de pago SPIDI, donde completa el pago, y luego se lo retorna a la app original.
+Los **Botones de Pago SPIDI** son la forma más directa de **recibir pagos inmediatos** desde tu **sitio web o aplicación móvil**, permitiendo que tus usuarios paguen desde **cualquier banco venezolano o de Binance Pay (USDT)** sin salir de tu entorno digital.
 
-Esto permite una experiencia integrada y controlada dentro del flujo principal del usuario.
+El botón SPIDI te permite habilitar todos los medios de pago inmediatos del país —**débito bancario, Pago Móvil y Binance Pay (USDT)**—, con **liquidación directa en bolívares**.
 
-Los **botones de pago** están diseñados para integrarse directamente dentro de tu aplicación web o móvil, permitiendo iniciar el pago justo en el momento en que el usuario toma la decisión de compra. Son ideales para flujos de **checkout en tiendas online**, **activación de servicios digitales**, **compras in-app**, **recargas de saldo**, **reservas con pago inmediato**, o incluso para **promociones limitadas** dentro de la plataforma. También se utilizan en áreas de usuario donde el cliente puede hacer clic en “Pagar ahora” para saldar deudas o renovar servicios. Al estar integrados al flujo de navegación, ofrecen una experiencia fluida, controlada y en tiempo real entre frontend y backend.
+Los botones pueden integrarse en dos modalidades, según el entorno en el que desees implementarlos:
 
-### **Experiencia del cliente en la página de pago SPIDI para botones de pago** 
+* **Botón SPIDI para Web:** para sitios o aplicaciones web, donde el pago ocurre directamente en el navegador.
 
-En la página de SPIDI, el usuario verá información visual que confirma que el pago está asociado a tu aplicación. Desde allí puede:
+* **Botón SPIDI para App:** pensado para aplicaciones móviles (Android, iOS o frameworks híbridos), con soporte para **deeplinks o navegación WebView**.
 
-* ✅ Realizar el pago (exitosamente o fallar)  
-* ⏳ Quedarse inactivo sin hacer nada  
-* 🔙 Presionar el botón "Atrás" en el navegador
+---
 
-### **🔄 Cambios de estado posibles**
+### **Base común de todos los flujos de Botones de pago**
 
-Todas las sesiones de pago inician con estado pending. Luego, según la acción del usuario o el paso del tiempo, SPIDI actualiza automáticamente el estado a:
+* Todos los procesos se basan en la **creación de una sesión de pago** a través del **API de SPIDI**, especificando un **monto** (en **bolívares** o en una **moneda de referencia** como **dólar BCV, euro BCV, peso colombiano o USDT**) y una **identificación** que permite asociar la transacción con tu sistema de origen.
 
-* paid → si el pago se completa correctamente  
-* failed → si el usuario cancela o ocurre un error  
-* expired → si pasan más de **10 minutos** sin completarse el pago
+* Al crear la sesión, **SPIDI genera un hash único** que identifica de forma segura cada operación, y el estado inicial (`status`) del enlace es **`pending`**.
 
-💡 Una vez que la sesión cambia a cualquiera de estos estados, **deja de ser válida** y debe crearse una nueva para un nuevo intento.
+* La **sesión tiene una vida útil de 10 minutos**, tras lo cual caduca automáticamente si no se completa el pago.
 
-Las sesiones de pago SPIDI **expiran a los 10 minutos** desde su creación. Esto ayuda a prevenir pagos tardíos fuera de contexto. Si el usuario no completa el pago en ese tiempo, la sesión pasará automáticamente a estado expired.
+* Los posibles estados de una sesión son: **`pending`, `paid`, `failed`, `expired`**.
 
-## **¿Qué pasa cuando el pago finaliza?**
+  * Un estado **`failed`** termina definitivamente la sesión de pago.
 
-Cuando el usuario hace clic en “Pagar” en la página de SPIDI, tienes varias opciones para definir qué sucede a continuación, dependiendo del tipo de integración (web o app móvil) y de la **experiencia que quieras construir:**
+* El **pago siempre ocurre el mismo día**; en horas cercanas a la **medianoche no se permiten operaciones**, para garantizar la correcta conciliación entre sistemas bancarios.
 
-1. ✅ **Redirección inmediata a tu aplicación:**  
-    Puedes configurar que SPIDI redirija automáticamente al usuario a tu página de éxito o de fallo, donde tú mostrarás el resultado de la transacción.  
-   1. En **aplicaciones web**, estas URLs suelen ser rutas de tu sitio (por ejemplo, /pago/exito).
+* En la respuesta se devuelve un **`payment_url`**, y deberás **redirigir al usuario que va a pagar** a esa dirección para completar el proceso.
 
-   2. En **aplicaciones móviles**, estas URLs suelen ser **deep links** (por ejemplo, miapp://pago/exito) que permiten reabrir la app y mostrar una vista nativa con el estado del pago.  
-        
-2. ✅ **Mostrar una pantalla de resultado en SPIDI y luego redirigir:**  
-    SPIDI puede mostrar una pantalla propia (de éxito o fallo) y, después de unos segundos, redirigir automáticamente a tu app o sitio web, tal como la opción 1\.  
-     
-3. 🧭 **Permanecer en SPIDI con instrucciones claras:**  
-    También puedes optar por no redirigir automáticamente. En ese caso, SPIDI mostrará una pantalla final (de éxito o fallo) con instrucciones para que el usuario regrese manualmente a tu app o sitio web (ver estrategia 2).
+* Una vez finalizado el pago, **SPIDI puede redirigir automáticamente** al usuario hacia la **`success_url`** o **`failure_url`**, en caso de haber sido configuradas.
 
-4. 🧩 **Intercepción del cambio de URL (en WebView):**  
-   En integraciones móviles que usan WebView, si **no puedes utilizar deep links**, puedes detectar el cambio de URL al finalizar el pago como señal para cerrar el WebView y mostrar tu pantalla,
+* Un **segundo endpoint** permite **consultar el estado** de la sesión de pago, conocer su resultado y, opcionalmente, **sincronizarlo con tu plataforma** mediante **webhooks** o **consultas directas**.
 
-En todos los casos tu app puede mostrar una pantalla con el resultado de la transacción, validando el estado de la transacción consultando el endpoint a través del session\_id. Para saber cómo manejar este momento en tu flujo, revisa las secciones específicas de esta guía para aplicaciones web, móviles o enlaces de pago.
+* Cada sesión puede asociarse a un **acuerdo de liquidación**, donde se definen las **reglas personalizadas de liquidación**, las **cuentas destino** y los **splits específicos** entre varios receptores.
 
-### 
+* Puedes habilitar que la sesión ofrezca distintas **opciones de pago inmediatas**: **débito bancario**, **Pago Móvil** o **pago con criptomonedas (Binance Pay)**, todas con **liquidación directa en bolívares**.
 
-### 
+---
 
-### **Configurar un webhook (altamente recomendado)**
+### **Resumen de endpoints**
 
-SPIDI puede notificar a tu servidor en tiempo real cuando una sesión cambia de estado. Es decir, una comunicación de nuestro API a tu API.
+Ambas modalidades utilizan los mismos endpoints base del API:
 
-**Con esto, nosotros** enviamos un <i>POST</i> a tu webhook_url cuando el estado cambie a <i>paid</i>, <i>failed</i> o <i>expired</i>.
+* **Crear sesión de pago (B):** genera la sesión y devuelve el `payment_url`.
 
-<i>Dependiendo de la lógica que uses, esto te permite activar procesos automatizados internos.</i>
+* **Consultar sesión de pago (B):** permite verificar el estado y resultado de la transacción (`pending`, `paid`, `failed`, `expired`).
+
+SPIDI se encarga del resto: **conexión bancaria, validación, liquidación y notificación**, garantizando confirmaciones inmediatas y trazabilidad completa.
