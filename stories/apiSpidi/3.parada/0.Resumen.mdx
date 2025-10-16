@@ -40,7 +40,7 @@ Funcionan como un **punto de acceso trazable y constante**, ideal para **relacio
 ### **Integración técnica**
 
 * Las Paradas pueden **crearse de forma individual o masiva** mediante el endpoint  
-   `POST /api/v1/payment-stop/batch`, que permite generar **1..N Paradas en un solo request**.  
+   `POST /api/v1/payment-stops/batch`, que permite generar **1..N Paradas en un solo request**.  
    Esta función resulta clave para procesos de **onboarding inicial** (por ejemplo, 100 suscriptores) y **reintentos idempotentes**.
 
 * Cada Parada se identifica por un **`stop_id`** y puede consultarse o modificarse posteriormente.
