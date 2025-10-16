@@ -1,0 +1,189 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Docs/Servicios/Webhooks" />
+
+# **5\. Webhooks y Manejo de Eventos**
+
+## **5.1 Propósito**
+
+Los **webhooks** permiten que los sistemas externos (como Sofitasa, Crixto o integraciones de comercios) reciban notificaciones automáticas de eventos relevantes dentro del ecosistema SPIDI sin necesidad de realizar consultas periódicas.
+
+---
+
+## **5.2 Alcance**
+
+Los webhooks aplican para los siguientes eventos principales:
+
+<table>
+<tr><th>Categoría</th><th>Evento</th><th>Descripción</th></tr>
+<tr><td>Sesiones de pago</td><td><b><i/>payment_session.status_changed</b></td><td>Notifica cambios en el estado de una sesión (<b><i/>pending → paid</b>, <b><i/>pending → failed</b>, <b><i/>pending → expired</b>).</td></tr>
+<tr><td>Liquidaciones</td><td><b><i/>settlement.completed</b></td><td>Notifica cuando se acredita un pago a un receptor (<b><i/>receiver_credit</b>).</td></tr>
+<tr><td>Botones de pago</td><td><b><i/>button.updated</b></td><td>Notifica cambios en la configuración de un botón.</td></tr>
+<tr><td>Enlaces de pago</td><td><b><i/>link.expired</b></td><td>Notifica expiración automática de un enlace.</td></tr>
+</table>
+
+---
+
+## **5.3 Diseño general del webhook**
+
+### **Headers estándar**
+
+* <b><i/>Content-Type: application/json</b>
+
+* <b><i/>SPIDI-Signature: <sha256-hash></b>  
+   Firma generada con clave privada del remitente (Plataforma o SPIDI).  
+   Se usa para validar autenticidad y evitar falsificaciones.
+
+## **5.4 Reintentos automáticos**
+
+* Cada evento se envía hasta **3 veces** en caso de que el endpoint externo no responda con un <b><i/>2xx</b>.
+
+* Retraso incremental entre reintentos (por ejemplo, 1 min → 5 min → 15 min).
+
+* Si después del último intento no hay confirmación, el evento se marca como **"undelivered"** y queda disponible para reenvío manual desde panel administrativo (futuro).
+
+## **5.5 Confirmación del receptor**
+
+El endpoint del receptor debe responder con:
+
+<b><i/>HTTP/1.1 200 OK</b>
+
+*  en un máximo de **5 segundos** para confirmar recepción.
+
+* En caso contrario, SPIDI reintentará.
+
+Los webhooks que emita SPIDI o que reciba de terceros deben:
+
+* Incluir firma (HMAC o JWT) validable por la contraparte.
+
+* Usar timestamp para evitar replay attacks.
+
+* Ser idempotentes.
+
+# **10\. Webhooks**
+
+## **10.1 Propósito**
+
+Permiten que SPIDI **notifique en tiempo real** a las aplicaciones integradas sobre eventos ocurridos en el sistema (p. ej., un pago completado, una sesión fallida o expirada).  
+ El webhook **no reemplaza** la consulta del estado (`GET /payment-sessions/{session_id}`), sino que **la complementa**.
+
+---
+
+## **10.2 Estructura general**
+
+**Headers**
+
+<b><i/>Content-Type: application/json</b>
+
+<b><i/>SPIDI-Signature: sha256=3d9f4a23...</b>
+
+<b><i/>SPIDI-Timestamp: 2025-10-13T14:30:00Z</b>
+
+<b><i/>Idempotency-Key: e77a9dbf-0c8c-4a7a-932f-9888aa88f4e9</b>
+
+**Body (ejemplo genérico)**
+
+```json
+{
+  "event": "payment_session.updated",
+  "data": {
+    "session_id": "a23f4a44-1b2c-4d1f-89dd-1d2e19a8b123",
+    "status": "paid",
+    "payment_method": "crypto",
+    "amount_reference": 50.00,
+    "currency_reference": "USD",
+    "updated_at": "2025-10-13T14:32:00Z"
+  },
+  "signature": "optional: base64 del payload firmado"
+}
+```
+
+---
+
+## **10.3 Principios de diseño**
+
+<table>
+<tr><th>Regla</th><th>Descripción</th></tr>
+<tr><td><b>1. Idempotencia garantizada</b></td><td>Todos los webhooks incluyen <b><i/>Idempotency-Key</b> y pueden reenviarse múltiples veces; el receptor debe procesarlos de forma idempotente.</td></tr>
+<tr><td><b>2. Seguridad por firma</b></td><td>Se calcula un HMAC-SHA256 del cuerpo con una clave secreta compartida. El receptor debe validar <b><i/>SPIDI-Signature</b> y <b><i/>SPIDI-Timestamp</b>.</td></tr>
+<tr><td><b>3. Reintentos controlados</b></td><td>Si el receptor responde con código distinto de 2xx, SPIDI reintentará según política exponencial (<b><i/>1m → 5m → 15m → 60m</b> máx. 4 intentos).</td></tr>
+<tr><td><b>4. Orden garantizada por sesión</b></td><td>Los eventos para una misma <b><i/>session_id</b> se envían en orden temporal.</td></tr>
+<tr><td><b>5. Timeout</b></td><td>El servidor receptor debe responder en ≤ 5 s; de lo contrario, se considera fallo y se agenda reintento.</td></tr>
+<tr><td><b>6. No exposición de datos sensibles</b></td><td>Solo incluir información necesaria para identificar el evento; los detalles completos deben obtenerse vía el endpoint correspondiente (<b><i/>GET /payment-sessions/`{session_id}`</b>).</td></tr>
+</table>
+
+---
+
+## **10.4 Tipos de evento SPIDI**
+
+<table>
+<tr><th>Evento</th><th>Descripción</th><th>Estado resultante</th></tr>
+<tr><td><b><i/>payment_session.created</b></td><td>Se creó una nueva sesión de pago.</td><td><b><i/>pending</b></td></tr>
+<tr><td><b><i/>payment_session.updated</b></td><td>La sesión cambió de estado (e.g. <b><i/>pending</b> → <b><i/>paid</b>, <b><i/>failed</b>, <b><i/>expired</b>).</td><td>cualquiera</td></tr>
+<tr><td><b><i/>payment_session.expired</b></td><td>La sesión alcanzó su fecha límite (<b><i/>due_date_link</b>).</td><td><b><i/>expired</b></td></tr>
+<tr><td><b><i/>payment_session.failed</b></td><td>El intento de pago fue fallido.</td><td><b><i/>failed</b></td></tr>
+<tr><td><b><i/>payment_session.paid</b></td><td>El pago fue confirmado y acreditado.</td><td><b><i/>paid</b></td></tr>
+<tr><td><b><i/>receiver_credit.created</b></td><td>Se generó un crédito al receptor tras un pago.</td><td>N/A</td></tr>
+</table>
+
+Los tipos de evento se envían según configuración del comercio o sistema receptor.
+
+---
+
+## **10.5 Ejemplo — Evento `payment_session.paid`**
+
+```json
+{
+  "event": "payment_session.paid",
+  "data": {
+    "session_id": "3ddc4cfb-c09a-43de-92c1-e4a069732e90",
+    "status": "paid",
+    "payment_method": "crypto",
+    "amount_reference": 50.00,
+    "currency_reference": "USD",
+    "bcv_rate_usd_ves": 122.0112,
+    "rate_usdt_ves": 183.1112,
+    "payer_identifier": "V12345678",
+    "payer_name": "Carlos Mendoza",
+    "receiver_credits_summary": {
+      "total_credits": 2,
+      "total_amount_ves_credited": 6100.00
+    },
+    "timestamp": "2025-10-13T14:30:00Z"
+  }
+}
+```
+
+**Respuesta esperada (del receptor)**
+
+<b><i/>HTTP/1.1 200 OK</b>
+
+---
+
+## **10.6 Recomendaciones para receptores externos**
+
+* Validar siempre <b><i/>firma y timestamp</b> antes de procesar el evento.
+
+* Responder <b><i/>200 OK</b> lo antes posible (ideal \<2 s).
+
+* Procesar en **background** si se necesita lógica adicional.
+
+* Registrar <b><i/>Idempotency-Key</b> para evitar reprocesos.
+
+* Consultar <b><i/>GET /payment-sessions/`{session_id}`</b> si se requiere información completa.
+
+Implementar un endpoint dedicado, por ejemplo:
+
+<b><i/>POST `https://miapp.com/webhooks/spidi`</b>
+
+* 
+
+---
+
+## **10.7 Pruebas y QA**
+
+* El entorno sandbox debe permitir reenviar eventos manualmente.
+
+* Simular caídas, timeouts, duplicados y alteración de firma.
+
+* Validar logs de auditoría (<b><i/>trace_id</b>, <b><i/>event_id</b>, <b><i/>attempt</b>, <b><i/>delivery_status</b>).
