@@ -30,7 +30,6 @@ const preview = {
             'Servicios', [
               'Autenticacion',
             ],
-            'Playbook',
           ]
         ],
       },
