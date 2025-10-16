@@ -5,7 +5,7 @@ const preview = {
       storySort: {
         order: [
           'Introduction',
-          'API', [
+          'API-SPIDI', [
             'Acuerdo',
             'Sesion Boton de Pago', [
               '0. Resumen',
@@ -23,7 +23,19 @@ const preview = {
               // '4. Eliminar Sesion S',
             ]
           ],
-          'Examples', [
+          'API-MAP', [
+            'Sofitasa', [
+              'Mapeo Plataforma', [
+                'Crear Operador',
+              ],
+            ],
+            'Crixto', [
+              'Mapeo Spidi', [
+                'Sesion Cripto',
+              ],
+            ],
+          ],
+          'DOCS', [
             'Servicios', [
               'Autenticacion',
             ],

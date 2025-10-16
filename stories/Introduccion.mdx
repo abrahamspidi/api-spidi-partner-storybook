@@ -2,165 +2,105 @@ import { Meta } from '@storybook/blocks';
 
 <Meta title="Introduction" />
 
-# **API de SPIDI: Guía de Integración** 
+# **Soluciones SPIDI para integrar pagos inmediatos**
 
-Gracias por interesarte en integrar SPIDI a tu aplicación o plataforma. Aquí encontrarás todo lo que necesitas para empezar a recibir pagos de forma rápida, segura y simple, usando nuestra API.
+SPIDI ofrece dos soluciones principales para integrar pagos inmediatos en tu plataforma, aplicación o negocio, y recibir pagos desde **cualquier banco venezolano** o mediante **Binance Pay** (cripto).
 
-Sabemos que cada producto es distinto, por eso diseñamos SPIDI para adaptarse a distintos tipos de integración. En esta guía te explicamos las tres formas principales de iniciar y procesar pagos con SPIDI, sus flujos técnicos y cómo monitorear cada transacción de manera eficiente. 
+**Botones de Pago SPIDI**
 
-Tanto si estás desarrollando una app, un sitio web o simplemente necesitas compartir un enlace de pago, esta documentación está pensada para acompañarte paso a paso en ese proceso.
+Ideales cuando deseas que tus usuarios puedan realizar pagos directamente en tu sitio web o aplicación móvil, sin salir de tu entorno.
 
-## **Importante: tres formas distintas de integrar pagos con SPIDI**
+**Solicitudes de Pago SPIDI**
 
-Aunque todas usan la misma API, SPIDI ofrece **tres formas diferentes** de iniciar y procesar pagos. Cada una tiene particularidades en el flujo, el retorno del usuario y la forma de monitorear el estado del pago.
+Diseñadas para enviar invitaciones de pago preconfiguradas con el monto e identificación, simplificando la experiencia del pagador y permitiendo recibir pagos organizados y trazables, conforme a la planificación de tu operación.
 
-### **Las tres formas de integración:**
+Ambas soluciones permiten crear de forma programada sesiones de pago y consultar sus resultados en tiempo real, reduciendo la intervención manual y minimizando errores operativos.
 
-1. 🖥️ **Botón de pago para aplicaciones web**  
-    Cuando el usuario realiza el pago desde tu sitio web [(ver documentación).](/docs/api-sesion-boton-de-pago-0-resumen--docs)
+### **Paradas SPIDI**
 
-2. 📱 **Botón de pago para aplicaciones móviles**  
-    Cuando el pago ocurre dentro de tu app móvil *(En desarrollo - próximamente)*
+En escenarios de suscripciones, pagos recurrentes o relaciones comerciales continuas, las **Paradas SPIDI** son el acompañante ideal de las **Solicitudes de Pago**. 
 
-3. 🔗 **Enlace de pago**  
-    Cuando quieres generar un link para compartir por email, WhatsApp, SMS u otros canales. Ideal para pagos asincrónicos, fuera de tu aplicación [(ver documentación).](/{{baseUrl}}/?path=/docs/api-sesión-solicitud-pago-1-crear-sesión-b--docs)
+Una **Parada** es una **URL única y permanente** asignada a cada cliente, desde la cual puede **consultar, atender y pagar sus solicitudes activas o anteriores**.  
+Gracias a este mecanismo, el cliente no necesita recibir nuevos enlaces cada vez que se genera una solicitud: basta con acceder a su Parada para revisar o completar los pagos pendientes.
 
-* ***NOTA: Para Agosto 2025 sólo está disponible la integración mediante el Botón de pago.***  
+Desde una Parada, el cliente puede:
 
-### 
+* Visualizar **solicitudes pendientes, pagadas o vencidas**.
 
-### **Todos los flujos tienen una base común:**
+* **Pagar directamente**, sin depender de nuevos envíos de enlace.
 
-### **🧾 ¿Qué tienen en común?**
+* Consultar su **historial de pagos y operaciones anteriores**.
 
-* Todas se basan en la **creación de una sesión de pago** mediante la API.  
-* El **pago siempre ocurre en la página de SPIDI**, donde el cliente verá una interfaz segura, clara y vinculada visualmente con tu aplicación.  
-* Puedes usar **webhooks**, **redirecciones** y **consultas de estado** para monitorear cada sesión.  
-* **El comercio o usuario de SPIDI siempre recibe automáticamente el pago en Bolívares**, sin importar si el cliente paga con su cuenta bancaria en Bs o con criptomonedas.  
-* Cada flujo tiene sus propias particularidades técnicas, que explicamos por separado.
+**Integrarse a SPIDI \- Credenciales API**
 
-### **¿Por qué diferenciamos entre Botones de pago en apps web y móviles?**
+Con tu usuario activo, solo debes ingresar a SPIDI Center y solicitar la generación de credenciales de uso API.
 
-Hacemos una distinción entre aplicaciones web y móviles porque, aunque ambas utilizan botones de pago, tienen diferencias técnicas importantes:
+Estas credenciales identifican tu cuenta y son las que utilizarás para autenticarte en cada endpoint.
 
-<table>
-<thead>
-<tr>
-<th><strong>Aspecto</strong></th>
-<th><strong>App Web</strong></th>
-<th><strong>App Móvil</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Redirección</strong></td>
-<td><b><i>window.location.href</i></b> abre SPIDI en la misma pestaña</td>
-<td>Se abre un WebView moderno</td>
-</tr>
-<tr>
-<td><strong>Retorno del usuario</strong></td>
-<td>Automático con <b><i>success_url</i></b> y <b><i>failure_url</i></b></td>
-<td>Requiere <strong>deeplink</strong> o detección manual de cambios de URL</td>
-</tr>
-<tr>
-<td><strong>Entorno del usuario</strong></td>
-<td>Pestaña del navegador</td>
-<td>WebView controlado dentro de la app</td>
-</tr>
-<tr>
-<td><strong>Experiencia de integración</strong></td>
-<td>Flujo más directo, con menos código adicional</td>
-<td>Requiere lógica adicional para retornar el control</td>
-</tr>
-</tbody>
-</table>
+Si eres desarrollador y necesitas realizar la integración en nombre de otra cuenta, pide al titular que genere las credenciales API y te las comparta.
 
-Por eso, hay una guía específica para cada uno, con recomendaciones técnicas adaptadas.
+## **Base común de todos los flujos**
 
+Aunque cada flujo de integración tiene sus particularidades técnicas, todos comparten la misma estructura funcional dentro del ecosistema SPIDI.
 
-* ***Nota: para agosto 2025 los enlaces de pago aún no están disponibles.***
+### **¿Qué tienen en común?**
 
+* Todos los procesos se basan en la **creación de una sesión de pago** a través del **API de SPIDI**, especificando un **monto**  (en **bolívares** o en una **moneda de referencia** como **dólar BCV, euro BCV, peso colombiano o USDT**) y una **identificación** que permite asociar la transacción con tu sistema de origen.
 
-## **Enlace de pago en SPIDI: cómo, cuándo y por qué usarlo**
+* Al crear la sesión, SPIDI genera un **hash único** que identifica de forma segura cada operación y el status del enlace es **`pending`**.  
+    
+* En la respuesta se devuelve un **`payment_url`**, y deberás **llevar al usuario que va a pagar** a esa dirección para finalizar el proceso de pago.
 
-### **Características clave de los Enlaces de Pago**
+* Una vez finalizado el pago, SPIDI puede redirigir automáticamente al usuario hacia la **`success_url`** o **`failure_url`**, en caso de haber sido configuradas.  
+    
+* Un **segundo endpoint** permite **consultar el estado de esa sesión de pago**, conocer su resultado y opcionalmente sincronizarlo con tu plataforma mediante **webhooks o consultas directas**.
 
-* **No requiere que el cliente esté dentro de tu app**  
-   El enlace puede compartirse por cualquier canal (WhatsApp, email, redes sociales) y abrirse desde cualquier navegador.
+* Cada sesión puede asociarse a un **acuerdo de liquidación**, donde se definen las **reglas personalizadas de liquidación**, las **cuentas destino** y los **splits específicos** entre varios receptores.
 
-* **No caduca automáticamente**  
-   El enlace permanece activo hasta que lo canceles por API. Incluso si el cliente intenta pagar y falla, puede **reintentarlo más tarde** con el mismo enlace.
+* Puedes habilitar que la sesión ofrezca distintas **opciones de pago inmediatas**: **débito bancario, pago con criptomonedas (Binance Pay)** o **Pago Móvil**, todas con **liquidación directa en bolívares**.
 
-* **Puede pagarse en cualquier momento**  
-   El destinatario del enlace puede abrir y pagar el enlace días después de recibirlo.
+El resultado es una infraestructura **interoperable, segura y auditable**, con confirmaciones inmediatas y compatibilidad total con el sistema financiero venezolano.
 
-* **Monto indexado a USD, EUR, COL (opcional)**  
-   Puedes definir el monto en dólares, euros, pesos colombianos y SPIDI calculará automáticamente su equivalente en bolívares al momento del pago. Así, no importa si el pago ocurre más tarde: **el valor en USD se mantiene**.
+## **Diferencias entre Botón de Pago y Solicitud de Pago**
 
-### **🔁 Casos de uso comunes:**
-
-* Suscripciones y pagos recurrentes  
-* Recordatorios de pago o deudas pendientes  
-* Facturas personalizadas o pedidos especiales
-
-### **Comparación: Botón de Pago vs Enlace de Pago**
+Aunque ambos productos comparten la misma infraestructura y lógica de liquidación, presentan diferencias clave en su **forma de integración, comportamiento y administración de sesiones**.
 
 <table>
-<thead>
 <tr>
 <th>Característica</th>
-<th>Botón de Pago</th>
-<th>Enlace de Pago (vía API)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>🌐 <strong>Uso típico</strong></td>
-<td>Se integra dentro de una app o sitio web</td>
-<td>Se comparte por correo, WhatsApp, SMS, etc.</td>
+<th>Botón de Pago SPIDI</th>
+<th>Solicitud de Pago SPIDI</th>
 </tr>
 <tr>
-<td>🔗 <strong>Generación del enlace</strong></td>
-<td>Se crea por API <strong>en el momento del clic del usuario</strong></td>
-<td>Se crea por API <strong>cuando deseen</strong></td>
+<td><b>Ubicación del <code>payment_url</code></b></td>
+<td>El <code>payment_url</code> generalmente se <b>integra dentro del entorno</b> de tu aplicación o sitio web.</td>
+<td>El <code>payment_url</code> <b>no se embebe</b>; se envía al cliente mediante <b>canales externos</b> como QR, correo electrónico, WhatsApp o SMS.</td>
 </tr>
 <tr>
-<td>⏰ <strong>Tiempo de vida</strong></td>
-<td>Corto: expira a los <strong>10 minutos</strong> desde su creación</td>
-<td>No expira, solo se expira por API</td>
+<td><b>Momento de creación de la sesión</b></td>
+<td>La <b>sesión se crea por API en el momento del clic</b> del usuario.</td>
+<td>La <b>sesión se crea por API cuando se desee</b>, de forma programada o manual.</td>
 </tr>
 <tr>
-<td>🔄 <strong>Interactividad</strong></td>
-<td>El usuario <strong>es redirigido automáticamente</strong> desde la app</td>
-<td>El usuario <strong>hace clic en un link recibido</strong>, no hay app</td>
+<td><b>Duración de la sesión</b></td>
+<td>La sesión tiene una <b>vida útil de 10 minutos</b>.</td>
+<td>La duración es <b>configurable</b>, pudiendo establecer una <b>fecha y hora de vencimiento</b>, o definir que <b>nunca expire</b>. Si vence, puede configurarse para <b>expirar completamente</b> o <b>mostrar un mensaje personalizado</b>.</td>
 </tr>
 <tr>
-<td>💬 <strong>Ideal para</strong></td>
-<td>Checkouts en apps, compras en línea</td>
-<td>Cobros asincrónicos, recordatorios, links en facturas</td>
+<td><b>Estados posibles (<code>status</code>)</b></td>
+<td><code>pending</code>, <code>paid</code>, <code>failed</code>, <code>expired</code>. Un estado <b><code>failed</code> termina</b> la sesión de pago.</td>
+<td><code>pending</code>, <code>paid</code>, <code>expired</code>. Un pago fallido <b>no termina la sesión</b>, por lo que <b>no existe el estado <code>failed</code></b>.</td>
 </tr>
 <tr>
-<td>🔒 <strong>Contexto técnico</strong></td>
-<td>Requiere frontend (Web o App) que maneje sesión y redirecciones</td>
-<td>Requiere solo backend para generar y entregar el link</td>
+<td><b>Momento y condiciones de pago</b></td>
+<td>El pago <b>siempre ocurre el mismo día</b>. En horas cercanas a la medianoche no se permiten operaciones.</td>
+<td>El pago <b>puede ocurrir cualquier día</b>. Si la moneda de referencia usada al crear la sesión <b>no es Bs.</b>, el monto en bolívares se ajustará automáticamente a la <b>tasa del BCV vigente</b> en el momento del acceso.</td>
 </tr>
 <tr>
-<td>💖 <strong>Gestión del estado del pago</strong></td>
-<td>Requiere redireccionamiento + validación por API o webhook</td>
-<td>Se valida igual: vía webhook o consultas al endpoint</td>
+<td><b>Referencia interna</b></td>
+<td>No requiere una <b><code>internal_reference</code></b> para crear la sesión.</td>
+<td><b>Requiere una <code>internal_reference</code></b> para asociar la sesión a una operación o cliente específico.</td>
 </tr>
-<tr>
-<td>🔧 <strong>Implementación técnica</strong></td>
-<td>Necesita lógica de integración en frontend + backend</td>
-<td>Solo requiere integración backend (creación, validación, webhook)</td>
-</tr>
-<tr>
-<td>🌍 <strong>Dónde se ejecuta el pago</strong></td>
-<td>Dentro de la app o web, usando WebView o navegador controlado</td>
-<td>En el navegador del cliente, externo a tu sistema</td>
-</tr>
-</tbody>
 </table>
 
-
-
+Aunque cada flujo de integración tiene sus particularidades técnicas, todos comparten la misma estructura funcional dentro del ecosistema SPIDI.	
