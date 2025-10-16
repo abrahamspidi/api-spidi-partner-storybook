@@ -2,26 +2,26 @@ import { Meta } from '@storybook/blocks';
 
 <Meta title="API/Parada/4. Listar Paradas" />
 
-## **2\. Listar paradas asociadas al usuario spidi**
+## **2. Listar paradas asociadas al usuario spidi**
 
 Este endpoint lista **todas las paradas (stops)** del comercio autenticado, con soporte de **búsqueda y filtros** (por estado, título, referencia interna) y **paginación**. Es útil para construir listados administrativos, buscadores y reportes.
 
-## **2\. Endpoint**
+## **2. Endpoint**
 
 **GET** {{baseUrl}}/api/v1/payment-stops
 
-## **3\. Ejemplo del Request (JSON)**
+## **3. Ejemplo del Request (JSON)**
 
 Header:  
-GET https://api.spidi.com/api/v1/payment-stop?status=active\&q=caja\&limit=20\&offset=0\&sort=created\_desc
+GET https://api.spidi.com/api/v1/payment-stop?status=active&q=caja&limit=20&offset=0&sort=createddesc
 
-## **4\. Tabla explicación de cada campo del Request**
+## **4. Tabla explicación de cada campo del Request**
 
 ### 4.1 Campos de nivel raíz
 
 | Campo | Tipo | Requerido | Descripción |
 | ----- | ----- | ----- | ----- |
-| **spidi\_id** | **string (UUID)** | ✅ Sí | Identificador del comercio en SPIDI (validado contra las credenciales del request). |
+| **spidiid** | **string (UUID)** | ✅ Sí | Identificador del comercio en SPIDI (validado contra las credenciales del request). |
 
 ### Parámetros
 
@@ -41,7 +41,7 @@ Notas:
 * Los filtros pueden combinarse (ej. `status=active&q=caja`).  
 * Si envías `internal_reference`, tiene prioridad sobre `q` para ese campo.
 
-### **5\. Ejemplos de Response 200**
+### **5. Ejemplos de Response 200**
 
 ```json
 {
@@ -79,15 +79,15 @@ Notas:
 }
 ```
 
-### **6\. Tablas explicación de cada campo del Response 200**
+### **6. Tablas explicación de cada campo del Response 200**
 
-### **6.1 Campos de nivel raíz (Response 200\)**
+### **6.1 Campos de nivel raíz (Response 200)**
 
 | Campo | Tipo | Descripción |
 | ----- | ----- | ----- |
 | **success** | boolean | **Generado.** True si el endpoint se proceso de forma exitosa. False de lo contrario. |
 | **message** | string | **Generado.** Mensaje de confirmación legible para humanos. |
-| **data** | \[objeto\] | **Generado.** Lista del objeto con la información de las paradas creadas. |
+| **data** | [objeto] | **Generado.** Lista del objeto con la información de las paradas creadas. |
 
 ### **6.2 Subtabla: Response 200 → data**
 
@@ -96,23 +96,23 @@ Notas:
 | **total** | **integer** | Total de paradas que cumplen con los filtros aplicados. |
 | **limit** | **integer** | Límite aplicado en esta página. |
 | **offset** | **integer** | Offset aplicado en esta página |
-| **items** | **\[objeto\]** | Lista de paradas devueltas en esta página. |
+| **items** | **[objeto]** | Lista de paradas devueltas en esta página. |
 
 ### **6.3 Subtabla: Response 200 → data.items**
 
 | results.x | Tipo | Descripción |
 | ----- | ----- | ----- |
-| **stop\_id** | **string/ null** | **Generado.** Identificador de la Parada SPIDI creada. |
-| **stop\_url** | **string** | **Generado.** URL permanente de la parada individual. |
-| **internal\_reference** | **string** | **Eco.** |
-| **stop\_title** | **string** | **Eco.** |
-| **empty\_state\_message** | **string** | **Eco.** |
-| **status** | **string** | **Eco \+ transformado.** `"active"` (por defecto) o `"disabled"` según el request. |
-| **created\_at** | **string** | Fecha y hora de creación (ISO 8601). |
-| **links\_active\_count** | **integer** | **Generado.** Número de enlaces activos en la parada. |
-| **updated\_at** | **string** | **Generado.** Fecha y hora de última actualización (ISO 8601). |
+| **stopid** | **string/ null** | **Generado.** Identificador de la Parada SPIDI creada. |
+| **stopurl** | **string** | **Generado.** URL permanente de la parada individual. |
+| **internalreference** | **string** | **Eco.** |
+| **stoptitle** | **string** | **Eco.** |
+| **emptystatemessage** | **string** | **Eco.** |
+| **status** | **string** | **Eco + transformado.** `"active"` (por defecto) o `"disabled"` según el request. |
+| **createdat** | **string** | Fecha y hora de creación (ISO 8601). |
+| **linksactivecount** | **integer** | **Generado.** Número de enlaces activos en la parada. |
+| **updatedat** | **string** | **Generado.** Fecha y hora de última actualización (ISO 8601). |
 
-## **7\. Ejemplos de Responses diferentes de 200**
+## **7. Ejemplos de Responses diferentes de 200**
 
 ```json
 {
@@ -126,7 +126,7 @@ Notas:
 }
 ```
 
-## **8\. Tabla de explicación de Response con error**
+## **8. Tabla de explicación de Response con error**
 
 ### **8.1 Campos de nivel raíz (errores 4xx/5xx)**
 
@@ -142,8 +142,8 @@ Notas:
 | ----- | ----- | ----- |
 | **status** | **string** | Valor fuera del conjunto permitido. |
 | **limit** | **string** | Límite fuera de rango o de tipo incorrecto. |
-| **from\_date** | **string** | Fechas con formato inválido o rango inconsistente. |
-| **to\_date** | **string** | Fechas con formato inválido o rango inconsistente. |
+| **fromdate** | **string** | Fechas con formato inválido o rango inconsistente. |
+| **todate** | **string** | Fechas con formato inválido o rango inconsistente. |
 
 ## **Buenas prácticas**
 

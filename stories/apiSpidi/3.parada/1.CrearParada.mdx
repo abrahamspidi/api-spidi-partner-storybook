@@ -2,7 +2,7 @@ import { Meta } from '@storybook/blocks';
 
 <Meta title="API/Parada/1. Crear Parada" />
 
-## **1\. Crear parada o lote de paradas**
+## **1. Crear parada o lote de paradas**
 
 Este endpoint permite crear una o múltiples **paradas de SPIDI** vacías en un mismo request.  
 Una **parada** es un contenedor estable identificado por un `stop_id` y un `stop_url`. Su función es servir como **punto de acceso permanente**, al que posteriormente se le podrán asociar 0, 1 o N **enlaces de pago**.
@@ -23,14 +23,14 @@ Este endpoint permite crear:
 
 Cada parada siempre tendrá su propio `stop_id` y un `stop_url` estables, que permanecen en el tiempo aunque se agreguen o expiren enlaces de pago asociados.
 
-## **2\. Endpoint**
+## **2. Endpoint**
 
 **POST** {{baseUrl}}/api/v1/payment-stops/batch
 
-## **3\. Ejemplo del Request (JSON)**
+## **3. Ejemplo del Request (JSON)**
 
 Header:  
-Idempotency-Key: \<uuid-v4\>
+Idempotency-Key: `uuid-v4`
 
 Body:
 
@@ -57,26 +57,28 @@ Body:
 
 Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio Edificio.
 
-## **4\. Tabla explicación de cada campo del Request**
+## **4. Tabla explicación de cada campo del Request**
 
 ### 4.1 Campos de nivel raíz
 
-| Campo | Tipo | Requerido | Descripción |
-| ----- | ----- | ----- | ----- |
-| **spidi\_id** | **string (UUID)** | ✅ Sí | Identificador del comercio en SPIDI (validado contra las credenciales del request). |
-| **continue\_on\_error** | **boolean** | ✅ Sí | Define si se continúa con el resto de las creaciones cuando alguna falle. Default: `false` |
-| **items** | **\[object\]** | ✅ Sí | Listado de objeto, al menos 1 ítem es necesario |
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b>spidi_id</b></td><td><b>string (UUID)</b></td><td>✅ Sí</td><td>Identificador del comercio en SPIDI (validado contra las credenciales del request).</td></tr>
+<tr><td><b>continue_on_error</b></td><td><b>boolean</b></td><td>✅ Sí</td><td>Define si se continúa con el resto de las creaciones cuando alguna falle. Default: <b><i>false</i></b></td></tr>
+<tr><td><b>items</b></td><td><b>[object]</b></td><td>✅ Sí</td><td>Listado de objeto, al menos 1 ítem es necesario</td></tr>
+</table>
 
-### 4.2 Subtabla: Request → \[items\]
+### 4.2 Subtabla: Request → [items]
 
-| items.x | Tipo | Requerido | Descripción |
-| ----- | ----- | ----- | ----- |
-| **stop\_title** | **string** | ✅ Sí | Título visible de la parada (p. ej., “Caja Principal”). |
-| **internal\_reference** | **string** | ✅ Sí | Identificador interno definido por el cliente para reconciliación (no visible al usuario final). Este campo es necesario para que cada item en el batch pueda mapearse correctamente en el response. Si no tienes un identificador natural, genera un UUID o string único |
-| **empty\_state\_message** | **string** | ❌ Opcional | Mensaje mostrado al usuario cuando no existen enlaces activos en la parada. |
-| **status** | **string** | ❌ Opcional | Estado inicial de la parada: `"active"` (por defecto) o `"disabled"`. |
+<table>
+<tr><th>items.x</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b>stop_title</b></td><td><b>string</b></td><td>✅ Sí</td><td>Título visible de la parada (p. ej., "Caja Principal").</td></tr>
+<tr><td><b>internal_reference</b></td><td><b>string</b></td><td>✅ Sí</td><td>Identificador interno definido por el cliente para reconciliación (no visible al usuario final). Este campo es necesario para que cada item en el batch pueda mapearse correctamente en el response. Si no tienes un identificador natural, genera un UUID o string único</td></tr>
+<tr><td><b>empty_state_message</b></td><td><b>string</b></td><td>❌ Opcional</td><td>Mensaje mostrado al usuario cuando no existen enlaces activos en la parada.</td></tr>
+<tr><td><b>status</b></td><td><b>string</b></td><td>❌ Opcional</td><td>Estado inicial de la parada: <b><i>"active"</i></b> (por defecto) o <b><i>"disabled"</i></b>.</td></tr>
+</table>
 
-## **5\. Ejemplos de Response 200**
+## **5. Ejemplos de Response 200**
 
 ```json
 {
@@ -112,32 +114,34 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 }
 ```
 
-### **6\. Tablas explicación de cada campo del Response 200**
+### **6. Tablas explicación de cada campo del Response 200**
 
-### **6.1 Campos de nivel raíz (Response 200\)**
+### **6.1 Campos de nivel raíz (Response 200)**
 
-| Campo | Tipo | Descripción |
-| ----- | ----- | ----- |
-| **success** | boolean | **Generado.** True si el endpoint se proceso de forma exitosa. False de lo contrario. |
-| **message** | string | **Generado.** Mensaje de confirmación legible para humanos. |
-| **batch\_id** | string | **Generado.** Identificador único del lote |
-| **results** | \[objeto\] | **Generado.** Lista del objeto con la información de las paradas creadas. |
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td>boolean</td><td><b>Generado.</b> True si el endpoint se proceso de forma exitosa. False de lo contrario.</td></tr>
+<tr><td><b>message</b></td><td>string</td><td><b>Generado.</b> Mensaje de confirmación legible para humanos.</td></tr>
+<tr><td><b>batch_id</b></td><td>string</td><td><b>Generado.</b> Identificador único del lote</td></tr>
+<tr><td><b>results</b></td><td>[objeto]</td><td><b>Generado.</b> Lista del objeto con la información de las paradas creadas.</td></tr>
+</table>
 
 ### **6.2 Subtabla: Response 200 → results**
 
-| results.x | Tipo | Descripción |
-| ----- | ----- | ----- |
-| **stop\_id** | **string/ null** | **Generado.** Identificador de la Parada SPIDI creada. |
-| **stop\_url** | **string/ null** | **Generado.** URL permanente de la parada individual. |
-| **internal\_reference** | **string** | **Eco.** |
-| **stop\_title** | **string** | **Eco.** |
-| **empty\_state\_message** | **string** | **Eco.** |
-| **status** | **string** | **Eco \+ transformado.** `"active"` (por defecto) o `"disabled"` según el request. |
-| **created\_at** | **string** | Fecha y hora de creación (ISO 8601). |
+<table>
+<tr><th>results.x</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>stop_id</b></td><td><b>string/ null</b></td><td><b>Generado.</b> Identificador de la Parada SPIDI creada.</td></tr>
+<tr><td><b>stop_url</b></td><td><b>string/ null</b></td><td><b>Generado.</b> URL permanente de la parada individual.</td></tr>
+<tr><td><b>internal_reference</b></td><td><b>string</b></td><td><b>Eco.</b></td></tr>
+<tr><td><b>stop_title</b></td><td><b>string</b></td><td><b>Eco.</b></td></tr>
+<tr><td><b>empty_state_message</b></td><td><b>string</b></td><td><b>Eco.</b></td></tr>
+<tr><td><b>status</b></td><td><b>string</b></td><td><b>Eco + transformado.</b> <b><i>"active"</i></b> (por defecto) o <b><i>"disabled"</i></b> según el request.</td></tr>
+<tr><td><b>created_at</b></td><td><b>string</b></td><td>Fecha y hora de creación (ISO 8601).</td></tr>
+</table>
 
 ### 
 
-## **7\. Ejemplos de Responses diferentes de 200**
+## **7. Ejemplos de Responses diferentes de 200**
 
 ### **7.1 400 Bad Request (campo faltante)**
 
@@ -184,24 +188,26 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 }
 ```
 
-## **7\. Tabla de explicación de cada campo de los distintos Response (errores)**
+## **7. Tabla de explicación de cada campo de los distintos Response (errores)**
 
 ### **7.1 Campos de nivel raíz (errores 4xx/5xx)**
 
-| Campo | Tipo | Descripción |
-| ----- | ----- | ----- |
-| **success** | **boolean** | Siempre false en caso de error. |
-| **message** | **string** | Resumen legible del error principal. |
-| **errors** | **objeto | null** | Detalle por campo (opcional). |
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+<tr><td><b>success</b></td><td><b>boolean</b></td><td>Siempre false en caso de error.</td></tr>
+<tr><td><b>message</b></td><td><b>string</b></td><td>Resumen legible del error principal.</td></tr>
+<tr><td><b>errors</b></td><td><b>objeto | null</b></td><td>Detalle por campo (opcional).</td></tr>
+</table>
 
-| Aspecto | `Idempotency-Key` (Header HTTP) | `internal_reference` (Campo del cuerpo) |
-| ----- | ----- | ----- |
-| **Propósito principal** | Evitar duplicar solicitudes **idénticas** por error de red o reintento inmediato. | Asegurar la **unicidad lógica del recurso** (p. ej. una parada o un enlace de pago) en todo el sistema del cliente. |
-| **Ámbito de aplicación** | Por *request* (a nivel transacción HTTP). | Por *entidad de negocio* (a nivel recurso). |
-| **Quién lo define** | Automáticamente el cliente en cada llamada (UUID único por intento). | El integrador o sistema que consume el API, siguiendo su propia lógica (ej. número de factura, contrato, usuario, etc.). |
-| **Duración de validez** | Corta: solo se recuerda durante un tiempo limitado (minutos u horas). | Larga: mantiene unicidad indefinida mientras el recurso exista. |
-| **Previene duplicados** | ✅ En reintentos del mismo request (mismo payload). | ✅ En recreación accidental del mismo recurso lógico (ej. misma deuda). |
-| **Reacción ante duplicado** | SPIDI devuelve el mismo `session_id` o `stop_id` con status 200 si el payload coincide; 409 si difiere. | SPIDI devuelve 200 o 409 según política (puede devolver el recurso existente). |
-| **Dónde se usa** | Header: `Idempotency-Key: <uuid-v4>` | Campo JSON: `"internal_reference": "INV-2025-10-USER123"` |
-| **Visibilidad para usuarios finales** | No se muestra, es puramente técnico. | Puede mostrarse en reportes, conciliaciones o paneles internos. |
-| **Ejemplo típico de uso** | Una app de pago móvil que reintenta la creación del mismo enlace por time-out HTTP. | Un sistema de facturación que genera un enlace único por cada factura mensual. |
+<table>
+<tr><th>Aspecto</th><th><b><i>Idempotency-Key</i></b> (Header HTTP)</th><th><b><i>internal_reference</i></b> (Campo del cuerpo)</th></tr>
+<tr><td><b>Propósito principal</b></td><td>Evitar duplicar solicitudes <b>idénticas</b> por error de red o reintento inmediato.</td><td>Asegurar la <b>unicidad lógica del recurso</b> (p. ej. una parada o un enlace de pago) en todo el sistema del cliente.</td></tr>
+<tr><td><b>Ámbito de aplicación</b></td><td>Por <i>request</i> (a nivel transacción HTTP).</td><td>Por <i>entidad de negocio</i> (a nivel recurso).</td></tr>
+<tr><td><b>Quién lo define</b></td><td>Automáticamente el cliente en cada llamada (UUID único por intento).</td><td>El integrador o sistema que consume el API, siguiendo su propia lógica (ej. número de factura, contrato, usuario, etc.).</td></tr>
+<tr><td><b>Duración de validez</b></td><td>Corta: solo se recuerda durante un tiempo limitado (minutos u horas).</td><td>Larga: mantiene unicidad indefinida mientras el recurso exista.</td></tr>
+<tr><td><b>Previene duplicados</b></td><td>✅ En reintentos del mismo request (mismo payload).</td><td>✅ En recreación accidental del mismo recurso lógico (ej. misma deuda).</td></tr>
+<tr><td><b>Reacción ante duplicado</b></td><td>SPIDI devuelve el mismo <b><i>session_id</i></b> o <b><i>stop_id</i></b> con status 200 si el payload coincide; 409 si difiere.</td><td>SPIDI devuelve 200 o 409 según política (puede devolver el recurso existente).</td></tr>
+<tr><td><b>Dónde se usa</b></td><td>Header: <b><i>Idempotency-Key: &lt;uuid-v4&gt;</i></b></td><td>Campo JSON: <b><i>"internal_reference": "INV-2025-10-USER123"</i></b></td></tr>
+<tr><td><b>Visibilidad para usuarios finales</b></td><td>No se muestra, es puramente técnico.</td><td>Puede mostrarse en reportes, conciliaciones o paneles internos.</td></tr>
+<tr><td><b>Ejemplo típico de uso</b></td><td>Una app de pago móvil que reintenta la creación del mismo enlace por time-out HTTP.</td><td>Un sistema de facturación que genera un enlace único por cada factura mensual.</td></tr>
+</table>

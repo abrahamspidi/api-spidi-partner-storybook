@@ -2,7 +2,7 @@ import { Meta } from '@storybook/blocks';
 
 <Meta title="API/Parada/2. Info Historica" />
 
-## **2\. Obtener información histórica de la parada** 
+## **2. Obtener información histórica de la parada** 
 
 Este endpoint devuelve la **lista completa de enlaces (links)** asociados a una parada (`stop_id`), incluyendo **activos** y **de histórico** (pagados o expirados).
 
@@ -10,23 +10,23 @@ Soporta **filtros** por estado y **paginación** para manejar colecciones grande
 
 Uso típico: construir tablas/consultas administrativas, reportes o vistas detalladas de todos los enlaces de una parada
 
-## **2\. Endpoint**
+## **2. Endpoint**
 
-**GET** {{baseUrl}}/api/v1/payment-stops/{stop\_id}/links
+**GET** {{baseUrl}}/api/v1/payment-stops/{stopid}/links
 
-## **3\. Ejemplo del Request (JSON)**
+## **3. Ejemplo del Request (JSON)**
 
 Header:  
-Idempotency-Key: \<uuid-v4\>  
-GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812c1/links?status=pending\&limit=20\&offset=0
+Idempotency-Key: `uuid-v4`  
+GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812c1/links?status=pending&limit=20&offset=0
 
-## **4\. Tabla explicación de cada campo del Request**
+## **4. Tabla explicación de cada campo del Request**
 
 ### 4.1 Campos de nivel raíz
 
 | Campo | Tipo | Requerido | Descripción |
 | ----- | ----- | ----- | ----- |
-| **spidi\_id** | **string (UUID)** | ✅ Sí | Identificador del comercio en SPIDI (validado contra las credenciales del request). |
+| **spidiid** | **string (UUID)** | ✅ Sí | Identificador del comercio en SPIDI (validado contra las credenciales del request). |
 
 ### Parámetros
 
@@ -40,7 +40,7 @@ GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812
 | **Query** `offset` | **integer** | ❌ Opcional | Desplazamiento para paginación. Por defecto `0`. |
 | **Query** `sort` | **string** | ❌ Opcional | Orden. Valores sugeridos: `created_desc` (default), `created_asc`, `updated_desc`, `updated_asc`. |
 
-### **5\. Ejemplos de Response 200**
+### **5. Ejemplos de Response 200**
 
 ```json
 {
@@ -110,65 +110,65 @@ GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812
 }
 ```
 
-### **6\. Tablas explicación de cada campo del Response 200**
+### **6. Tablas explicación de cada campo del Response 200**
 
-### **6.1 Campos de nivel raíz (Response 200\)**
+### **6.1 Campos de nivel raíz (Response 200)**
 
 | Campo | Tipo | Descripción |
 | ----- | ----- | ----- |
 | **success** | boolean | **Generado.** True si el endpoint se proceso de forma exitosa. False de lo contrario. |
 | **message** | string | **Generado.** Mensaje de confirmación legible para humanos. |
-| **data** | \[objeto\] | **Generado.** Lista del objeto con la información de las paradas creadas. |
+| **data** | [objeto] | **Generado.** Lista del objeto con la información de las paradas creadas. |
 
 ### **6.2 Subtabla: Response 200 → data**
 
 | results.x | Tipo | Descripción |
 | ----- | ----- | ----- |
-| **stop\_id** | **string/ null** | **Generado.** Identificador de la Parada SPIDI creada. |
+| **stopid** | **string/ null** | **Generado.** Identificador de la Parada SPIDI creada. |
 | **total** | **integer** | Total de paradas que cumplen con los filtros aplicados. |
 | **limit** | **integer** | Límite aplicado en esta página. |
 | **offset** | **integer** | Offset aplicado en esta página |
-| **items** | **\[objeto\]** | Lista de enlaces  |
+| **items** | **[objeto]** | Lista de enlaces  |
 
 ### **6.3 Subtabla: Response 200 → data.items**
 
 | results.x | Tipo | Descripción |
 | ----- | ----- | ----- |
-| **session\_id** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
+| **sessionid** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
 | **status** | **string** | Estado: `pending`, `paid`, `expired` |
-| **payment\_url** | **string** | **Generado.** Link “URL” donde el usuario puede ser redirigido para realizar el pago, sin pasar por la parada. En caso de haber creado parada, se recomienda suministrar al pagador el **stop\_url** |
-| **created\_at** | **string** | Fecha/hora de creación (ISO 8601). |
-| **updated\_at** | **string** | Última actualización (ISO 8601). |
-| **currency\_reference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
-| **amount** | **number** | Monto total en la moneda indicada por currency\_reference (2 decimales). |
-| **amount\_ves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amount\_ves irá cambiando a medida que cambie la tasa oficial. |
-| **bcv\_exchange\_rate** | **number** | **Generado.** Tasa oficial usada para la conversión a bolívares, la cual puede ser diferente a la tasa oficial del día en que se pague el enlace. |
-| **exchange\_rate\_from** | **string** | **Generado.** Moneda base de la tasa (p. ej., "USD"). |
-| **exchange\_rate\_to** | **string** | **Generado.** Moneda destino de la tasa (siempre "VES"). |
-| **identifier\_label** | **string** | **Eco request.** |
+| **paymenturl** | **string** | **Generado.** Link “URL” donde el usuario puede ser redirigido para realizar el pago, sin pasar por la parada. En caso de haber creado parada, se recomienda suministrar al pagador el **stopurl** |
+| **createdat** | **string** | Fecha/hora de creación (ISO 8601). |
+| **updatedat** | **string** | Última actualización (ISO 8601). |
+| **currencyreference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
+| **amount** | **number** | Monto total en la moneda indicada por currencyreference (2 decimales). |
+| **amountves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amountves irá cambiando a medida que cambie la tasa oficial. |
+| **bcvexchangerate** | **number** | **Generado.** Tasa oficial usada para la conversión a bolívares, la cual puede ser diferente a la tasa oficial del día en que se pague el enlace. |
+| **exchangeratefrom** | **string** | **Generado.** Moneda base de la tasa (p. ej., "USD"). |
+| **exchangerateto** | **string** | **Generado.** Moneda destino de la tasa (siempre "VES"). |
+| **identifierlabel** | **string** | **Eco request.** |
 | **identifier** | **string** | **Eco request.** |
 | **description** | **string** | **Eco request.** |
-| **due\_date\_link** | **string (ISO 8601\)** | Fecha y hora límite (Venezuela) de vencimiento. Si se alcanza, el enlace se comportará como se elija en campo: **expire\_behavior\_link** |
-| **expire\_behavior\_link** | **string** | Define qué le ocurre al enlace al vencer el due\_date\_link.  Valores posibles:  **"expire"**: el enlace queda expirado. Si hay una parada asociada, se debe generar un nuevo enlace y asociar a la parada. “**keep\_active**”: el enlace sigue vigente, pero se muestra una advertencia. Esto es ideal cuando no hay penalización en costo, pero sí en servicio. |
-| **late\_notice\_message** | **string** | Si posterior a la fecha de vencimiento el enlace sigue activo (keep\_active), se mostrará el mensaje al pagador que se defina en este campo. Ejemplo: “Tu servicio está inactivo. Realiza el pago ahora para recuperar la continuidad de tu suscripción.", |
-| **paid\_at** | **string** | Fecha/hora de pago (solo si `status = paid`) |
-| **expired\_at** | **string** | Fecha/hora de expiración (solo si `status = expired`). |
+| **duedatelink** | **string (ISO 8601)** | Fecha y hora límite (Venezuela) de vencimiento. Si se alcanza, el enlace se comportará como se elija en campo: **expirebehaviorlink** |
+| **expirebehaviorlink** | **string** | Define qué le ocurre al enlace al vencer el duedatelink.  Valores posibles:  **"expire"**: el enlace queda expirado. Si hay una parada asociada, se debe generar un nuevo enlace y asociar a la parada. “**keepactive**”: el enlace sigue vigente, pero se muestra una advertencia. Esto es ideal cuando no hay penalización en costo, pero sí en servicio. |
+| **latenoticemessage** | **string** | Si posterior a la fecha de vencimiento el enlace sigue activo (keepactive), se mostrará el mensaje al pagador que se defina en este campo. Ejemplo: “Tu servicio está inactivo. Realiza el pago ahora para recuperar la continuidad de tu suscripción.", |
+| **paidat** | **string** | Fecha/hora de pago (solo si `status = paid`) |
+| **expiredat** | **string** | Fecha/hora de expiración (solo si `status = expired`). |
 
-### **6.4 Subtabla: Response 200 → data.links\_history**
+### **6.4 Subtabla: Response 200 → data.linkshistory**
 
 | results.x | Tipo | Descripción |
 | ----- | ----- | ----- |
-| **session\_id** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
+| **sessionid** | **string** | **Generado.** Identificador único de la sesión de pago creada. |
 | **status** | **string** | Estado: `pending`, `paid`, `expired` |
-| **currency\_reference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
-| **amount** | **number** | Monto total en la moneda indicada por currency\_reference (2 decimales). |
-| **amount\_ves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amount\_ves irá cambiando a medida que cambie la tasa oficial. |
+| **currencyreference** | **string** | Moneda referencia que se usa como base para calcular el monto real en bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Si el monto en bolívares es fijo y no se desea indexar, se debe poner `"VES".` |
+| **amount** | **number** | Monto total en la moneda indicada por currencyreference (2 decimales). |
+| **amountves** | **number** | **Generado.** Monto calculado en bolívares al momento de la creación de la sesión de pago. Si la moneda referencia que se usó fue distinta a “VES”, entonces este amountves irá cambiando a medida que cambie la tasa oficial. |
 
 ### 
 
 ### 
 
-## **7\. Ejemplos de Responses diferentes de 200**
+## **7. Ejemplos de Responses diferentes de 200**
 
 ```json
 {
@@ -182,7 +182,7 @@ GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812
 }
 ```
 
-## **8\. Tabla de explicación de Response con error**
+## **8. Tabla de explicación de Response con error**
 
 ### **8.1 Campos de nivel raíz (errores 4xx/5xx)**
 
@@ -196,11 +196,11 @@ GET https://api.spidi.com/api/v1/payment-stop/7f8b2c6a-4d19-45df-9a10-3e872aa812
 
 | Campo | Tipo | Descripción |
 | ----- | ----- | ----- |
-| **stop\_id** | **string** | El `stop_id` no existe o no pertenece a tus credenciales |
+| **stopid** | **string** | El `stop_id` no existe o no pertenece a tus credenciales |
 | **status** | **string** | Valor fuera del conjunto permitido. |
 | **limit** | **string** | Límite fuera de rango o de tipo incorrecto. |
-| **from\_date** | **string** | Fechas con formato inválido o rango inconsistente. |
-| **to\_date** | **string** | Fechas con formato inválido o rango inconsistente. |
+| **fromdate** | **string** | Fechas con formato inválido o rango inconsistente. |
+| **todate** | **string** | Fechas con formato inválido o rango inconsistente. |
 
 ## **Buenas prácticas**
 

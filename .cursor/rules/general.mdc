@@ -1,6 +1,9 @@
 ---
 alwaysApply: true
 ---
+# Must follow project config and rules
+- Storybook project about an api documentation
+
 # MDX Documentation Rules
 - This documentations language is primarly spanish but with logic and variable names in english
 - Code snippets in tables should be wrapped like this: <b><i/></b>
