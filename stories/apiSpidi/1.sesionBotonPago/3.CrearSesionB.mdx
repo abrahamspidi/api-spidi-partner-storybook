@@ -38,21 +38,7 @@ Method: **POST**
   "description": "Pago de membresía",
   "success_url": "https://miapp.com/pago-exitoso",
   "failure_url": "https://miapp.com/pago-fallido",
-  "webhook_url": "https://miapi.com/spidi/webhook",
-  "button_id": "btn_1024",
-  "settlement_rules": {
-    "default_bank_account_id": "acc_sofitasa_001",
-    "rules": [
-      {
-        "origin_bank_code": "0105",
-        "destination_bank_account_id": "acc_mercantil_007"
-      },
-      {
-        "origin_bank_code": "0108",
-        "destination_bank_account_id": "acc_provincial_001"
-      }
-    ]
-  }
+  "webhook_url": "https://miapi.com/spidi/webhook"
 }
 ```
 
@@ -69,25 +55,8 @@ Method: **POST**
 <tr><td><b><i>success_url</i></b></td><td><b><i>string (URL)</i></b></td><td>✔ Sí</td><td>URL de redirección en caso de pago exitoso</td></tr>
 <tr><td><b><i>failure_url</i></b></td><td><b><i>string (URL)</i></b></td><td>✔ Sí</td><td>URL de redirección en caso de pago fallido</td></tr>
 <tr><td><b><i>webhook_url</i></b></td><td><b><i>string (URL)</i></b></td><td>❌ No</td><td>URL para notificaciones de cambio de estado</td></tr>
-<tr><td><b><i>button_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador único del botón de pago</td></tr>
-<tr><td><b><i>settlement_rules</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Reglas de liquidación y distribución de pagos</td></tr>
 </table>
 
-### 4.1 Subtabla: settlement_rules
-
-<table>
-<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
-<tr><td><b><i>default_bank_account_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Cuenta bancaria por defecto para liquidación</td></tr>
-<tr><td><b><i>rules</i></b></td><td><b><i>array</i></b></td><td>✔ Sí</td><td>Lista de reglas de distribución por código bancario</td></tr>
-</table>
-
-### 4.2 Subtabla: settlement_rules.rules
-
-<table>
-<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
-<tr><td><b><i>origin_bank_code</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Código del banco de origen (ej: "0105")</td></tr>
-<tr><td><b><i>destination_bank_account_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>ID de la cuenta bancaria de destino</td></tr>
-</table>
 
 # 5. Ejemplo de Response 200
 

@@ -4,7 +4,7 @@ import { Meta } from '@storybook/blocks';
 
 # Mapeo de consulta de orden (SPIDI ← Crixto)
 
-# 1. Endpoints involucrados
+# 1. Endpoints relacionados
 
 <table>
 <tr>
@@ -18,3 +18,573 @@ import { Meta } from '@storybook/blocks';
 <td>GET<br/>`{{baseUrl}}/api/v1/payment-session/crypto/{session_id}`</td>
 </tr>
 </table>
+
+# 2. Request de Plataforma SPIDI
+
+Method: **GET**
+```
+{{baseUrl}}/api/v1/payment-session/crypto/{session_id}
+```
+
+# 3. Tabla explicación de cada campo del Request Plataforma SPIDI
+
+<table>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Descripción</th>
+</tr>
+<tr>
+<td>`crypto_order_id`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>ID de la orden de pago cripto a consultar</td>
+</tr>
+</table>
+
+# 4. Request de CRIXTO
+
+Method: **POST**
+```
+{{baseUrl}}/api/v1/pos-crixto/get-order-by-id
+```
+
+**Request Body (JSON):**
+```json
+{
+  "id_order": "392"
+}
+```
+
+# 5. MAPEO 1 - Tabla explicación de cada campo del Request CRIXTO
+
+<table>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Descripción</th>
+</tr>
+<tr>
+<td>`id_order`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Obtenido con la creación de la sesión cripto</td>
+</tr>
+</table>
+
+# 6. Ejemplos de Response 200 de CRIXTO
+
+```json
+{
+    "data": {
+        "id": "3159",
+        "type": "BinancePay",
+        "txnid": "308763748081",
+        "pagado": true,
+        "serial": "06fdc162-5205-11f0-a997-42010a1ce013",
+        "comision": "0,019",
+        "date_order": "2025-10-11 18:44:51",
+        "type_order": "Inmediata Bs",
+        "amount_fiat": 370.89,
+        "amount_usdt": "1,262",
+        "description": "Modelo pago en USDT y recibes Bs de forma inmediata",
+        "payment_info": {
+            "sender_bank": "BANCO PLAZA",
+            "sender_name": "Crixto Venezuela C.A.",
+            "payment_date": null,
+            "destination_bank": "BANCO NACIONAL CREDITO",
+            "payment_reference": "000000974742",
+            "destination_number": "4242358553",
+            "sender_identification": "J-500253931",
+            "destination_identification": "J406535214"
+        },
+        "exchange_rate": "294.00",
+        "id_order_type": null,
+        "comision_crixto": "0,000",
+        "client_reference": "4d631d55-f000-4202-b91e-967878d45ee4"
+    },
+    "status": "COMPLETED",
+    "message": "Transaccion realizada correctamente",
+    "statusCode": 200
+}
+```
+
+# 7. Tabla Explicativa de cada campo del response 200 de CRIXTO
+
+## 7.1. Campos de nivel raíz (Response 200)
+
+<table>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Descripción</th>
+</tr>
+<tr>
+<td>`data`</td>
+<td>`object`</td>
+<td>✅Si</td>
+<td>Datos de la orden de pago</td>
+</tr>
+<tr>
+<td>`status`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Estado de la orden: COMPLETED, PENDING, error</td>
+</tr>
+<tr>
+<td>`message`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Mensaje de respuesta</td>
+</tr>
+<tr>
+<td>`statusCode`</td>
+<td>`number`</td>
+<td>✅Si</td>
+<td>Código de estado HTTP</td>
+</tr>
+</table>
+
+## 7.2 Subtabla: Response 200 → data
+
+<table>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Descripción</th>
+</tr>
+<tr>
+<td>`id`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>ID de la orden</td>
+</tr>
+<tr>
+<td>`type`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Tipo de pago (ej: "BinancePay")</td>
+</tr>
+<tr>
+<td>`txnid`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>ID de transacción</td>
+</tr>
+<tr>
+<td>`pagado`</td>
+<td>`boolean`</td>
+<td>✅Si</td>
+<td>Indica si la orden está pagada</td>
+</tr>
+<tr>
+<td>`serial`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Identificador único de la orden</td>
+</tr>
+<tr>
+<td>`comision`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Comisión de la transacción</td>
+</tr>
+<tr>
+<td>`date_order`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Fecha de la orden</td>
+</tr>
+<tr>
+<td>`type_order`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Tipo de orden</td>
+</tr>
+<tr>
+<td>`amount_fiat`</td>
+<td>`number`</td>
+<td>✅Si</td>
+<td>Monto en moneda fiat</td>
+</tr>
+<tr>
+<td>`amount_usdt`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Monto en USDT</td>
+</tr>
+<tr>
+<td>`description`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Descripción de la orden</td>
+</tr>
+<tr>
+<td>`payment_info`</td>
+<td>`object`</td>
+<td>✅Si</td>
+<td>Información del pago</td>
+</tr>
+<tr>
+<td>`exchange_rate`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Tasa de cambio</td>
+</tr>
+<tr>
+<td>`id_order_type`</td>
+<td>`string`</td>
+<td>❌No</td>
+<td>Tipo de ID de orden</td>
+</tr>
+<tr>
+<td>`comision_crixto`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Comisión de Crixto</td>
+</tr>
+<tr>
+<td>`client_reference`</td>
+<td>`string`</td>
+<td>✅Si</td>
+<td>Referencia del cliente</td>
+</tr>
+</table>
+
+# 8. Ejemplos de Response 200 de Plataforma SPIDI
+
+```json
+{
+  "success": true,
+  "message": "Consulta realizada con éxito.",
+  "user_message": "El pago fue realizado exitosamente.",
+  "data": {
+    "crypto_order_id": "392",
+    "status": "paid",
+    "order_details": {
+      "type_order": "BinancePay",
+      "amount": "170.00",
+      "session_id": "098ace94-ce70-4203-abc3-80e20bb6e4c6",
+      "platform": "Crixto",
+      "description": "PUNTO DE VENTA",
+      "paid": true,
+      "rate_bs_usd": "157.78",
+      "amount_crypto_paid": "1,077",
+      "fee_crixto": "0,016",
+      "amount_crypto": "1,093",
+      "coin": "USDT",
+      "fee_binancepay": 0.0033883,
+      "paid_ves": true,
+      "amount_ves_received": "170,000",
+      "fee_received": "0,000",
+      "spidi_id": "402e34dbaec5acf9fe10d072c9617d61",
+      "crypto_reference": "279102864347",
+      "key_user": "7188d621876ce235189b5956aae378d6",
+      "crypto_order_id_ext": "fdd4be6e-bb6e-4946-894e-bb7de7334e89",
+      "bs_from_RIF": "J-500253931",
+      "bs_from_Bank": "BANCO PLAZA",
+      "clienttranid": "548eaf12-93c5-4439-b1cf-30ede615acef",
+      "coin_received": "VES",
+      "bs_from_name": "Crixto Venezuela C.A.",
+      "bs_from_phone": "4244434446",
+      "bs_from_date": "2025-07-24 16:12:38"
+    }
+  }
+}
+```
+
+# 9. MAPEO 2 - Tablas explicación de cada campo del Response 200 de Plataforma SPIDI
+
+## 9.1 Campos de nivel raíz (Response 200)
+
+<table>
+<tr>
+<th>Campo en SPIDI</th>
+<th>Origen en CRIXTO</th>
+<th>Notas/Observaciones</th>
+</tr>
+<tr>
+<td>`success`</td>
+<td>`(derivado por SPIDI)`</td>
+<td>Siempre true si la consulta se procesa sin error</td>
+</tr>
+<tr>
+<td>`message`</td>
+<td>`message`</td>
+<td>Mensaje técnico/desarrollador</td>
+</tr>
+<tr>
+<td>`user_message`</td>
+<td>`data.response.message (fallback: message)`</td>
+<td>"Transaccion realizada correctamente" o "Esta orden se encuentra vencida o eliminada"</td>
+</tr>
+<tr>
+<td>`data`</td>
+<td>`data`</td>
+<td>Objeto principal de datos</td>
+</tr>
+</table>
+
+## 9.2 Subtabla: Response 200 → data
+
+<table>
+<tr>
+<th>Campo en SPIDI</th>
+<th>Origen en CRIXTO</th>
+<th>Notas/Observaciones</th>
+</tr>
+<tr>
+<td>`crypto_order_id`</td>
+<td>`data.id_order`</td>
+<td>ID de la orden cripto. Convertir a string si viene numérico</td>
+</tr>
+<tr>
+<td>`status`</td>
+<td>`status`</td>
+<td>Mapear: COMPLETED → paid, PENDING → pending, CANCELED → expired</td>
+</tr>
+<tr>
+<td>`order_details`</td>
+<td>`data`</td>
+<td>Detalles de la orden</td>
+</tr>
+</table>
+
+## 9.3 Subtabla: Response 200 → data → order_details
+
+<table>
+<tr>
+<th>Campo en SPIDI</th>
+<th>Origen en CRIXTO</th>
+<th>Notas/Observaciones</th>
+</tr>
+<tr>
+<td>`type_order`</td>
+<td>`type_order`</td>
+<td>Ej.: "BinancePay"</td>
+</tr>
+<tr>
+<td>`amount`</td>
+<td>`data.amount`</td>
+<td>Monto de la orden en VES. Normalizar formato si viene string</td>
+</tr>
+<tr>
+<td>`session_id`</td>
+<td>`data.reference`</td>
+<td>ID de la sesión SPIDI</td>
+</tr>
+<tr>
+<td>`platform`</td>
+<td>`data.response.data.plataforma`</td>
+<td>Usualmente "Crixto"</td>
+</tr>
+<tr>
+<td>`description`</td>
+<td>`data.response.data.descripcion`</td>
+<td>Concepto ("PUNTO DE VENTA")</td>
+</tr>
+<tr>
+<td>`paid`</td>
+<td>`data.response.data.pagado`</td>
+<td>Booleano: true → pagado</td>
+</tr>
+<tr>
+<td>`rate_bs_usd`</td>
+<td>`data.response.data.tasa_bs_usd`</td>
+<td>Tasa Bs/USD usada</td>
+</tr>
+<tr>
+<td>`amount_crypto_paid`</td>
+<td>`data.response.data.monto_pago`</td>
+<td>Monto cripto sin comisión (ej.: "1,077")</td>
+</tr>
+<tr>
+<td>`fee_crixto`</td>
+<td>`data.response.data.comision`</td>
+<td>Comisión de Crixto (ej.: "0,016")</td>
+</tr>
+<tr>
+<td>`amount_crypto`</td>
+<td>`data.response.data.monto`</td>
+<td>Monto cripto con comisión (ej.: "1,093")</td>
+</tr>
+<tr>
+<td>`coin`</td>
+<td>`data.response.data.coin`</td>
+<td>Criptomoneda usada (ej.: "USDT")</td>
+</tr>
+<tr>
+<td>`fee_binancepay`</td>
+<td>`data.response.data.comision_binancepay`</td>
+<td>Comisión de BinancePay (ej.: 0.0033883)</td>
+</tr>
+<tr>
+<td>`paid_ves`</td>
+<td>`data.response.data.pagado_bs`</td>
+<td>Booleano: pagado en VES</td>
+</tr>
+<tr>
+<td>`amount_ves_received`</td>
+<td>`data.response.data.monto_recibido`</td>
+<td>VES recibido (string, ej.: "170,000")</td>
+</tr>
+<tr>
+<td>`fee_received`</td>
+<td>`data.response.data.comision_recibir`</td>
+<td>Comisión al recibir (ej.: "0,000")</td>
+</tr>
+<tr>
+<td>`spidi_id`</td>
+<td>`data.response.data.serial`</td>
+<td>Identificador único SPIDI</td>
+</tr>
+<tr>
+<td>`crypto_reference`</td>
+<td>`data.response.data.txnid`</td>
+<td>ID/transacción cripto (txid)</td>
+</tr>
+<tr>
+<td>`key_user`</td>
+<td>`data.response.data.key_user`</td>
+<td>Posible ID de usuario (Crixto/Binance)</td>
+</tr>
+<tr>
+<td>`crypto_order_id_ext`</td>
+<td>`data.response.data.order_id`</td>
+<td>ID externo adicional</td>
+</tr>
+<tr>
+<td>`bs_from_RIF`</td>
+<td>`data.response.data.rif_pagador`</td>
+<td>RIF del agente que emite los Bs</td>
+</tr>
+<tr>
+<td>`bs_from_Bank`</td>
+<td>`data.response.data.banco_emisor`</td>
+<td>Banco emisor de los Bs</td>
+</tr>
+<tr>
+<td>`clienttranid`</td>
+<td>`data.response.data.clienttranid`</td>
+<td>ID de transacción del agente Bs</td>
+</tr>
+<tr>
+<td>`coin_received`</td>
+<td>`data.response.data.coin_recibido`</td>
+<td>Criptomoneda recibida (en ejemplos: "VES")</td>
+</tr>
+<tr>
+<td>`bs_from_name`</td>
+<td>`data.response.data.nombre_pagador`</td>
+<td>Nombre del agente que emite los Bs</td>
+</tr>
+<tr>
+<td>`bs_from_phone`</td>
+<td>`data.response.data.telefono_pagador`</td>
+<td>Teléfono del agente que emite los Bs</td>
+</tr>
+<tr>
+<td>`bs_from_date`</td>
+<td>`data.response.data.fecha`</td>
+<td>Fecha de la transacción (convierte a ISO si deseas)</td>
+</tr>
+</table>
+
+## Notas rápidas para implementación
+
+- **Normalización numérica:** Crixto a veces envía strings con coma ('1,077'). Convierte a decimal con punto si tu API expone números.
+
+- **user_message:** Prioriza `data.response.message`; si no existe (ej. PENDING), usa un texto por estado ('La orden está pendiente de pago.').
+
+- **Campos ignorados (no mapear):** `nombre_cliente`, `usuario_receptor`, `paridad`, `id_pm`, `ref_m`, `tel_pm`, `bank_pm`, `red_pago`, `ref_bank`, `token_par`, `email_origen`, `is_facturado`, `identificacion_cliente`, etc.
+
+#### Response de CRIXTO:
+
+Cuando es COMPLETED
+`data.response` y `data.response.data` existen.
+
+## Casos especiales
+
+### CASO PENDING
+
+Cuando es PENDING:
+`data.qrImg` y `data.data_qr` existen, pero esos vienen en el Response de crear sesión cripto.
+
+**Respuesta CRIXTO:**
+```json
+{
+	"status": "PENDING",
+	"type_order": "BinancePay",
+	"statusCode": 200,
+	"message": "Orden generada con exito.",
+	"data": {
+		"id_order": "463",
+		"amount": "180.00",
+		"reference": "098ace94-ce70-4203-abc3-80e20bb6e4c6",
+		"qrImg": "data:image/png;base64,iVBORw0KGgoAggg==",
+		"data_qr": "https://app.binance.com/qr/dplk4aa48548f31743a2a82a01b00c8ec109"
+	}
+}
+```
+
+**Respuesta SPIDI (orden pending):**
+```json
+{
+  "success": true,
+  "message": "Consulta realizada con éxito.",
+  "user_message": "La orden está pendiente de pago.",
+  "data": {
+    "crypto_order_id": "463",
+    "status": "pending",
+    "order_details": {
+      "type_order": "BinancePay",
+      "amount": "180.00",
+      "session_id": "098ace94-ce70-4203-abc3-80e20bb6e4c6",
+      "platform": "Crixto",
+      "description": "PUNTO DE VENTA",
+      "paid": false,
+      "spidi_id": "402e34dbaec5acf9fe10d072c9617d61"
+    }
+  }
+}
+```
+
+### CASO CANCELLED
+
+Cuando es ERROR
+`data.response` también existe, con menos campos
+
+**Respuesta CRIXTO:**
+```json
+{
+    "status": "error",
+    "message": "Esta orden se encuentra vencida o eliminada.",
+    "statusCode": 411
+}
+```
+
+**Respuesta SPIDI (expirada):**
+```json
+{
+  "success": true,
+  "message": "Consulta realizada con éxito.",
+  "user_message": "La orden fue cancelada o expirada.",
+  "data": {
+    "crypto_order_id": "361",
+    "status": "expired",
+    "order_details": {
+      "type_order": "BinancePay",
+      "amount": "150.00",
+      "session_id": "098ace94-ce70-4203-abc3-80e20bb6e4c6",
+      "platform": "Crixto",
+      "description": "PUNTO DE VENTA",
+      "paid": false,
+      "spidi_id": "402e34dbaec5acf9fe10d072c9617d61"
+    }
+  }
+}
+```
