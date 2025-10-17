@@ -41,7 +41,6 @@ Method: **POST**
 
 ```json
 {
-  "spidi_id": "a966ce0d-3af3-415d-ba86-1db5a1c21cf0",
   "continue_on_error": false,
   "items": [
     {
@@ -66,7 +65,6 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
 
 <table>
 <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
-<tr><td><b>spidi_id</b></td><td><b>string (UUID)</b></td><td>✅ Sí</td><td>Identificador del comercio en SPIDI (validado contra las credenciales del request).</td></tr>
 <tr><td><b>continue_on_error</b></td><td><b>boolean</b></td><td>✅ Sí</td><td>Define si se continúa con el resto de las creaciones cuando alguna falle. Default: <b><i>false</i></b></td></tr>
 <tr><td><b>items</b></td><td><b>[object]</b></td><td>✅ Sí</td><td>Listado de objeto, al menos 1 ítem es necesario</td></tr>
 </table>
@@ -163,7 +161,7 @@ Otros ejemplos de título: Cuenta de usuario, Merienda del 15 agosto, Condominio
   "success": false,
   "message": "Unauthorized.",
   "errors": {
-    "spidi_id": "The credentials are incorrect"
+    "authentication": "The credentials are incorrect"
   }
 }
 ```
