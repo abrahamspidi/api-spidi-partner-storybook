@@ -13,7 +13,7 @@ import { Meta } from '@storybook/blocks';
 
 ## **2\. Request**
 
-`GET /api/payment-session/crypto/{crypto\_order\_id}`
+`GET /api/payment-sessions/crypto/{crypto\_order\_id}`
 
 ## 3\. **Response:** 
 

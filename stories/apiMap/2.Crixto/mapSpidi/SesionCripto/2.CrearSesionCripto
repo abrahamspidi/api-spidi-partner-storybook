@@ -7,7 +7,7 @@ import { Meta } from '@storybook/blocks';
 ### **1\. SPIDI API** 
 
 **Endpoint:**  
-`POST /api/payment-session/crypto-binance`
+`POST /api/payment-sessions/crypto-binance`
 
 * **Descripción:**  
    Crea una nueva sesión de pago cripto, orquestando la lógica interna de SPIDI y consumiendo el endpoint de Crixto para generar la orden de pago correspondiente.
@@ -18,7 +18,7 @@ import { Meta } from '@storybook/blocks';
 
 ## Permite crear una sesión de pago cripto. 
 
-POST `{{base_url}}/api/v1/payment-session/crypto`
+POST `{{base_url}}/api/v1/payment-sessions/crypto`
 
 ### **2\. de campos del request**
 
