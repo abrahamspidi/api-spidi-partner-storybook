@@ -42,6 +42,52 @@ Method: **POST**
 }
 ```
 
+## 3.1 Ejemplo con Split por Porcentaje
+
+```json
+{
+  "currency_reference": "USD",
+  "amount_reference": 50.00,
+  "agreement_id": "stl_session_01",
+  "identifier_label": "Nombre del cliente",
+  "identifier": "Juan Pérez",
+  "description": "Pago de servicio de internet",
+  "success_url": "miapp://pago/exitoso",
+  "failure_url": "miapp://pago/fallido",
+  "webhook_url": "https://miapi.com/spidi/webhook",
+  "split": { 
+    "type": "percent",
+    "rules": [
+      { "recipient_id": "owner", "percent": 60.0, "label": "Comercio" },
+      { "recipient_id": "uuid_partner1", "percent": 40.0, "label": "Partner" }
+    ]
+  }
+}
+```
+
+## 3.2 Ejemplo con Split por Montos Absolutos
+
+```json
+{
+  "currency_reference": "USD",
+  "amount_reference": 250.00,
+  "agreement_id": "stl_session_01",
+  "identifier_label": "Nombre del cliente",
+  "identifier": "Juan Pérez",
+  "description": "Pago de servicio de internet",
+  "success_url": "miapp://pago/exitoso",
+  "failure_url": "miapp://pago/fallido",
+  "webhook_url": "https://miapi.com/spidi/webhook",
+  "split": { 
+    "type": "absolute",
+    "rules": [
+      { "recipient_id": "owner", "amount_reference": 200.00, "label": "Comercio" },
+      { "recipient_id": "uuid_partner2", "amount_reference": 50.00, "label": "Fijo partner" }
+    ]
+  }
+}
+```
+
 # 4. Tabla de Parámetros del Request
 
 <table>
@@ -55,6 +101,7 @@ Method: **POST**
 <tr><td><b><i>success_url</i></b></td><td><b><i>string (URL)</i></b></td><td>✔ Sí</td><td>URL de redirección en caso de pago exitoso</td></tr>
 <tr><td><b><i>failure_url</i></b></td><td><b><i>string (URL)</i></b></td><td>✔ Sí</td><td>URL de redirección en caso de pago fallido</td></tr>
 <tr><td><b><i>webhook_url</i></b></td><td><b><i>string (URL)</i></b></td><td>❌ No</td><td>URL para notificaciones de cambio de estado</td></tr>
+<tr><td><b><i>split</i></b></td><td><b><i>object</i></b></td><td>❌ No</td><td>Configuración de división de pagos (porcentaje o montos absolutos). Solo puede tener un valor si el agreement asociado está configurado en Split = Session</td></tr>
 </table>
 
 
