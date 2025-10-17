@@ -33,7 +33,7 @@ Method: **GET**
 Authorization: Basic dXN1YXJpb19lamVtcGxvOmNvbnRyYXNlw7FhX2VqZW1wbG8=
 ```
 
-No tiene body.
+ 
 
 ## 3. Tabla explicación de cada campo del Request Plataforma SPIDI
 
@@ -54,7 +54,7 @@ No tiene body.
   </tr>
 </table>
 
-No tiene body.
+ 
 
 ## 4. Request de SOFITASA
 

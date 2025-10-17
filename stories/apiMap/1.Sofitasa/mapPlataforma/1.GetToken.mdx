@@ -32,8 +32,6 @@ Method: **GET**
 Authorization: Basic dXN1YXJpb19lamVtcGxvOmNvbnRyYXNlw7FhX2VqZW1wbG8=
 ```
 
-No tiene body.
-
 ## 3. Tabla explicación de cada campo del Request Plataforma SPIDI
 
 **Header**
@@ -53,7 +51,7 @@ No tiene body.
   </tr>
 </table>
 
-No tiene body.
+ 
 
 ## 4. Request de SOFITASA
 
@@ -65,6 +63,8 @@ Method: **POST**
 **Headers:**
 ```
 Content-Type: application/json
+ClienteCod: b92410ac14a2af03fe270d...
+Authorization: Bearer mrF3ISWe8Sv0bPU...
 ```
 
 **Body:**
@@ -98,6 +98,24 @@ Content-Type: application/json
       →<br/>
       <b>"Content-Type": "application/json"</b><br/>
       Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>ClienteCod</b></td>
+    <td><b>string</b></td>
+    <td><b>Configuración del sistema</b></td>
+    <td>
+      <b>Valor fijo:</b> <i><b>"b92410ac14a2af03fe270d..."</b></i><br/>
+      Código del cliente configurado en el sistema
+    </td>
+  </tr>
+  <tr>
+    <td><b>Authorization</b></td>
+    <td><b>string</b></td>
+    <td><b>Token de autenticación</b></td>
+    <td>
+      <b>Bearer token:</b> <i><b>"Bearer mrF3ISWe8Sv0bPU..."</b></i><br/>
+      Token de autorización para la solicitud
     </td>
   </tr>
 </table>
@@ -162,21 +180,29 @@ Content-Type: application/json
 
 ```json
 {
+  "result": "Aceptada",
   "success": true,
-  "message": "Token generado exitosamente.",
+  "message": "Token para débito solicitado con éxito.",
   "codigo": "200",
-  "statusCode": 200,
-  "result": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expiresIn": 3600,
-    "tokenType": "Bearer"
-  }
+  "statusCode": 200
 }
 ```
 
-## 7. Tabla Explicativa de cada campo del response 200 de SOFITASA
+## 6.1. Ejemplos de Response 202 de SOFITASA (Token generado)
 
-### 7.1. Campos de nivel raíz(Response 200)
+```json
+{
+  "result": "Aceptada",
+  "success": true,
+  "message": "Token para débito solicitado con éxito.",
+  "codigo": "202",
+  "statusCode": 202
+}
+```
+
+## 7. Tabla Explicativa de cada campo del response 202 de SOFITASA
+
+### 7.1. Campos de nivel raíz(Response 202)
 
 <table>
   <tr>
@@ -185,10 +211,17 @@ Content-Type: application/json
     <th>Descripción</th>
   </tr>
   <tr>
+    <td><b>result</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> <i><b>"Aceptada"</b></i> indica que la solicitud fue aceptada para procesamiento.
+    </td>
+  </tr>
+  <tr>
     <td><b>success</b></td>
     <td><b>boolean</b></td>
     <td>
-      <b>Generado.</b> <i><b>True</b></i> si la autenticación fue exitosa, <i><b>false</b></i> de lo contrario.
+      <b>Generado.</b> <i><b>True</b></i> si la solicitud fue aceptada, <i><b>false</b></i> de lo contrario.
     </td>
   </tr>
   <tr>
@@ -202,66 +235,24 @@ Content-Type: application/json
     <td><b>codigo</b></td>
     <td><b>string</b></td>
     <td>
-      <b>Generado.</b> <i><b>"200"</b></i>
+      <b>Generado.</b> <i><b>"202"</b></i>
     </td>
   </tr>
   <tr>
     <td><b>statusCode</b></td>
     <td><b>number</b></td>
     <td>
-      <b>Generado.</b> <i><b>200</b></i>
-    </td>
-  </tr>
-  <tr>
-    <td><b>result</b></td>
-    <td><b>objeto</b></td>
-    <td>
-      <b>Generado.</b> Objeto con la información del token de autenticación
+      <b>Generado.</b> <i><b>202</b></i>
     </td>
   </tr>
 </table>
 
-### 7.2 Subtabla: Response 200 → result
-
-<table>
-  <tr>
-    <th>result</th>
-    <th>Tipo</th>
-    <th>Descripción</th>
-  </tr>
-  <tr>
-    <td><b>token</b></td>
-    <td><b>string</b></td>
-    <td>
-      <b>Generado.</b> Token JWT de autenticación.
-    </td>
-  </tr>
-  <tr>
-    <td><b>expiresIn</b></td>
-    <td><b>number</b></td>
-    <td>
-      <b>Generado.</b> Tiempo de expiración del token en segundos.
-    </td>
-  </tr>
-  <tr>
-    <td><b>tokenType</b></td>
-    <td><b>string</b></td>
-    <td>
-      <b>Generado.</b> Tipo de token, generalmente <b>"Bearer"</b>
-    </td>
-  </tr>
-</table>
 
 ## 8. Ejemplos de Response 200 de Plataforma SPIDI
 
 ```json
 {
-  "success": true,
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expiresIn": 3600,
-    "tokenType": "Bearer"
-  }
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
@@ -277,66 +268,12 @@ Content-Type: application/json
     <th>Descripción de la posible transformación del origen</th>
   </tr>
   <tr>
-    <td><b>success</b></td>
-    <td><b>boolean</b></td>
-    <td><b>success</b> del response SOFITASA</td>
-    <td>
-      <b>"success": true</b><br/>
-      →<br/>
-      <b>"success": true</b><br/>
-      Eco
-    </td>
-  </tr>
-  <tr>
-    <td><b>data</b></td>
-    <td><b>objeto</b></td>
-    <td><b>result</b> del response SOFITASA</td>
-    <td>
-      <b>Eco, sin transformación.</b> Objeto con la información del token de autenticación
-    </td>
-  </tr>
-</table>
-
-### 9.2 Subtabla: Response 200 → data
-
-<table>
-  <tr>
-    <th>data</th>
-    <th>Tipo dato</th>
-    <th>Origen a mapear</th>
-    <th>Descripción de la posible transformación del origen</th>
-  </tr>
-  <tr>
-    <td><b>accessToken</b></td>
+    <td><b>token</b></td>
     <td><b>string</b></td>
-    <td><b>token</b> del response SOFITASA</td>
+    <td><b>Token generado por el sistema</b></td>
     <td>
-      <b>"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</b><br/>
-      →<br/>
-      <b>"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</b><br/>
-      Eco
-    </td>
-  </tr>
-  <tr>
-    <td><b>expiresIn</b></td>
-    <td><b>number</b></td>
-    <td><b>expiresIn</b> del response SOFITASA</td>
-    <td>
-      <b>"expiresIn": 3600</b><br/>
-      →<br/>
-      <b>"expiresIn": 3600</b><br/>
-      Eco
-    </td>
-  </tr>
-  <tr>
-    <td><b>tokenType</b></td>
-    <td><b>string</b></td>
-    <td><b>tokenType</b> del response SOFITASA</td>
-    <td>
-      <b>"tokenType": "Bearer"</b><br/>
-      →<br/>
-      <b>"tokenType": "Bearer"</b><br/>
-      Eco
+      <b>Token JWT generado:</b> <i><b>"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</b></i><br/>
+      Token de autenticación JWT generado por la plataforma SPIDI
     </td>
   </tr>
 </table>

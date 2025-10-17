@@ -2,8 +2,8 @@ import { Meta } from '@storybook/blocks';
 
 <Meta title="API-MAP/Sofitasa/Mapeo Plataforma/2. Debit" />
 
-## Mapeo de débito inmediato
-## 1. Endpoints relacionados
+## Mapeo de débito inmediato (WIP)
+## 1. Endpoints relacionados 
 
 <table>
   <tr>
@@ -184,10 +184,10 @@ Content-Type: application/json
 ```json
 {
     "amount": 251.12,
-    "debitorBank": "0137",
-    "debitorID": "V19236967",
-    "debitorAccount": "013700125400082592812",
-    "debitorName": "Rafael",
+    "debtorBank": "0137",
+    "debtorID": "V19236967",
+    "debtorAccount": "013700125400082592812",
+    "debtorName": "Rafael",
     "concept": "pagos de api",
     "token": "306725377"
 }
@@ -238,46 +238,46 @@ Content-Type: application/json
     </td>
   </tr>
   <tr>
-    <td><b>debitorBank</b></td>
+    <td><b>debtorBank</b></td>
     <td><b>string</b></td>
     <td><b>bankCode</b> del request SPIDI</td>
     <td>
       <b>"bankCode": "0169"</b><br/>
       →<br/>
-      <b>"debitorBank": "0137"</b><br/>
+      <b>"debtorBank": "0137"</b><br/>
       Mapeo directo con posible conversión de código
     </td>
   </tr>
   <tr>
-    <td><b>debitorID</b></td>
+    <td><b>debtorID</b></td>
     <td><b>string</b></td>
     <td><b>identification</b> del request SPIDI</td>
     <td>
       <b>"identification": "J406535214"</b><br/>
       →<br/>
-      <b>"debitorID": "V19236967"</b><br/>
+      <b>"debtorID": "V19236967"</b><br/>
       Mapeo directo con posible transformación de formato
     </td>
   </tr>
   <tr>
-    <td><b>debitorAccount</b></td>
+    <td><b>debtorAccount</b></td>
     <td><b>string</b></td>
     <td><b>instrument</b> del request SPIDI (cuando instrumentType = "CNTA")</td>
     <td>
       <b>"instrument": "01370029040000164391"</b><br/>
       →<br/>
-      <b>"debitorAccount": "013700125400082592812"</b><br/>
+      <b>"debtorAccount": "013700125400082592812"</b><br/>
       Mapeo directo cuando el tipo de instrumento es cuenta
     </td>
   </tr>
   <tr>
-    <td><b>debitorName</b></td>
+    <td><b>debtorName</b></td>
     <td><b>string</b></td>
     <td><b>debtorName</b> del request SPIDI</td>
     <td>
       <b>"debtorName": "mr. Anderson"</b><br/>
       →<br/>
-      <b>"debitorName": "Rafael"</b><br/>
+      <b>"debtorName": "Rafael"</b><br/>
       Mapeo directo con posible transformación de formato
     </td>
   </tr>
