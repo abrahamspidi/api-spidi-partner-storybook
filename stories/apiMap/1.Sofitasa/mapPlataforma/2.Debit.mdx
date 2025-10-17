@@ -1,0 +1,445 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-MAP/Sofitasa/Mapeo Plataforma/2. Debit" />
+
+## Mapeo de débito inmediato
+## 1. Endpoints relacionados
+
+<table>
+  <tr>
+    <th>Acción</th>
+    <th>Endpoint en Sofitasa</th>
+    <th>Endpoint en Plataforma SPIDI</th>
+  </tr>
+  <tr>
+    <td>Ejecutar débito inmediato</td>
+    <td>POST /api/immediate-debit/run-debit</td>
+    <td>POST /api/spidi/transactions</td>
+  </tr>
+</table>
+
+Para ejecutar un débito inmediato, se debe enviar la información de la transacción incluyendo el token de autenticación obtenido previamente.
+
+## 2. Request de Plataforma SPIDI
+
+Method: **POST**
+```
+{{baseUrl}}api/spidi/transactions
+```
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**Body CELE (Celular/Mobile):**
+```json
+{
+    "amount": 503,
+    "identification": "J406535214",
+    "instrumentType": "CELE",
+    "instrument": "4242358553",
+    "bankCode": "0169",
+    "externalID": "202508211842",
+    "currency": "VES",
+    "concept": "EDP test",
+    "debtorName": "mr. Anderson",
+    "guId": "b0c3b582-693c-463a-addb-66d906fe1b77",
+    "use": "charge",
+    "mode": "simpleN"
+}
+```
+
+**Body CNTA (Cuenta Bancaria):**
+```json
+{
+    "amount": 124,
+    "identification": "J406535214",
+    "instrumentType": "CNTA",
+    "instrument": "01370029040000164391",
+    "bankCode": "0137",
+    "externalID": "11145412",
+    "currency": "VES",
+    "concept": "EDP test",
+    "debtorName": "mr. Anderson",
+    "guId": "b0c3b582-693c-463a-addb-66d906fe1b77"
+}
+```
+
+## 3. Tabla explicación de cada campo del Request Plataforma SPIDI
+
+**Header**
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo</th>
+    <th>Requerido</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><b>Content-Type</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Header que especifica el tipo de contenido como JSON</td>
+  </tr>
+</table>
+
+**Body**
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo</th>
+    <th>Requerido</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><b>amount</b></td>
+    <td><b>number</b></td>
+    <td><b>✅Si</b></td>
+    <td>Monto de la transacción</td>
+  </tr>
+  <tr>
+    <td><b>identification</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Identificación del deudor</td>
+  </tr>
+  <tr>
+    <td><b>instrumentType</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Tipo de instrumento: CELE (celular) o CNTA (cuenta)</td>
+  </tr>
+  <tr>
+    <td><b>instrument</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Número del instrumento (celular o cuenta)</td>
+  </tr>
+  <tr>
+    <td><b>bankCode</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Código del banco</td>
+  </tr>
+  <tr>
+    <td><b>externalID</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Identificador externo único de la transacción</td>
+  </tr>
+  <tr>
+    <td><b>currency</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Moneda de la transacción</td>
+  </tr>
+  <tr>
+    <td><b>concept</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Concepto o descripción de la transacción</td>
+  </tr>
+  <tr>
+    <td><b>debtorName</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Nombre del deudor</td>
+  </tr>
+  <tr>
+    <td><b>guId</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Identificador único global de la transacción</td>
+  </tr>
+  <tr>
+    <td><b>use</b></td>
+    <td><b>string</b></td>
+    <td><b>❌No</b></td>
+    <td>Tipo de uso de la transacción (solo para CELE)</td>
+  </tr>
+  <tr>
+    <td><b>mode</b></td>
+    <td><b>string</b></td>
+    <td><b>❌No</b></td>
+    <td>Modo de la transacción (solo para CELE)</td>
+  </tr>
+</table>
+
+## 4. Request de SOFITASA
+
+Method: **POST**
+```
+{{baseUrl}}api/immediate-debit/run-debit
+```
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**Body:**
+```json
+{
+    "amount": 251.12,
+    "debitorBank": "0137",
+    "debitorID": "V19236967",
+    "debitorAccount": "013700125400082592812",
+    "debitorName": "Rafael",
+    "concept": "pagos de api",
+    "token": "306725377"
+}
+```
+
+## 5. MAPEO 1 - Tabla explicación de cada campo del Request SOFITASA
+
+**Header**
+
+<table>
+  <tr>
+    <th>Campo Header</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>Content-Type</b></td>
+    <td><b>string</b></td>
+    <td><b>Content-Type</b> del request SPIDI</td>
+    <td>
+      <b>"Content-Type": "application/json"</b><br/>
+      →<br/>
+      <b>"Content-Type": "application/json"</b><br/>
+      Eco
+    </td>
+  </tr>
+</table>
+
+**Body**
+
+<table>
+  <tr>
+    <th>Campo Body</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>amount</b></td>
+    <td><b>number</b></td>
+    <td><b>amount</b> del request SPIDI</td>
+    <td>
+      <b>"amount": 503</b><br/>
+      →<br/>
+      <b>"amount": 251.12</b><br/>
+      Conversión de moneda o cálculo específico
+    </td>
+  </tr>
+  <tr>
+    <td><b>debitorBank</b></td>
+    <td><b>string</b></td>
+    <td><b>bankCode</b> del request SPIDI</td>
+    <td>
+      <b>"bankCode": "0169"</b><br/>
+      →<br/>
+      <b>"debitorBank": "0137"</b><br/>
+      Mapeo directo con posible conversión de código
+    </td>
+  </tr>
+  <tr>
+    <td><b>debitorID</b></td>
+    <td><b>string</b></td>
+    <td><b>identification</b> del request SPIDI</td>
+    <td>
+      <b>"identification": "J406535214"</b><br/>
+      →<br/>
+      <b>"debitorID": "V19236967"</b><br/>
+      Mapeo directo con posible transformación de formato
+    </td>
+  </tr>
+  <tr>
+    <td><b>debitorAccount</b></td>
+    <td><b>string</b></td>
+    <td><b>instrument</b> del request SPIDI (cuando instrumentType = "CNTA")</td>
+    <td>
+      <b>"instrument": "01370029040000164391"</b><br/>
+      →<br/>
+      <b>"debitorAccount": "013700125400082592812"</b><br/>
+      Mapeo directo cuando el tipo de instrumento es cuenta
+    </td>
+  </tr>
+  <tr>
+    <td><b>debitorName</b></td>
+    <td><b>string</b></td>
+    <td><b>debtorName</b> del request SPIDI</td>
+    <td>
+      <b>"debtorName": "mr. Anderson"</b><br/>
+      →<br/>
+      <b>"debitorName": "Rafael"</b><br/>
+      Mapeo directo con posible transformación de formato
+    </td>
+  </tr>
+  <tr>
+    <td><b>concept</b></td>
+    <td><b>string</b></td>
+    <td><b>concept</b> del request SPIDI</td>
+    <td>
+      <b>"concept": "EDP test"</b><br/>
+      →<br/>
+      <b>"concept": "pagos de api"</b><br/>
+      Mapeo directo con posible transformación de texto
+    </td>
+  </tr>
+  <tr>
+    <td><b>token</b></td>
+    <td><b>string</b></td>
+    <td><b>Token obtenido previamente</b></td>
+    <td>
+      <b>Token de autenticación</b><br/>
+      →<br/>
+      <b>"token": "306725377"</b><br/>
+      Token obtenido del endpoint de autenticación
+    </td>
+  </tr>
+</table>
+
+## 6. Ejemplos de Response 200 de SOFITASA
+
+```json
+{
+    "result": "00000400",
+    "success": true,
+    "message": "Débito iniciado con éxito.",
+    "codigo": "202",
+    "statusCode": 202
+}
+```
+
+## 7. Tabla Explicativa de cada campo del response 200 de SOFITASA
+
+### 7.1. Campos de nivel raíz(Response 200)
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><b>result</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> Código de resultado de la transacción.
+    </td>
+  </tr>
+  <tr>
+    <td><b>success</b></td>
+    <td><b>boolean</b></td>
+    <td>
+      <b>Generado.</b> <i><b>True</b></i> si el débito fue exitoso, <i><b>false</b></i> de lo contrario.
+    </td>
+  </tr>
+  <tr>
+    <td><b>message</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> Mensaje de confirmación legible para humanos.
+    </td>
+  </tr>
+  <tr>
+    <td><b>codigo</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> <i><b>"202"</b></i>
+    </td>
+  </tr>
+  <tr>
+    <td><b>statusCode</b></td>
+    <td><b>number</b></td>
+    <td>
+      <b>Generado.</b> <i><b>202</b></i>
+    </td>
+  </tr>
+</table>
+
+## 8. Ejemplos de Response 200 de Plataforma SPIDI
+
+```json
+{
+    "result": "00000400",
+    "success": true,
+    "message": "Débito iniciado con éxito.",
+    "codigo": "202",
+    "statusCode": 202
+}
+```
+
+## 9. MAPEO 2 - Tablas explicación de cada campo del Response 200 de Plataforma SPIDI
+
+### 9.1 Campos de nivel raíz (Response 200)
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>result</b></td>
+    <td><b>string</b></td>
+    <td><b>result</b> del response SOFITASA</td>
+    <td>
+      <b>"result": "00000400"</b><br/>
+      →<br/>
+      <b>"result": "00000400"</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>success</b></td>
+    <td><b>boolean</b></td>
+    <td><b>success</b> del response SOFITASA</td>
+    <td>
+      <b>"success": true</b><br/>
+      →<br/>
+      <b>"success": true</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>message</b></td>
+    <td><b>string</b></td>
+    <td><b>message</b> del response SOFITASA</td>
+    <td>
+      <b>"message": "Débito iniciado con éxito."</b><br/>
+      →<br/>
+      <b>"message": "Débito iniciado con éxito."</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>codigo</b></td>
+    <td><b>string</b></td>
+    <td><b>codigo</b> del response SOFITASA</td>
+    <td>
+      <b>"codigo": "202"</b><br/>
+      →<br/>
+      <b>"codigo": "202"</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>statusCode</b></td>
+    <td><b>number</b></td>
+    <td><b>statusCode</b> del response SOFITASA</td>
+    <td>
+      <b>"statusCode": 202</b><br/>
+      →<br/>
+      <b>"statusCode": 202</b><br/>
+      Eco
+    </td>
+  </tr>
+</table>

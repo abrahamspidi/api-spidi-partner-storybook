@@ -1,0 +1,143 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-MAP/Crixto/Mapeo Spidi/Sesion Cripto/2. Crear Sesion Cripto" />
+
+# 1. **Crear sesión de pago cripto**
+
+### **1\. SPIDI API** 
+
+**Endpoint:**  
+`POST /api/payment-session/crypto-binance`
+
+* **Descripción:**  
+   Crea una nueva sesión de pago cripto, orquestando la lógica interna de SPIDI y consumiendo el endpoint de Crixto para generar la orden de pago correspondiente.
+
+---
+
+## **Tabla resumen de mapeo de endpoints**
+
+## Permite crear una sesión de pago cripto. 
+
+POST `{{baseUrl}}/api/v1/payment-session/crypto`
+
+### **2\. de campos del request**
+
+<table>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Descripción</th>
+<th>Ejemplo</th>
+</tr>
+<tr>
+<td><b>amount\_ves</b></td>
+<td><b>number</b></td>
+<td>Sí</td>
+<td>Monto en VES a cobrar.</td>
+<td>150.00</td>
+</tr>
+<tr>
+<td><b>webhook\_url</b></td>
+<td><b>string</b></td>
+<td>No</td>
+<td>URL para notificación de cambios de estado.</td>
+<td>"https://..."</td>
+</tr>
+<tr>
+<td><b>spidi\_id</b></td>
+<td><b>string</b></td>
+<td>Sí</td>
+<td>Identificador único SPIDI (UUID).</td>
+<td>"a966..."</td>
+</tr>
+<tr>
+<td><b>session\_id</b></td>
+<td><b>string</b></td>
+<td>Sí</td>
+<td>ID único de la sesión SPIDI.</td>
+<td>"3ddc..."</td>
+</tr>
+</table>
+
+---
+
+#### **Ejemplo de request**
+
+```json
+{  
+  "amount\_ves": 150.00,  
+  "webhook\_url": "https://miapi.com/spidi/webhook",  
+  "spidi\_id": "a966ce0d-3af3-415d-ba86-1db5a1c21cf0",  
+  "pos\_type": 1,  
+  "session\_id": "098ace94-ce70-4203-abc3-80e20bb6e4c6"  
+}
+```
+
+**SPIDI responde:**
+
+```json
+{  
+  "success": true,  
+  "message": "Sesión de pago cripto creada exitosamente.",  
+  "payment\_type": "1",  
+  "data": {  
+    "crypto\_order\_id": "392",  
+    "amount": 150.00,  
+    "spidi\_id": "a966ce0d-3af3-415d-ba86-1db5a1c21cf0",  
+    "status": "pending",  
+    "crypto\_payment\_url": "https://app.binance.com/qr/dplkb615f1ac71dc41f39b11c96bcb5719f1",  
+    "crypto\_payment\_qr": "data:image/png;base64,iVBORw0K…SuQmCC",  
+    "webhook\_url": "https://miapi.com/spidi/webhook",  
+    "session\_id": "098ace94-ce70-4203-abc3-80e20bb6e4c6"  
+  }  
+}
+```
+
+<table>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+<tr>
+<td><b>crypto\_order\_id</b></td>
+<td><b>string</b></td>
+<td>ID de la orden en Crixto.</td>
+</tr>
+<tr>
+<td><b>amount</b></td>
+<td><b>number</b></td>
+<td>Monto de la orden.</td>
+</tr>
+<tr>
+<td><b>spidi\_id</b></td>
+<td><b>string</b></td>
+<td>ID de SPIDI/serial usado para crear la orden.</td>
+</tr>
+<tr>
+<td><b>status</b></td>
+<td><b>string</b></td>
+<td>Estado actual de la orden ("pending", "paid", etc.).</td>
+</tr>
+<tr>
+<td><b>crypto\_payment\_url</b></td>
+<td><b>string</b></td>
+<td>URL para realizar el pago en BinancePay.</td>
+</tr>
+<tr>
+<td><b>crypto\_payment\_qr</b></td>
+<td><b>string</b></td>
+<td>Imagen QR en base64 para pago rápido.</td>
+</tr>
+<tr>
+<td><b>webhook\_url</b></td>
+<td><b>string</b></td>
+<td>Webhook registrado en la orden (si aplica).</td>
+</tr>
+<tr>
+<td><b>session\_id</b></td>
+<td><b>string</b></td>
+<td>ID de la sesión original en SPIDI.</td>
+</tr>
+</table>

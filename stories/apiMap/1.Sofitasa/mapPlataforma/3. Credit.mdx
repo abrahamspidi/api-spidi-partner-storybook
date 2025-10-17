@@ -1,0 +1,567 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-MAP/Sofitasa/Mapeo Plataforma/3. Credit" />
+
+## Mapeo de generación de crédito
+## 1. Endpoints relacionados
+
+<table>
+  <tr>
+    <th>Acción</th>
+    <th>Endpoint en Sofitasa</th>
+    <th>Endpoint en Plataforma SPIDI</th>
+  </tr>
+  <tr>
+    <td>Generar crédito</td>
+    <td>POST /api/immediate-credit-spidi/run-credit</td>
+    <td>POST /api/spidi2/transactions/to-person</td>
+  </tr>
+</table>
+
+Para generar un crédito, se debe enviar la información del beneficiario y los detalles de la transacción. Este endpoint permite realizar transferencias de crédito a cuentas bancarias.
+
+## 2. Request de Plataforma SPIDI
+
+Method: **POST**
+```
+{{baseUrl}}api/spidi2/transactions/to-person
+```
+
+**Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer `{token}`
+```
+
+**Body CELE:**
+```json
+{
+    "spidiId": 24,
+    "amount": "210",
+    "identification": "E81687783",
+    "instrumentType": "CELE",
+    "instrument": "4142601533",
+    "bankCode":"0137",
+    "externalID": "18243021",
+    "currency": "VES",   
+    "concept": "prueba pago",
+    "beneficiaryName": "Pedro",
+    "guId": "b0c3b582-693c-463a-addb-66d906fe1b77"
+}
+```
+
+**Body CNTA:**
+```json
+{
+    "spidiId": 10,
+    "amount": "124",
+    "identification": "J406535214",
+    "instrumentType": "CNTA",
+    "instrument": "01370029040000164391",
+    "bankCode":"0137",
+    "externalID": "11199788",
+    "currency": "VES",   
+    "concept": "prueba pago",
+    "beneficiaryName": "Pedro",
+    "guId": "b0c3b582-693c-463a-addb-66d906fe1b77"
+}
+```
+
+## 3. Tabla explicación de cada campo del Request Plataforma SPIDI
+
+**Header**
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo</th>
+    <th>Requerido</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><b>Content-Type</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Tipo de contenido de la petición</td>
+  </tr>
+  <tr>
+    <td><b>Authorization</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Token de autorización Bearer</td>
+  </tr>
+</table>
+
+**Body**
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo</th>
+    <th>Requerido</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><b>spidiId</b></td>
+    <td><b>number</b></td>
+    <td><b>✅Si</b></td>
+    <td>Identificador único de la transacción en SPIDI</td>
+  </tr>
+  <tr>
+    <td><b>amount</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Monto de la transacción</td>
+  </tr>
+  <tr>
+    <td><b>identification</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Cédula de identidad del beneficiario</td>
+  </tr>
+  <tr>
+    <td><b>instrumentType</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Tipo de instrumento: CELE (celular) o CNTA (cuenta bancaria)</td>
+  </tr>
+  <tr>
+    <td><b>instrument</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Número de celular o cuenta bancaria según el tipo</td>
+  </tr>
+  <tr>
+    <td><b>bankCode</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Código del banco</td>
+  </tr>
+  <tr>
+    <td><b>externalID</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Identificador externo de la transacción</td>
+  </tr>
+  <tr>
+    <td><b>currency</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Moneda de la transacción</td>
+  </tr>
+  <tr>
+    <td><b>concept</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Concepto de la transacción</td>
+  </tr>
+  <tr>
+    <td><b>beneficiaryName</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Nombre del beneficiario</td>
+  </tr>
+  <tr>
+    <td><b>guId</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Identificador único global de la transacción</td>
+  </tr>
+</table>
+
+## 4. Request de SOFITASA
+
+Method: **POST**
+```
+{{baseUrl}}api/immediate-credit-spidi/run-credit
+```
+
+**Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer `{token}`
+```
+
+**Body:**
+```json
+{
+    "amount": 400.00,
+    "creditorBank": "0137",
+    "creditorID": "V19236967",
+    "creditorAccount": "01370012540002592812",
+    "creditorName": "Diego Mora",
+    "concept": "pago a proveedor",
+    "commission":1
+}
+```
+
+## 5. MAPEO 1 - Tabla explicación de cada campo del Request SOFITASA
+
+**Header**
+
+<table>
+  <tr>
+    <th>Campo Header</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>Content-Type</b></td>
+    <td><b>string</b></td>
+    <td><b>Content-Type</b> del request SPIDI</td>
+    <td>
+      <b>"Content-Type": "application/json"</b><br/>
+      →<br/>
+      <b>"Content-Type": "application/json"</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>Authorization</b></td>
+    <td><b>string</b></td>
+    <td><b>Authorization</b> del request SPIDI</td>
+    <td>
+      <b>"Authorization": "Bearer `{token}`"</b><br/>
+      →<br/>
+      <b>"Authorization": "Bearer `{token}`"</b><br/>
+      Eco
+    </td>
+  </tr>
+</table>
+
+**Body**
+
+<table>
+  <tr>
+    <th>Campo Body</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>amount</b></td>
+    <td><b>number</b></td>
+    <td><b>amount</b> del request SPIDI</td>
+    <td>
+      <b>"amount": "210"</b><br/>
+      →<br/>
+      <b>"amount": 210.00</b><br/>
+      Conversión de string a number
+    </td>
+  </tr>
+  <tr>
+    <td><b>creditorBank</b></td>
+    <td><b>string</b></td>
+    <td><b>bankCode</b> del request SPIDI</td>
+    <td>
+      <b>"bankCode": "0137"</b><br/>
+      →<br/>
+      <b>"creditorBank": "0137"</b><br/>
+      Renombrado de campo
+    </td>
+  </tr>
+  <tr>
+    <td><b>creditorID</b></td>
+    <td><b>string</b></td>
+    <td><b>identification</b> del request SPIDI</td>
+    <td>
+      <b>"identification": "E81687783"</b><br/>
+      →<br/>
+      <b>"creditorID": "E81687783"</b><br/>
+      Renombrado de campo
+    </td>
+  </tr>
+  <tr>
+    <td><b>creditorAccount</b></td>
+    <td><b>string</b></td>
+    <td><b>instrument</b> del request SPIDI (cuando instrumentType = "CNTA")</td>
+    <td>
+      <b>"instrument": "01370029040000164391"</b><br/>
+      →<br/>
+      <b>"creditorAccount": "01370029040000164391"</b><br/>
+      Renombrado de campo, solo para tipo CNTA
+    </td>
+  </tr>
+  <tr>
+    <td><b>creditorName</b></td>
+    <td><b>string</b></td>
+    <td><b>beneficiaryName</b> del request SPIDI</td>
+    <td>
+      <b>"beneficiaryName": "Pedro"</b><br/>
+      →<br/>
+      <b>"creditorName": "Pedro"</b><br/>
+      Renombrado de campo
+    </td>
+  </tr>
+  <tr>
+    <td><b>concept</b></td>
+    <td><b>string</b></td>
+    <td><b>concept</b> del request SPIDI</td>
+    <td>
+      <b>"concept": "prueba pago"</b><br/>
+      →<br/>
+      <b>"concept": "prueba pago"</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>commission</b></td>
+    <td><b>number</b></td>
+    <td><b>Configuración del sistema</b></td>
+    <td>
+      <b>Valor fijo:</b> <i><b>1</b></i><br/>
+      Comisión configurada en el sistema
+    </td>
+  </tr>
+</table>
+
+## 6. Ejemplos de Response 200 de SOFITASA
+
+```json
+{
+  "success": true,
+  "message": "Crédito procesado exitosamente.",
+  "codigo": "200",
+  "statusCode": 200,
+  "result": {
+    "transactionId": "TXN123456789",
+    "amount": 400.00,
+    "status": "completed",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "reference": "REF789012345"
+  }
+}
+```
+
+## 7. Tabla Explicativa de cada campo del response 200 de SOFITASA
+
+### 7.1. Campos de nivel raíz(Response 200)
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><b>success</b></td>
+    <td><b>boolean</b></td>
+    <td>
+      <b>Generado.</b> <i><b>True</b></i> si el crédito fue procesado exitosamente, <i><b>false</b></i> de lo contrario.
+    </td>
+  </tr>
+  <tr>
+    <td><b>message</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> Mensaje de confirmación legible para humanos.
+    </td>
+  </tr>
+  <tr>
+    <td><b>codigo</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> <i><b>"200"</b></i>
+    </td>
+  </tr>
+  <tr>
+    <td><b>statusCode</b></td>
+    <td><b>number</b></td>
+    <td>
+      <b>Generado.</b> <i><b>200</b></i>
+    </td>
+  </tr>
+  <tr>
+    <td><b>result</b></td>
+    <td><b>objeto</b></td>
+    <td>
+      <b>Generado.</b> Objeto con la información de la transacción de crédito
+    </td>
+  </tr>
+</table>
+
+### 7.2 Subtabla: Response 200 → result
+
+<table>
+  <tr>
+    <th>result</th>
+    <th>Tipo</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><b>transactionId</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> Identificador único de la transacción en SOFITASA.
+    </td>
+  </tr>
+  <tr>
+    <td><b>amount</b></td>
+    <td><b>number</b></td>
+    <td>
+      <b>Generado.</b> Monto procesado de la transacción.
+    </td>
+  </tr>
+  <tr>
+    <td><b>status</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> Estado de la transacción: <b>"completed"</b>, <b>"pending"</b>, <b>"failed"</b>
+    </td>
+  </tr>
+  <tr>
+    <td><b>timestamp</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> Fecha y hora de procesamiento en formato ISO 8601.
+    </td>
+  </tr>
+  <tr>
+    <td><b>reference</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> Referencia única de la transacción.
+    </td>
+  </tr>
+</table>
+
+## 8. Ejemplos de Response 200 de Plataforma SPIDI
+
+```json
+{
+  "success": true,
+  "data": {
+    "transactionId": "TXN123456789",
+    "amount": "400.00",
+    "status": "completed",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "reference": "REF789012345",
+    "spidiId": 24,
+    "externalID": "18243021",
+    "guId": "b0c3b582-693c-463a-addb-66d906fe1b77"
+  }
+}
+```
+
+## 9. MAPEO 2 - Tablas explicación de cada campo del Response 200 de Plataforma SPIDI
+
+### 9.1 Campos de nivel raíz (Response 200)
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>success</b></td>
+    <td><b>boolean</b></td>
+    <td><b>success</b> del response SOFITASA</td>
+    <td>
+      <b>"success": true</b><br/>
+      →<br/>
+      <b>"success": true</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>data</b></td>
+    <td><b>objeto</b></td>
+    <td><b>result</b> del response SOFITASA + campos del request SPIDI</td>
+    <td>
+      <b>Combinación de campos.</b> Objeto con información de la transacción y datos originales
+    </td>
+  </tr>
+</table>
+
+### 9.2 Subtabla: Response 200 → data
+
+<table>
+  <tr>
+    <th>data</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>transactionId</b></td>
+    <td><b>string</b></td>
+    <td><b>transactionId</b> del response SOFITASA</td>
+    <td>
+      <b>"transactionId": "TXN123456789"</b><br/>
+      →<br/>
+      <b>"transactionId": "TXN123456789"</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>amount</b></td>
+    <td><b>string</b></td>
+    <td><b>amount</b> del response SOFITASA</td>
+    <td>
+      <b>"amount": 400.00</b><br/>
+      →<br/>
+      <b>"amount": "400.00"</b><br/>
+      Conversión de number a string
+    </td>
+  </tr>
+  <tr>
+    <td><b>status</b></td>
+    <td><b>string</b></td>
+    <td><b>status</b> del response SOFITASA</td>
+    <td>
+      <b>"status": "completed"</b><br/>
+      →<br/>
+      <b>"status": "completed"</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>timestamp</b></td>
+    <td><b>string</b></td>
+    <td><b>timestamp</b> del response SOFITASA</td>
+    <td>
+      <b>"timestamp": "2024-01-15T10:30:00Z"</b><br/>
+      →<br/>
+      <b>"timestamp": "2024-01-15T10:30:00Z"</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>reference</b></td>
+    <td><b>string</b></td>
+    <td><b>reference</b> del response SOFITASA</td>
+    <td>
+      <b>"reference": "REF789012345"</b><br/>
+      →<br/>
+      <b>"reference": "REF789012345"</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>spidiId</b></td>
+    <td><b>number</b></td>
+    <td><b>spidiId</b> del request SPIDI original</td>
+    <td>
+      <b>Eco del request original.</b> Identificador SPIDI de la transacción
+    </td>
+  </tr>
+  <tr>
+    <td><b>externalID</b></td>
+    <td><b>string</b></td>
+    <td><b>externalID</b> del request SPIDI original</td>
+    <td>
+      <b>Eco del request original.</b> Identificador externo de la transacción
+    </td>
+  </tr>
+  <tr>
+    <td><b>guId</b></td>
+    <td><b>string</b></td>
+    <td><b>guId</b> del request SPIDI original</td>
+    <td>
+      <b>Eco del request original.</b> Identificador único global de la transacción
+    </td>
+  </tr>
+</table>

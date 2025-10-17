@@ -1,0 +1,344 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-MAP/Sofitasa/Mapeo Plataforma/0. Example Map" />
+
+
+## Mapeo de obtención de token de autenticación
+## 1. Endpoints relacionados
+
+<table>
+  <tr>
+    <th>Acción</th>
+    <th>Endpoint en Sofitasa</th>
+    <th>Endpoint en Plataforma SPIDI</th>
+  </tr>
+  <tr>
+    <td>Obtener token de autenticación</td>
+    <td>POST /api/immediate-debit/get-token</td>
+    <td>GET api/auth-token</td>
+  </tr>
+</table>
+
+Para obtener un token de autenticación válido, se debe enviar las credenciales correspondientes. Este endpoint permite la autenticación en el sistema.
+
+## 2. Request de Plataforma SPIDI
+
+Method: **GET**
+```
+{{baseUrl}}api/auth-token
+```
+
+**Headers:**
+```
+Authorization: Basic dXN1YXJpb19lamVtcGxvOmNvbnRyYXNlw7FhX2VqZW1wbG8=
+```
+
+No tiene body.
+
+## 3. Tabla explicación de cada campo del Request Plataforma SPIDI
+
+**Header**
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo</th>
+    <th>Requerido</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><b>Authorization</b></td>
+    <td><b>string</b></td>
+    <td><b>✅Si</b></td>
+    <td>Header de autorización con credenciales en formato Basic (Base64)</td>
+  </tr>
+</table>
+
+No tiene body.
+
+## 4. Request de SOFITASA
+
+Method: **POST**
+```
+{{baseUrl}}api/immediate-debit/get-token
+```
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**Body:**
+```json
+{
+  "amount": 0.10,
+  "debtorAccount": "01370012520007207601",
+  "debtorBank": "0137",
+  "debtorID": "V28285102",
+  "phoneNumberNotification": "04247087398"
+}
+```
+
+## 5. MAPEO 1 - Tabla explicación de cada campo del Request SOFITASA
+
+**Header**
+
+<table>
+  <tr>
+    <th>Campo Header</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>Content-Type</b></td>
+    <td><b>string</b></td>
+    <td><b>Content-Type</b> del request SPIDI</td>
+    <td>
+      <b>"Content-Type": "application/json"</b><br/>
+      →<br/>
+      <b>"Content-Type": "application/json"</b><br/>
+      Eco
+    </td>
+  </tr>
+</table>
+
+**Body**
+
+<table>
+  <tr>
+    <th>Campo Body</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>amount</b></td>
+    <td><b>number</b></td>
+    <td><b>Configuración del sistema</b></td>
+    <td>
+      <b>Valor fijo:</b> <i><b>0.10</b></i><br/>
+      Monto mínimo para validación de token
+    </td>
+  </tr>
+  <tr>
+    <td><b>debtorAccount</b></td>
+    <td><b>string</b></td>
+    <td><b>Configuración del sistema</b></td>
+    <td>
+      <b>Valor fijo:</b> <i><b>"01370012520007207601"</b></i><br/>
+      Cuenta deudora configurada en el sistema
+    </td>
+  </tr>
+  <tr>
+    <td><b>debtorBank</b></td>
+    <td><b>string</b></td>
+    <td><b>Configuración del sistema</b></td>
+    <td>
+      <b>Valor fijo:</b> <i><b>"0137"</b></i><br/>
+      Código del banco deudor
+    </td>
+  </tr>
+  <tr>
+    <td><b>debtorID</b></td>
+    <td><b>string</b></td>
+    <td><b>Configuración del sistema</b></td>
+    <td>
+      <b>Valor fijo:</b> <i><b>"V28285102"</b></i><br/>
+      Identificación del deudor
+    </td>
+  </tr>
+  <tr>
+    <td><b>phoneNumberNotification</b></td>
+    <td><b>string</b></td>
+    <td><b>Configuración del sistema</b></td>
+    <td>
+      <b>Valor fijo:</b> <i><b>"04247087398"</b></i><br/>
+      Número de teléfono para notificaciones
+    </td>
+  </tr>
+</table>
+
+## 6. Ejemplos de Response 200 de SOFITASA
+
+```json
+{
+  "success": true,
+  "message": "Token generado exitosamente.",
+  "codigo": "200",
+  "statusCode": 200,
+  "result": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expiresIn": 3600,
+    "tokenType": "Bearer"
+  }
+}
+```
+
+## 7. Tabla Explicativa de cada campo del response 200 de SOFITASA
+
+### 7.1. Campos de nivel raíz(Response 200)
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><b>success</b></td>
+    <td><b>boolean</b></td>
+    <td>
+      <b>Generado.</b> <i><b>True</b></i> si la autenticación fue exitosa, <i><b>false</b></i> de lo contrario.
+    </td>
+  </tr>
+  <tr>
+    <td><b>message</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> Mensaje de confirmación legible para humanos. 
+    </td>
+  </tr>
+  <tr>
+    <td><b>codigo</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> <i><b>"200"</b></i>
+    </td>
+  </tr>
+  <tr>
+    <td><b>statusCode</b></td>
+    <td><b>number</b></td>
+    <td>
+      <b>Generado.</b> <i><b>200</b></i>
+    </td>
+  </tr>
+  <tr>
+    <td><b>result</b></td>
+    <td><b>objeto</b></td>
+    <td>
+      <b>Generado.</b> Objeto con la información del token de autenticación
+    </td>
+  </tr>
+</table>
+
+### 7.2 Subtabla: Response 200 → result
+
+<table>
+  <tr>
+    <th>result</th>
+    <th>Tipo</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><b>token</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> Token JWT de autenticación.
+    </td>
+  </tr>
+  <tr>
+    <td><b>expiresIn</b></td>
+    <td><b>number</b></td>
+    <td>
+      <b>Generado.</b> Tiempo de expiración del token en segundos.
+    </td>
+  </tr>
+  <tr>
+    <td><b>tokenType</b></td>
+    <td><b>string</b></td>
+    <td>
+      <b>Generado.</b> Tipo de token, generalmente <b>"Bearer"</b>
+    </td>
+  </tr>
+</table>
+
+## 8. Ejemplos de Response 200 de Plataforma SPIDI
+
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expiresIn": 3600,
+    "tokenType": "Bearer"
+  }
+}
+```
+
+## 9. MAPEO 2 - Tablas explicación de cada campo del Response 200 de Plataforma SPIDI
+
+### 9.1 Campos de nivel raíz (Response 200)
+
+<table>
+  <tr>
+    <th>Campo</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>success</b></td>
+    <td><b>boolean</b></td>
+    <td><b>success</b> del response SOFITASA</td>
+    <td>
+      <b>"success": true</b><br/>
+      →<br/>
+      <b>"success": true</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>data</b></td>
+    <td><b>objeto</b></td>
+    <td><b>result</b> del response SOFITASA</td>
+    <td>
+      <b>Eco, sin transformación.</b> Objeto con la información del token de autenticación
+    </td>
+  </tr>
+</table>
+
+### 9.2 Subtabla: Response 200 → data
+
+<table>
+  <tr>
+    <th>data</th>
+    <th>Tipo dato</th>
+    <th>Origen a mapear</th>
+    <th>Descripción de la posible transformación del origen</th>
+  </tr>
+  <tr>
+    <td><b>accessToken</b></td>
+    <td><b>string</b></td>
+    <td><b>token</b> del response SOFITASA</td>
+    <td>
+      <b>"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</b><br/>
+      →<br/>
+      <b>"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>expiresIn</b></td>
+    <td><b>number</b></td>
+    <td><b>expiresIn</b> del response SOFITASA</td>
+    <td>
+      <b>"expiresIn": 3600</b><br/>
+      →<br/>
+      <b>"expiresIn": 3600</b><br/>
+      Eco
+    </td>
+  </tr>
+  <tr>
+    <td><b>tokenType</b></td>
+    <td><b>string</b></td>
+    <td><b>tokenType</b> del response SOFITASA</td>
+    <td>
+      <b>"tokenType": "Bearer"</b><br/>
+      →<br/>
+      <b>"tokenType": "Bearer"</b><br/>
+      Eco
+    </td>
+  </tr>
+</table>
+

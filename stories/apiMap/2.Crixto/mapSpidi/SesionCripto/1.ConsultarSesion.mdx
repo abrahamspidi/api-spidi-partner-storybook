@@ -1,0 +1,20 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="API-MAP/Crixto/Mapeo SPIDI/1. Consultar Sesión" />
+
+# Mapeo de consulta de orden (SPIDI ← Crixto)
+
+# 1. Endpoints involucrados
+
+<table>
+<tr>
+<th>Acción</th>
+<th>Endpoint en Crixto</th>
+<th>Endpoint en SPIDI</th>
+</tr>
+<tr>
+<td>Consultar status de orden</td>
+<td>POST<br/>`{{baseUrl}}/api/v1/pos-crixto/get-order-by-id`</td>
+<td>GET<br/>`{{baseUrl}}/api/v1/payment-session/crypto/{session_id}`</td>
+</tr>
+</table>
