@@ -26,7 +26,7 @@ Este endpoint ejecuta operaciones en lote para asociar/desasociar/reemplazar/lim
 
 Method: **POST**
 ```
-{{baseUrl}}/api/v1/ext/payment-stops/batch
+{{base_url}}/api/v1/ext/payment-stops/batch
 ```
 
 **Headers**
@@ -82,7 +82,7 @@ Authorization: Bearer \<token\>
 
 * <b><i>clear</i></b>: elimina todos los activos (la Parada puede quedar en estado Empty).
 
-**Ordenación:** realiza el orden de visualización con el endpoint dedicado `PATCH {{baseUrl}}/payment-stop/links/reorder` tras completar el batch.
+**Ordenación:** realiza el orden de visualización con el endpoint dedicado `PATCH {{base_url}}/payment-stop/links/reorder` tras completar el batch.
 
 ---
 
@@ -122,13 +122,13 @@ Authorization: Bearer \<token\>
 
 **Verificación posterior de resultados:**
 
-Después de ejecutar un batch, puedes verificar el estado actualizado de múltiples Paradas usando `POST {{baseUrl}}/api/v1/ext/payment-stops/query`.
+Después de ejecutar un batch, puedes verificar el estado actualizado de múltiples Paradas usando `POST {{base_url}}/api/v1/ext/payment-stops/query`.
 
 **Recomendaciones:**
 
 * Úsalo inmediatamente después de un batch cuando proceses más de una Parada o necesites refrescar un panel administrativo.
 * Combínalo con `only_fields=["session_id","status","payment_url"]` para obtener una vista ligera y rápida.
-* Para auditoría, consulta `GET {{baseUrl}}/payment-stop/{stop_id}/links` con filtros como `status=pending`.
+* Para auditoría, consulta `GET {{base_url}}/payment-stop/{stop_id}/links` con filtros como `status=pending`.
 
 **Webhooks recomendados:** escucha `stop.link_added`, `stop.link_removed`, `stop.links_replaced`, `stop.links_cleared` (y `stop.links_reordered` en el endpoint correspondiente).
 

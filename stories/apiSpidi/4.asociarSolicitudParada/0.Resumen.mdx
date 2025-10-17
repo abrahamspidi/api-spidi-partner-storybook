@@ -38,22 +38,22 @@ Cada Parada puede tener **0, 1 o varias sesiones activas asociadas**, todas comp
 </tr>
 <tr>
 <td><b>POST</b></td>
-<td>`{{baseUrl}}/api/v1/ext/payment-stops/batch`</td>
+<td>`{{base_url}}/api/v1/ext/payment-stops/batch`</td>
 <td>Ejecuta operaciones en lote para asociar, desasociar, reemplazar o limpiar sesiones de pago en una o varias Paradas. Soporta las operaciones `add`, `remove`, `replace`, `clear`. Idempotente mediante `Idempotency-Key`.</td>
 </tr>
 <tr>
 <td><b>PATCH</b></td>
-<td>`{{baseUrl}}/api/v1/ext/payment-stops/reorder`</td>
+<td>`{{base_url}}/api/v1/ext/payment-stops/reorder`</td>
 <td>Define el orden de visualización de los enlaces de pago (`payment_url`) dentro de una Parada o en lote para varias.</td>
 </tr>
 <tr>
 <td><b>GET</b></td>
-<td>`{{baseUrl}}/api/v1/ext/payment-stops/{stop_id}/links`</td>
+<td>`{{base_url}}/api/v1/ext/payment-stops/{stop_id}/links`</td>
 <td>Devuelve la lista completa de sesiones asociadas a una Parada, incluyendo sus estados y sus enlaces de pago.</td>
 </tr>
 <tr>
 <td><b>POST</b></td>
-<td>`{{baseUrl}}/api/v1/ext/payment-stops/query`</td>
+<td>`{{base_url}}/api/v1/ext/payment-stops/query`</td>
 <td>Permite consultar los enlaces activos de múltiples Paradas en una sola llamada, con filtros, paginación y reducción de campos. Optimizado para paneles y sincronización masiva.</td>
 </tr>
 </table>
@@ -70,7 +70,7 @@ Cada Parada puede tener **0, 1 o varias sesiones activas asociadas**, todas comp
 
 * Usa `reorder` después de un `replace` o `add` para actualizar el orden visual.
 
-* Para sincronizar o renderizar múltiples Paradas, utiliza `POST {{baseUrl}}/payment-stop/links/query`, limitando los campos con `only_fields` para eficiencia.
+* Para sincronizar o renderizar múltiples Paradas, utiliza `POST {{base_url}}/payment-stop/links/query`, limitando los campos con `only_fields` para eficiencia.
 
 * Implementa webhooks de tipo `stop.link_*` para mantener tu backend sincronizado sin depender de polling frecuente.
 

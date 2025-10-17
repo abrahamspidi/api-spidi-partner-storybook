@@ -19,7 +19,7 @@ Permite registrar el identificador único (spidi_id) del usuario/comercio en el 
 
 Method: **POST**
 ```
-{{baseUrl}}/api/crypto/register-spidi
+{{base_url}}/api/crypto/register-spidi
 ```
 
 **Headers requeridos:**

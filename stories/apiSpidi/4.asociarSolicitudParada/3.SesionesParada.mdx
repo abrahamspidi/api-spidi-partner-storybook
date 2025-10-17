@@ -18,7 +18,7 @@ Es el endpoint clave para **pintar la UI operativa**, **auditoría** y **observa
 
 Method: **GET**
 ```
-`{{baseUrl}}/api/v1/ext/payment-stops/{stop_id}/links`
+`{{base_url}}/api/v1/ext/payment-stops/{stop_id}/links`
 ```
 
 **Headers**
@@ -61,25 +61,25 @@ Method: **GET**
 ### 3.1 Listar solo activos (para UI del cliente)
 
 ```
-{{baseUrl}}/api/v1/ext/payment-stops/stp_123/links?status=active&sort=created_at&order=desc&page=1&page_size=20
+{{base_url}}/api/v1/ext/payment-stops/stp_123/links?status=active&sort=created_at&order=desc&page=1&page_size=20
 ```
 
 ### 3.2 Auditoría completa con paginación
 
 ```
-{{baseUrl}}/api/v1/ext/payment-stops/stp_123/links?include_history=true&sort=updated_at&order=desc&page=2&page_size=50
+{{base_url}}/api/v1/ext/payment-stops/stp_123/links?include_history=true&sort=updated_at&order=desc&page=2&page_size=50
 ```
 
 ### 3.3 Cambios desde una fecha (delta)
 
 ```
-{{baseUrl}}/api/v1/ext/payment-stops/stp_123/links?updated_after=2025-10-01T00:00:00Z
+{{base_url}}/api/v1/ext/payment-stops/stp_123/links?updated_after=2025-10-01T00:00:00Z
 ```
 
 ### 3.4 Respuesta liviana (solo campos clave)
 
 ```
-{{baseUrl}}/api/v1/ext/payment-stops/stp_123/links?status=pending&only_fields=session_id,payment_url,status,expires_at
+{{base_url}}/api/v1/ext/payment-stops/stp_123/links?status=pending&only_fields=session_id,payment_url,status,expires_at
 ```
 
 # 4. Tabla de Parámetros del Request

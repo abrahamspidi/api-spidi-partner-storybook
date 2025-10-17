@@ -6,7 +6,7 @@ alwaysApply: false
 - This documentations language is primarly spanish but with logic and variable names in english
 - Code snippets in tables should be wrapped like this: <b><i/></b>
 - Tables must be written in basic HTML without styles
-- All urls should start with {{baseUrl}} without initial / but wrapped in quotes
+- All urls should start with {{base_url}} without initial / but wrapped in quotes
 - URLs wrapped with ` even inside tables
 - Code snippets wrapped with ```
 - Do not use <code> tag
@@ -41,7 +41,7 @@ All official documentation must follow this fixed pattern for each endpoint:
 # 2. Endpoint
 Method: **POST**
 ```
-{{baseUrl}}/...
+{{base_url}}/...
 ```
 # 3. Ejemplo del Request
 Method: **POST**
@@ -90,7 +90,7 @@ Cases: ...
 # 2. Request de Plataforma SPIDI
 Method: **POST**
 ```
-{{baseUrl}}/...
+{{base_url}}/...
 ```
 # 3. Tabla explicación de cada campo del Request Plataforma SPIDI 
 <table>...</table>
@@ -98,7 +98,7 @@ Method: **POST**
 # 4. Request de SOFITASA
 Method: **GET**
 ```
-{{baseUrl}}/...
+{{base_url}}/...
 ```
 # 5. MAPEO 1 - Tabla explicación de cada campo del Request SOFITASA
 <table>...</table>

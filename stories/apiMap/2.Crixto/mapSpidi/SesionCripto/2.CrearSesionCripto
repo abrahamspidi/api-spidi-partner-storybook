@@ -18,7 +18,7 @@ import { Meta } from '@storybook/blocks';
 
 ## Permite crear una sesión de pago cripto. 
 
-POST `{{baseUrl}}/api/v1/payment-session/crypto`
+POST `{{base_url}}/api/v1/payment-session/crypto`
 
 ### **2\. de campos del request**
 

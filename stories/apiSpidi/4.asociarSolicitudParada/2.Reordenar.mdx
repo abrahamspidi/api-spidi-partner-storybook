@@ -21,7 +21,7 @@ Este endpoint permite **definir el orden de visualización** de los enlaces de p
 
 Method: **PATCH**
 ```
-{{baseUrl}}/api/v1/ext/payment-stops/reorder
+{{base_url}}/api/v1/ext/payment-stops/reorder
 ```
 
 **Headers**
@@ -176,7 +176,7 @@ La `order_version` aumenta con cada cambio aplicado.
 **Observabilidad y validaciones:**
 
 * **Observabilidad:** registra el orden aplicado y escucha el webhook `stop.links_reordered` (si está habilitado) para sincronizar UIs.
-* **Validaciones previas:** en `strict`, primero consulta `GET {{baseUrl}}/payment-stop/{stop_id}/links?status=pending` para conocer el conjunto activo actual.
+* **Validaciones previas:** en `strict`, primero consulta `GET {{base_url}}/payment-stop/{stop_id}/links?status=pending` para conocer el conjunto activo actual.
 
 # 7. Ejemplos de Response ≠ 200
 
