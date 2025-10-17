@@ -2,67 +2,55 @@ import { Meta } from '@storybook/blocks';
 
 <Meta title="API-SPIDI/Sesion Boton de Pago/3. Crear Sesion B" />
 
-## Crear Sesion de Boton de Pago
 # 1. Descripción
 
-Permite crear una sesión de pago para ser utilizada desde un botón de pago en tu sitio web o aplicación móvil. Funciona con cualquier estrategia de integración: redirección, deeplink o detección manual desde el cliente.
+Este endpoint permite crear una sesión de pago a través del botón de pago en SPIDI con autenticación obligatoria e idempotencia. A diferencia de la versión anterior, incluye `settlement_id` para determinar las reglas de liquidación/split y utiliza `amount_reference` en lugar de `amount`.
 
-Es clave haber leído la documentación de botones de pago antes de usar este endpoint.
+**Funcionalidades principales:**
+- **Autenticación obligatoria**: Requiere token Bearer válido
+- **Idempotencia obligatoria**: Requiere `Idempotency-Key` en headers
+- **Convención de presencia**: Los campos que no aplican no aparecen (no `null`)
+- **Sin tasas en creación**: No incluye `amount_ves` ni tasas en la respuesta
+- **Gestión de liquidación**: Utiliza `settlement_id` para reglas de split
 
 # 2. Endpoint
+
 Method: **POST**
 ```
-{{baseUrl}}/api/v1/ext/payment-sessions/buttons
+"{{baseUrl}}/api/v1/payment-session/button"
 ```
 
 **Headers requeridos:**
-- `Authorization: Bearer {token}`
+- `Authorization: Bearer <token>`
 - `Content-Type: application/json`
-- `Idempotency-Key: {unique_key}`
+- `Idempotency-Key: <UUIDv4>`
 
 # 3. Ejemplo del Request
 
-## 3.1 Crear payment-session con agreement SESSION (porcentajes, 2 receptores)
-
+Method: **POST**
 ```json
 {
-  "currency_reference": "USD",
+  "settlement_id": "2432434",
   "amount_reference": 50.00,
-  "agreement_id": "stl_session_01",
-  "identifier_label": "Nombre del cliente",
-  "identifier": "Juan Pérez",
-  "description": "Pago de servicio de internet",
-  "success_url": "miapp://pago/exitoso",
-  "failure_url": "miapp://pago/fallido",
-  "webhook_url": "https://miapi.com/spidi/webhook",
-  "split": { 
-    "type": "percent",
-    "rules": [
-      { "recipient_id": "owner", "percent": 60.0, "label": "Comercio" },
-      { "recipient_id": "uuid_partner1", "percent": 40.0, "label": "Partner" }
-    ]
-  }
-}
-```
-
-## 3.2 Crear payment-session con agreement SESSION (absolutos, 2 receptores)
-
-```json
-{
   "currency_reference": "USD",
-  "amount_reference": 250.00,
-  "agreement_id": "stl_session_01",
   "identifier_label": "Nombre del cliente",
   "identifier": "Juan Pérez",
-  "description": "Pago de servicio de internet",
-  "success_url": "miapp://pago/exitoso",
-  "failure_url": "miapp://pago/fallido",
+  "description": "Pago de membresía",
+  "success_url": "https://miapp.com/pago-exitoso",
+  "failure_url": "https://miapp.com/pago-fallido",
   "webhook_url": "https://miapi.com/spidi/webhook",
-  "split": { 
-    "type": "absolute",
+  "button_id": "btn_1024",
+  "settlement_rules": {
+    "default_bank_account_id": "acc_sofitasa_001",
     "rules": [
-      { "recipient_id": "owner", "amount_reference": 200.00, "label": "Comercio" },
-      { "recipient_id": "uuid_partner2", "amount_reference": 50.00, "label": "Fijo partner" }
+      {
+        "origin_bank_code": "0105",
+        "destination_bank_account_id": "acc_mercantil_007"
+      },
+      {
+        "origin_bank_code": "0108",
+        "destination_bank_account_id": "acc_provincial_001"
+      }
     ]
   }
 }
@@ -72,15 +60,33 @@ Method: **POST**
 
 <table>
 <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
-<tr><td><b><i>agreement_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador único de tu cuenta en SPIDI.</td></tr>
-<tr><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda referencia base para calcular a bolívares. Opciones: `"USD"`, `"EUR"`, `"COP"`. Para monto fijo en VES, usar `"VES"`. El pago siempre se liquida en VES.</td></tr>
-<tr><td><b><i>amount_reference</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Monto total en la moneda indicada por `currency_reference` (2 decimales).</td></tr>
-<tr><td><b><i>identifier_label</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Título del identificador (ej.: "Nombre y apellido", "Número de orden"). Si no se especifica, se usará el identificador configurado en miSPIDI.</td></tr>
-<tr><td><b><i>identifier</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Valor del identificador (ej.: "Juan Pérez", "FCT-2025-0342"). Útil para trazabilidad interna.</td></tr>
-<tr><td><b><i>description</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Concepto o nota del pago.</td></tr>
-<tr><td><b><i>success_url</i></b></td><td><b><i>string (URL)</i></b></td><td>❌ No</td><td>URL/deeplink al que se redirige si el pago es exitoso.</td></tr>
-<tr><td><b><i>failure_url</i></b></td><td><b><i>string (URL)</i></b></td><td>❌ No</td><td>URL/deeplink al que se redirige si el pago falla o es cancelado.</td></tr>
-<tr><td><b><i>webhook_url</i></b></td><td><b><i>string (URL)</i></b></td><td>❌ No</td><td>URL donde SPIDI notificará cambios de estado vía webhook (HTTPS recomendado).</td></tr>
+<tr><td><b><i>settlement_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador que determina las reglas de liquidación/split</td></tr>
+<tr><td><b><i>amount_reference</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Monto de referencia en la moneda especificada (2 decimales)</td></tr>
+<tr><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda de referencia: <b><i>"USD"</i></b>, <b><i>"EUR"</i></b>, <b><i>"COP"</i></b></td></tr>
+<tr><td><b><i>identifier_label</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Etiqueta descriptiva para el identificador del pagador</td></tr>
+<tr><td><b><i>identifier</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador único del pagador (cédula, email, etc.)</td></tr>
+<tr><td><b><i>description</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Descripción del concepto de pago</td></tr>
+<tr><td><b><i>success_url</i></b></td><td><b><i>string (URL)</i></b></td><td>✔ Sí</td><td>URL de redirección en caso de pago exitoso</td></tr>
+<tr><td><b><i>failure_url</i></b></td><td><b><i>string (URL)</i></b></td><td>✔ Sí</td><td>URL de redirección en caso de pago fallido</td></tr>
+<tr><td><b><i>webhook_url</i></b></td><td><b><i>string (URL)</i></b></td><td>❌ No</td><td>URL para notificaciones de cambio de estado</td></tr>
+<tr><td><b><i>button_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador único del botón de pago</td></tr>
+<tr><td><b><i>settlement_rules</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Reglas de liquidación y distribución de pagos</td></tr>
+</table>
+
+### 4.1 Subtabla: settlement_rules
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>default_bank_account_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Cuenta bancaria por defecto para liquidación</td></tr>
+<tr><td><b><i>rules</i></b></td><td><b><i>array</i></b></td><td>✔ Sí</td><td>Lista de reglas de distribución por código bancario</td></tr>
+</table>
+
+### 4.2 Subtabla: settlement_rules.rules
+
+<table>
+<tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+<tr><td><b><i>origin_bank_code</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Código del banco de origen (ej: "0105")</td></tr>
+<tr><td><b><i>destination_bank_account_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>ID de la cuenta bancaria de destino</td></tr>
 </table>
 
 # 5. Ejemplo de Response 200
@@ -90,9 +96,10 @@ Method: **POST**
   "success": true,
   "message": "Payment session created successfully.",
   "data": {
-    "session_origin": "button",
     "session_id": "3ddc4cfb-c09a-43de-92c1-e4a069732e90",
-    "payment_url": "{url}/?id=3ddc4cfb-c09a-43de-92c1-e4a069732e90",
+    "session_origin": "button",
+    "button_id": "btn_1024",
+    "payment_url": "{{baseUrl}}/?id=3ddc4cfb-c09a-43de-92c1-e4a069732e90",
     "currency_reference": "USD",
     "amount_reference": 50.00,
     "identifier_label": "Nombre del cliente",
@@ -101,7 +108,7 @@ Method: **POST**
     "success_url": "https://miapp.com/pago-exitoso",
     "failure_url": "https://miapp.com/pago-fallido",
     "webhook_url": "https://miapi.com/spidi/webhook",
-    "created_at": "2025-09-18T20:45:00Z"
+    "created_at": "2025-10-13T14:10:00Z"
   }
 }
 ```
@@ -113,111 +120,74 @@ Method: **POST**
 <table>
 <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
 <tr><td><b><i>success</i></b></td><td><b><i>boolean</i></b></td><td>✔ Sí</td><td>Indica si la operación fue exitosa</td></tr>
-<tr><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Mensaje de confirmación</td></tr>
-<tr><td><b><i>data</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Datos de la sesión creada</td></tr>
+<tr><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Mensaje de confirmación de la creación</td></tr>
+<tr><td><b><i>data</i></b></td><td><b><i>object</i></b></td><td>✔ Sí</td><td>Datos de la sesión de pago creada</td></tr>
 </table>
 
 ### 6.1 Subtabla: data
 
 <table>
 <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
-<tr><td><b><i>session_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Identificador único de la sesión</td></tr>
-<tr><td><b><i>payment_url</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>URL donde el usuario realiza el pago</td></tr>
-<tr><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco del request</td></tr>
-<tr><td><b><i>amount</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Eco del request</td></tr>
-<tr><td><b><i>amount_ves</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Monto calculado en VES al crear la sesión</td></tr>
-<tr><td><b><i>amount_usd</i></b></td><td><b><i>number</i></b></td><td>❌ No</td><td>En desuso. Referencial</td></tr>
-<tr><td><b><i>bcv_exchange_rate</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Tasa oficial usada para la conversión. Si `currency_reference` es `VES`, devolverá `USD`.</td></tr>
-<tr><td><b><i>exchange_rate_from</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda base de la tasa. Si `currency_reference` es `VES`, devolverá `USD`.</td></tr>
-<tr><td><b><i>exchange_rate_to</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Moneda destino (siempre `VES`).</td></tr>
-<tr><td><b><i>identifier_label</i></b></td><td><b><i>string</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
-<tr><td><b><i>identifier</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco del request</td></tr>
-<tr><td><b><i>description</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
-<tr><td><b><i>success_url</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
-<tr><td><b><i>failure_url</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
-<tr><td><b><i>webhook_url</i></b></td><td><b><i>string|null</i></b></td><td>❌ No</td><td>Eco del request</td></tr>
-<tr><td><b><i>created_at</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Fecha y hora de creación de la sesión de pago (ISO 8601).</td></tr>
+<tr><td><b><i>session_id</i></b></td><td><b><i>string (UUID)</i></b></td><td>✔ Sí</td><td>Identificador único de la sesión de pago</td></tr>
+<tr><td><b><i>session_origin</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Origen de la sesión: <b><i>"button"</i></b></td></tr>
+<tr><td><b><i>button_id</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco del button_id enviado en el request</td></tr>
+<tr><td><b><i>payment_url</i></b></td><td><b><i>string (URL)</i></b></td><td>✔ Sí</td><td>URL donde el usuario puede realizar el pago</td></tr>
+<tr><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco de la moneda de referencia</td></tr>
+<tr><td><b><i>amount_reference</i></b></td><td><b><i>number</i></b></td><td>✔ Sí</td><td>Eco del monto de referencia</td></tr>
+<tr><td><b><i>identifier_label</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco de la etiqueta del identificador</td></tr>
+<tr><td><b><i>identifier</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco del identificador del pagador</td></tr>
+<tr><td><b><i>description</i></b></td><td><b><i>string</i></b></td><td>✔ Sí</td><td>Eco de la descripción del pago</td></tr>
+<tr><td><b><i>success_url</i></b></td><td><b><i>string (URL)</i></b></td><td>✔ Sí</td><td>Eco de la URL de éxito</td></tr>
+<tr><td><b><i>failure_url</i></b></td><td><b><i>string (URL)</i></b></td><td>✔ Sí</td><td>Eco de la URL de fallo</td></tr>
+<tr><td><b><i>webhook_url</i></b></td><td><b><i>string (URL)</i></b></td><td>❌ No</td><td>Eco de la URL del webhook (si se proporcionó)</td></tr>
+<tr><td><b><i>created_at</i></b></td><td><b><i>string (ISO 8601)</i></b></td><td>✔ Sí</td><td>Fecha y hora de creación de la sesión</td></tr>
 </table>
 
 # 7. Ejemplos de Response ≠ 200
 
 ### Error 400 - Bad Request
+
 ```json
 {
   "success": false,
-  "message": "Missing required field: amount",
+  "message": "Invalid request parameters",
   "errors": {
-    "amount": "This field is required."
+    "settlement_id": "Settlement ID is required",
+    "amount_reference": "Amount must be greater than 0"
   }
 }
 ```
 
-### Error 401/403 - Unauthorized/Forbidden
-```json
-{
-  "success": false,
-  "message": "Unauthorized.",
-  "errors": {
-    "spidi_id": "The merchant does not match the provided credentials."
-  }
-}
-```
+### Error 401 - Unauthorized
 
-### Error 409 - Conflict (Idempotency)
 ```json
 {
   "success": false,
-  "message": "Conflict: duplicated request.",
+  "message": "Unauthorized access",
   "errors": {
-    "Idempotency-Key": "A session already exists for this key."
+    "authorization": "Invalid or missing Bearer token"
   }
 }
 ```
 
 ### Error 422 - Unprocessable Entity
+
 ```json
 {
   "success": false,
-  "message": "Unprocessable entity.",
+  "message": "Idempotency key already used",
   "errors": {
-    "currency_reference": "Allowed values are: 'VES', 'USD'.",
-    "amount": "Must be a number > 0 with two decimals."
+    "idempotency_key": "This idempotency key has already been used"
   }
 }
 ```
 
-### Error 500 - Internal Server Error
-```json
-{
-  "success": false,
-  "message": "Internal server error."
-}
-```
-
-# 8. Tabla de explicación de cada campo de los distintos Response (errores)
-
-## 8.1 Campos de nivel raíz (errores 4xx/5xx)
+# 8. Tabla de Errores
 
 <table>
-<tr><th>Campo</th><th>Tipo dato</th><th>Descripción</th></tr>
-<tr><td><b><i>success</i></b></td><td><b><i>boolean</i></b></td><td>Siempre false en caso de error.</td></tr>
-<tr><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>Resumen legible del error principal.</td></tr>
-<tr><td><b><i>errors</i></b></td><td><b><i>objeto | null</i></b></td><td>Detalle por campo (opcional).</td></tr>
-</table>
-
-## 8.2 Subtabla: errors (cuando exista)
-
-<table>
-<tr><th>Código de error (HTTP)</th><th>Clave (campo)</th><th>Tipo dato</th><th>Descripción</th></tr>
-<tr><td>400 Bad Request</td><td><b><i>amount</i></b></td><td><b><i>string</i></b></td><td>Error de validación en el monto (faltante, no numérico, ≤ 0).</td></tr>
-<tr><td>400 Bad Request</td><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>Valor inválido (solo "VES" | "USD" según política actual).</td></tr>
-<tr><td>400 Bad Request</td><td><b><i>spidi_id</i></b></td><td><b><i>string</i></b></td><td>Faltante, UUID inválido o no coincide con las credenciales del comercio.</td></tr>
-<tr><td>400 Bad Request</td><td><b><i>success_url</i></b></td><td><b><i>string</i></b></td><td>URL malformada (si se envió).</td></tr>
-<tr><td>400 Bad Request</td><td><b><i>failure_url</i></b></td><td><b><i>string</i></b></td><td>URL malformada (si se envió).</td></tr>
-<tr><td>401 Unauthorized</td><td><b><i>spidi_id</i></b></td><td><b><i>string</i></b></td><td>El comercio no coincide con las credenciales proporcionadas.</td></tr>
-<tr><td>403 Forbidden</td><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>No tienes permisos para esta operación.</td></tr>
-<tr><td>409 Conflict</td><td><b><i>Idempotency-Key</i></b></td><td><b><i>string</i></b></td><td>Ya existe una sesión para esta clave.</td></tr>
-<tr><td>422 Unprocessable Entity</td><td><b><i>currency_reference</i></b></td><td><b><i>string</i></b></td><td>Valores permitidos son: 'VES', 'USD'.</td></tr>
-<tr><td>422 Unprocessable Entity</td><td><b><i>amount</i></b></td><td><b><i>string</i></b></td><td>Debe ser un número > 0 con dos decimales.</td></tr>
-<tr><td>500 Internal Server Error</td><td><b><i>message</i></b></td><td><b><i>string</i></b></td><td>Error interno del servidor.</td></tr>
+<tr><th>Código HTTP</th><th>Código de Error</th><th>Descripción</th><th>Campos de Error</th></tr>
+<tr><td>400</td><td><b><i>VALIDATION_ERROR</i></b></td><td>Datos de request inválidos</td><td><b><i>field</i></b>, <b><i>message</i></b></td></tr>
+<tr><td>401</td><td><b><i>UNAUTHORIZED</i></b></td><td>Token de autenticación inválido o faltante</td><td><b><i>authorization</i></b>, <b><i>message</i></b></td></tr>
+<tr><td>422</td><td><b><i>IDEMPOTENCY_KEY_USED</i></b></td><td>Clave de idempotencia ya utilizada</td><td><b><i>idempotency_key</i></b>, <b><i>message</i></b></td></tr>
+<tr><td>500</td><td><b><i>INTERNAL_SERVER_ERROR</i></b></td><td>Error interno del servidor</td><td><b><i>message</i></b></td></tr>
 </table>
